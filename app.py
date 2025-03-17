@@ -23,6 +23,10 @@ st.set_page_config(
     layout="wide"
 )
 
+
+
+
+
 # Importa a fonte Poppins do Google Fonts
 st.markdown("""
     <style>
@@ -777,11 +781,13 @@ if st.session_state["authentication_status"]:
 
     with col1:
         if logo:
+            st.markdown('<div style="margin-top: -100px;">', unsafe_allow_html=True)  # Reduzir espaço acima do logo
             st.image(logo, width=350)
+            st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
         st.markdown("""
-            <h1 style="white-space: nowrap;">Indicadores de Crescimento - Metas 2025 📈</h1>
+            <h1 style="white-space: nowrap; margin-top: -20px;">Indicadores de Crescimento - Metas 2025 📈</h1>
         """, unsafe_allow_html=True)
         st.caption(f"Última atualização: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
         
