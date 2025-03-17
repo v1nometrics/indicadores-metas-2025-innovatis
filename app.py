@@ -171,8 +171,8 @@ authenticator.login()
 
 # Verificação do status da autenticação
 if st.session_state["authentication_status"]:
-    authenticator.logout("Logout", "main", key="logout_sidebar")
-    st.write(f"Bem-vindo, {st.session_state['name']}!")
+    # Removendo a mensagem de boas-vindas e o botão de logout daqui
+    pass  # Adicionando pass para manter a estrutura do bloco if
 elif st.session_state["authentication_status"] is False:
     st.error('Usuário/Senha inválido')
 elif st.session_state["authentication_status"] is None:
@@ -692,7 +692,7 @@ if st.session_state["authentication_status"]:
                     y=i + 0.5,  # Entre as etapas
                     xref="paper",
                     yref="y",
-                    text=f"↓ <b>Taxa de conversão: {conversion_percent}</b>",
+                    text=f"↓ <b>Conversão: {conversion_percent}</b>",
                     showarrow=False,
                     font=dict(size=13, color="#555", family="Poppins"),
                     bgcolor="rgba(255,255,255,0.9)",
@@ -784,6 +784,10 @@ if st.session_state["authentication_status"]:
             <h1 style="white-space: nowrap;">Indicadores de Crescimento - Metas 2025 📈</h1>
         """, unsafe_allow_html=True)
         st.caption(f"Última atualização: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+        
+        # Adicionar mensagem de boas-vindas e botão de logout abaixo da última atualização
+        st.write(f"Bem-vindo, {st.session_state['name']}!")
+        authenticator.logout("Logout", "main", key="logout_sidebar")
 
     # Carregar dados
     with st.spinner("Carregando dados..."):
@@ -910,8 +914,8 @@ if st.session_state["authentication_status"]:
                     <p style='color: white; font-size: 32px; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);'>
                         R$ {formatted_value}
                     </p>
-                    <p style='color: white; margin-top: 5px; font-size: 14px; opacity: 0.9;'>
-                        {formatted_percent}% da meta final
+                    <p style='color: white; margin-top: 5px; font-size: 17px; opacity: 0.9;'>
+                        {formatted_percent}% da Meta Final
                     </p>
                 </div>
             """, unsafe_allow_html=True)
