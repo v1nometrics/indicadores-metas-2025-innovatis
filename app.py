@@ -1502,13 +1502,13 @@ if st.session_state["authentication_status"]:
                     </div>
                 </div>
                 <div style="display: flex; align-items: center;">
-                    <div style="background-color: #E8F5E9; color: #2E8B57; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+                    <div style="background-color: #FFEBEE; color: #C00000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
                         <span style="font-size: 16px;">⏱️</span>
                     </div>
                     <div>
                         <p style="margin: 0; font-size: 14px; font-weight: 500;">Etapa mais demorada</p>
                         <p style="margin: 3px 0 0 0; font-size: 14px; color: #666;">
-                            <span style="color: #2E8B57; font-weight: 600;">{max_time_stage}</span> ({max_time_value} dias)
+                            <span style="color: #C00000; font-weight: 600;">{max_time_stage}</span> ({max_time_value} dias)
                         </p>
                         <p style="margin: 3px 0 0 0; font-size: 12px; color: #666; font-style: italic;">Excluindo a etapa de Execução (que naturalmente é mais longa)</p>
                     </div>
@@ -1590,6 +1590,3 @@ if st.session_state["authentication_status"]:
     st.markdown("---")
     st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas © Innovatis 2025</div>", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
-
-
