@@ -23,10 +23,6 @@ st.set_page_config(
     layout="wide"
 )
 
-
-
-
-
 # Importa a fonte Poppins do Google Fonts
 st.markdown("""
     <style>
@@ -330,28 +326,28 @@ if st.session_state["authentication_status"]:
             
             # Seção 3: Captação Digital (Linhas 11-13)
             if len(valores) >= 16:
-                # Linha 11 (índice 10) contém os cabeçalhos
-                captacao_headers = valores[13][1:8]  # Colunas B-H
+                # Linha 13 (índice 13) contém os cabeçalhos para a nova estrutura
+                captacao_headers = valores[13][1:9]  # Colunas B-I (8 colunas)
                 
-                # Linhas 12-13 (índices 11-12) contêm os dados: INSTAGRAM e WEBSITE
+                # Linhas 14-16 (índices 14-15) contêm os dados: INSTAGRAM (atual e passado)
                 captacao_data = []
                 for i in range(14, 16):
-                    # Coluna B contém o nome, colunas C-H contêm os valores
-                    captacao_data.append(valores[i][1:8])
+                    # Coluna B contém o nome, colunas C-I contêm os valores
+                    captacao_data.append(valores[i][1:9])
                 
-                # Criar DataFrame com os nomes das colunas corretos
+                # Criar DataFrame com os nomes das colunas corretos - nova estrutura
                 df_captacao = pd.DataFrame(captacao_data, 
-                                        columns=['Captação Digital', 'Alcance', 'Variação (Alcance)', 
-                                                'Impressões', 'Variação (Impressões)', 
-                                                'Cliques', 'Variação (Cliques)'])
+                                        columns=['Captação Digital', 'Impressões', 'Alcance', 
+                                               'Visitas no Perfil', 'Cliques no link da bio', 
+                                               'Taxa de engajamento', 'Top conteudo 1', 'Top conteudo 2'])
                 
                 # Converter colunas numéricas e porcentagens
                 for col in df_captacao.columns:
-                    if 'Variação' in col:
+                    if col == 'Taxa de engajamento':
                         df_captacao[col] = df_captacao[col].apply(
                             lambda x: float(str(x).replace('%', '').strip()) / 100 if isinstance(x, str) and x and x != '-' else 0
                         )
-                    elif col != 'Captação Digital':  # Não converter a coluna de nomes
+                    elif col not in ['Captação Digital', 'Top conteudo 1', 'Top conteudo 2']:  # Não converter colunas de texto
                         df_captacao[col] = pd.to_numeric(df_captacao[col], errors='coerce')
                         # Substituir NaN por 0
                         df_captacao[col] = df_captacao[col].fillna(0)
@@ -722,7 +718,7 @@ if st.session_state["authentication_status"]:
             funnelmode="stack",
             showlegend=False,
             plot_bgcolor='rgba(255,255,255,0)',
-            paper_bgcolor='rgba(255,255,255,0)',
+            paper_bgcolor='rgba(255,255,255,0)'
         )
         
         # Adicionar uma legenda explicativa com estilo mais elegante
@@ -906,7 +902,7 @@ if st.session_state["authentication_status"]:
             }
             </style>
             """, unsafe_allow_html=True)
-            
+                
             # ================== AQUI ESTÃO AS ALTERAÇÕES DA BARRA DE PROGRESSO ===================
             # Calcular o percentual de progresso (até a meta final de 50M, por exemplo)
             percentual_progresso = min((faturamento['atual'] / faturamento['meta3_2025']) * 100, 100)
@@ -1100,10 +1096,10 @@ if st.session_state["authentication_status"]:
             </div>
             </table>
             """
-            
+                
             # Dividindo a tabela em partes menores para evitar problemas de renderização
             st.markdown(markers_table, unsafe_allow_html=True)
-            
+                
             # Espaçamento após os marcadores
             st.markdown("<div style='margin-bottom: 5px;'></div>", unsafe_allow_html=True)
 
@@ -1435,7 +1431,7 @@ if st.session_state["authentication_status"]:
                     <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_oportunidades}</p>
                 </div>
                 """, unsafe_allow_html=True)
-                
+                    
                 st.markdown(f"""
                 <div style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #70AD47;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Taxa de Conversão Total</h4>
@@ -1450,7 +1446,7 @@ if st.session_state["authentication_status"]:
                     <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_contratos}</p>
                 </div>
                 """, unsafe_allow_html=True)
-                
+                    
                 st.markdown(f"""
                 <div style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #C00000;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Tempo Médio Total (Exceto Execução) </h4>
@@ -1525,74 +1521,377 @@ if st.session_state["authentication_status"]:
     st.markdown("---")
 
     # Seção 3: Captação Digital
-    st.header("Captação Digital")
+    st.markdown("""
+    <div style="background: linear-gradient(90deg, #833AB4, #FD1D1D, #FCAF45); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <h2 style="color: white; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Captação Digital</h2>
+                <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0; font-size: 15px;">Métricas e desempenho da presença digital</p>
+            </div>
+            <div style="font-size: 32px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                📱 📊
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     df_captacao = data["captacao_digital"]
 
-    col_1, col_2, col_3, col_4, col_5 = st.columns([0.5, 0.5, 1, 1, 1])
-
     if not df_captacao.empty:
         instagram_row = df_captacao[df_captacao['Captação Digital'] == 'INSTAGRAM']
-        website_row = df_captacao[df_captacao['Captação Digital'] == 'WEBSITE']
+        instagram_past_row = df_captacao[df_captacao['Captação Digital'] == 'INSTAGRAM (Past)']
         
-        if not instagram_row.empty and not website_row.empty:
-            with col_1:
-                st.markdown("<h3 class='section-title'>Instagram</h3>", unsafe_allow_html=True)
-                st.markdown("<div class='metrics-container'>", unsafe_allow_html=True)
+        if not instagram_row.empty and not instagram_past_row.empty:
+            # Adicionar estilo CSS para cards de métricas e links
+            st.markdown("""
+            <style>
+                .social-metrics-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                    margin-bottom: 20px;
+                }
                 
-                for metric, title in [
-                    ('alcance', 'Alcance'), 
-                    ('impressoes', 'Impressões'), 
-                    ('cliques', 'Cliques')
-                ]:
-                    value = int(instagram_row[title].values[0])
-                    variation = float(instagram_row[f'Variação ({title})'].values[0]) * 100
-                    variation_class = "variation-positive" if variation >= 0 else "variation-negative"
-                    variation_symbol = "↑" if variation >= 0 else "↓"
-                    
-                    st.markdown(f"""
-                        <div class="metric-card" style="margin-bottom: 10px; min-width: 180px;">
-                            <div class="metric-title">{title}</div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
-                                <span class="metric-value">{value:,}</span>
-                                <span class="metric-variation {variation_class}" style="font-size: 1.2em;">
-                                    {variation_symbol} {abs(variation):.1f}%
-                                </span>
-                            </div>
-                        </div>
-                    """, unsafe_allow_html=True)
+                .social-metric-card {
+                    background: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                    padding: 15px;
+                    flex: 1;
+                    min-width: 160px;
+                    position: relative;
+                    transition: transform 0.3s;
+                }
                 
-                st.markdown("</div>", unsafe_allow_html=True)
+                .social-metric-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+                }
+                
+                .metric-icon {
+                    position: absolute;
+                    top: 15px;
+                    right: 15px;
+                    font-size: 22px;
+                    opacity: 0.2;
+                }
+                
+                .metric-title {
+                    color: #666;
+                    font-size: 14px;
+                    margin-bottom: 15px;
+                    font-weight: 500;
+                }
+                
+                .metric-value {
+                    font-size: 28px;
+                    font-weight: 600;
+                    color: #333;
+                    margin-bottom: 5px;
+                }
+                
+                .metric-comparison {
+                    font-size: 14px;
+                    color: #666;
+                    display: flex;
+                    align-items: center;
+                    margin-top: 8px;
+                }
+                
+                .metric-past {
+                    padding: 3px 8px;
+                    border-radius: 4px;
+                    background: #f0f0f0;
+                    margin-left: 5px;
+                }
+                
+                .content-card {
+                    background: linear-gradient(135deg, #fdfbfb 0%, #f2f6f7 100%);
+                    border-radius: 10px;
+                    padding: 15px;
+                    margin-bottom: 15px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                    display: flex;
+                    align-items: center;
+                    transition: transform 0.3s;
+                }
+                
+                .content-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+                }
+                
+                .content-icon {
+                    font-size: 24px;
+                    margin-right: 15px;
+                }
+                
+                .content-link {
+                    flex-grow: 1;
+                    text-decoration: none;
+                    color: #1a73e8;
+                    font-weight: 500;
+                    word-break: break-all;
+                }
+                
+                .engagement-indicator {
+                    height: 8px;
+                    border-radius: 4px;
+                    background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+                    margin-top: 5px;
+                }
+                
+                .metric-badge {
+                    position: absolute;
+                    top: 0;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: #FF9500;
+                    color: white;
+                    font-size: 12px;
+                    padding: 3px 10px;
+                    border-radius: 12px;
+                    font-weight: 500;
+                    white-space: nowrap;
+                }
+            </style>
+            """, unsafe_allow_html=True)
+                
+            # Criar linha de métricas principais
+            st.subheader("Métricas do Instagram")
             
-            with col_2:
-                st.markdown("<h3 class='section-title'>Website</h3>", unsafe_allow_html=True)
-                st.markdown("<div class='metrics-container'>", unsafe_allow_html=True)
+            # Criar container de métricas
+            st.markdown('<div class="social-metrics-container">', unsafe_allow_html=True)
+            
+            # Definir métricas e ícones
+            metrics = [
+                {"col": "Impressões", "icon": "👁️", "title": "Impressões"},
+                {"col": "Alcance", "icon": "🔍", "title": "Alcance"},
+                {"col": "Visitas no Perfil", "icon": "👤", "title": "Visitas no Perfil"},
+                {"col": "Cliques no link da bio", "icon": "🔗", "title": "Cliques no Link"},
+                {"col": "Taxa de engajamento", "icon": "❤️", "title": "Engajamento", "is_percentage": True}
+            ]
+            
+            # Renderizar cards de métricas
+            for metric in metrics:
+                col_name = metric["col"]
+                current_value = instagram_row[col_name].values[0]
+                past_value = instagram_past_row[col_name].values[0]
+                is_percentage = metric.get("is_percentage", False)
                 
-                for metric, title in [
-                    ('alcance', 'Alcance'), 
-                    ('impressoes', 'Impressões')
-                ]:
-                    value = int(website_row[title].values[0])
-                    variation = float(website_row[f'Variação ({title})'].values[0]) * 100
-                    variation_class = "variation-positive" if variation >= 0 else "variation-negative"
+                # Calcular variação
+                if past_value > 0:
+                    variation = ((current_value - past_value) / past_value) * 100
+                    variation_class = "positive" if variation >= 0 else "negative"
                     variation_symbol = "↑" if variation >= 0 else "↓"
-                    
-                    st.markdown(f"""
-                        <div class="metric-card" style="margin-bottom: 10px; min-width: 180px;">
-                            <div class="metric-title">{title}</div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
-                                <span class="metric-value">{value:,}</span>
-                                <span class="metric-variation {variation_class}" style="font-size: 1.2em;">
-                                    {variation_symbol} {abs(variation):.1f}%
-                                </span>
+                    variation_color = "#4CAF50" if variation >= 0 else "#F44336"
+                else:
+                    variation = 0
+                    variation_class = "neutral"
+                    variation_symbol = "•"
+                    variation_color = "#9E9E9E"
+                
+                # Formatar valores
+                if is_percentage:
+                    formatted_current = f"{current_value:.1%}"
+                    formatted_past = f"{past_value:.1%}"
+                else:
+                    formatted_current = f"{int(current_value):,}".replace(",", ".")
+                    formatted_past = f"{int(past_value):,}".replace(",", ".")
+                
+                # Renderizar card
+                st.markdown(f"""
+                <div class="social-metric-card">
+                    <div class="metric-icon">{metric["icon"]}</div>
+                    <h4 class="metric-title">{metric["title"]}</h4>
+                    <div class="metric-value">{formatted_current}</div>
+                    <div class="metric-comparison">
+                        <span style="color: {variation_color}; margin-right: 8px;">{variation_symbol} {abs(variation):.1f}%</span>
+                        vs <span class="metric-past">{formatted_past}</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Criar seção para os top conteúdos
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%); border-radius: 10px; padding: 20px; margin: 30px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <h3 style="margin-top: 0; color: #333; font-size: 22px; border-bottom: 2px solid #EEE; padding-bottom: 10px;">Conteúdos de Maior Desempenho</h3>
+                <p style="color: #666; font-size: 15px; margin-bottom: 20px;">As postagens abaixo apresentaram o maior engajamento e alcance no período analisado.</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                top_content_1 = instagram_row['Top conteudo 1'].values[0]
+                st.markdown(f"""
+                <div style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
+                    <div style="background: linear-gradient(90deg, #833AB4, #FD1D1D); height: 8px;"></div>
+                    <div style="position: absolute; top: 20px; left: 20px; background: #FF9500; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(255, 149, 0, 0.3);">TOP #1</div>
+                    <div style="padding: 25px 20px 20px 20px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #833AB4, #FD1D1D, #FCAF45); display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <span style="font-size: 24px; color: white;">🥇</span>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0 0 5px 0; color: #333; font-size: 18px;">Melhor Conteúdo</h4>
+                                <p style="margin: 0; color: #666; font-size: 13px;">Maior engajamento na plataforma</p>
                             </div>
                         </div>
-                    """, unsafe_allow_html=True)
+                        
+                        <div style="background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
+                            <a href="{top_content_1}" target="_blank" style="color: #1a73e8; text-decoration: none; font-weight: 500; word-break: break-all; display: block;">
+                                <div style="display: flex; align-items: center;">
+                                    <span style="margin-right: 8px; font-size: 18px;">🔗</span>
+                                    <span>{top_content_1}</span>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <a href="{top_content_1}" target="_blank" style="background: #1a73e8; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
+                            Ver no Instagram <span style="margin-left: 5px;">➔</span>
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col2:
+                top_content_2 = instagram_row['Top conteudo 2'].values[0]
+                st.markdown(f"""
+                <div style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
+                    <div style="background: linear-gradient(90deg, #833AB4, #5851DB); height: 8px;"></div>
+                    <div style="position: absolute; top: 20px; left: 20px; background: #5851DB; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(88, 81, 219, 0.3);">TOP #2</div>
+                    <div style="padding: 25px 20px 20px 20px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #833AB4, #5851DB); display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <span style="font-size: 24px; color: white;">🥈</span>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0 0 5px 0; color: #333; font-size: 18px;">Segundo Melhor Conteúdo</h4>
+                                <p style="margin: 0; color: #666; font-size: 13px;">Alto desempenho na plataforma</p>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
+                            <a href="{top_content_2}" target="_blank" style="color: #5851DB; text-decoration: none; font-weight: 500; word-break: break-all; display: block;">
+                                <div style="display: flex; align-items: center;">
+                                    <span style="margin-right: 8px; font-size: 18px;">🔗</span>
+                                    <span>{top_content_2}</span>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <a href="{top_content_2}" target="_blank" style="background: #5851DB; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
+                            Ver no Instagram <span style="margin-left: 5px;">➔</span>
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Taxa de engajamento com barra de progresso estilizada
+            engagement_rate = instagram_row['Taxa de engajamento'].values[0]
+            
+            st.markdown("<div style='margin-top: 40px; margin-bottom: 15px;'></div>", unsafe_allow_html=True)
+            
+            # Determine engagement quality and color based on rate
+            engagement_quality = "Excelente" if engagement_rate >= 0.03 else "Bom" if engagement_rate >= 0.01 else "Médio" if engagement_rate >= 0.005 else "Baixo"
+            engagement_color = "#4CAF50" if engagement_rate >= 0.03 else "#2196F3" if engagement_rate >= 0.01 else "#FF9800" if engagement_rate >= 0.005 else "#F44336"
+            
+            # Criar gauge card para a taxa de engajamento
+            st.markdown(f"""
+            <div style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 40px;">
+                <div style="background: linear-gradient(90deg, #833AB4, #FD1D1D, #FCAF45); padding: 20px;">
+                    <h3 style="margin: 0; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2); display: flex; align-items: center;">
+                        <span style="margin-right: 12px; font-size: 24px;">❤️</span> Taxa de Engajamento
+                    </h3>
+                </div>
                 
-                st.markdown("</div>", unsafe_allow_html=True)
+                <div style="padding: 25px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500; color: #666; margin-bottom: 5px; font-size: 15px;">Engajamento atual</div>
+                            <div style="display: flex; align-items: baseline;">
+                                <span style="font-size: 42px; font-weight: 700; color: {engagement_color};">{engagement_rate:.1%}</span>
+                                <span style="margin-left: 8px; font-size: 15px; color: #666; font-weight: 500;">({engagement_quality})</span>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <div style="height: 8px; background-color: #f0f0f0; border-radius: 4px; margin-bottom: 10px; position: relative;">
+                                    <div style="position: absolute; top: 0; left: 0; height: 100%; width: {min(engagement_rate * 100 * 10, 100)}%; border-radius: 4px; background: linear-gradient(90deg, {engagement_color} 0%, {engagement_color}AA 100%);"></div>
+                                </div>
+                                
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                                    <span style="color: #777; font-size: 13px;">0%</span>
+                                    <span style="color: #777; font-size: 13px;">5%</span>
+                                    <span style="color: #777; font-size: 13px;">10%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="border-left: 1px solid #eee; padding-left: 25px; margin-left: 25px; flex: 1;">
+                            <h4 style="margin-top: 0; color: #333; font-size: 16px; margin-bottom: 15px;">Referências de Mercado</h4>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 14px; color: #666;">Baixo</span>
+                                    <span style="font-size: 14px; font-weight: 500; color: #F44336;">< 0.5%</span>
+                                </div>
+                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                    <div style="height: 100%; width: 25%; border-radius: 3px; background-color: #F44336;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 14px; color: #666;">Médio</span>
+                                    <span style="font-size: 14px; font-weight: 500; color: #FF9800;">0.5% - 1%</span>
+                                </div>
+                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                    <div style="height: 100%; width: 50%; border-radius: 3px; background-color: #FF9800;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 14px; color: #666;">Bom</span>
+                                    <span style="font-size: 14px; font-weight: 500; color: #2196F3;">1% - 3%</span>
+                                </div>
+                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                    <div style="height: 100%; width: 75%; border-radius: 3px; background-color: #2196F3;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 14px; color: #666;">Excelente</span>
+                                    <span style="font-size: 14px; font-weight: 500; color: #4CAF50;">> 3%</span>
+                                </div>
+                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                    <div style="height: 100%; width: 100%; border-radius: 3px; background-color: #4CAF50;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 25px; background-color: #f9f9f9; border-radius: 8px; padding: 15px; border-left: 4px solid #833AB4;">
+                        <p style="margin: 0; color: #555; font-size: 14px;">
+                            <span style="font-weight: 600; color: #833AB4;">💡 Dica:</span> 
+                            Para aumentar a taxa de engajamento, publique conteúdos que incentivem a interação dos seguidores, como enquetes, perguntas e conteúdos que gerem discussão. Responder aos comentários também pode aumentar significativamente o envolvimento.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
         else:
             st.warning("Dados incompletos para Captação Digital.")
+    else:
+        st.warning("Não há dados disponíveis para Captação Digital.")
 
     st.markdown("---")
     st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas © Innovatis 2025</div>", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
+
+
+
