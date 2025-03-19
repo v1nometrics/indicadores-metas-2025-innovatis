@@ -80,16 +80,16 @@ st.markdown("""
         /* Estilo para o título da métrica */
         .metric-title {
             color: #333333;
-            font-size: 14px;
-            margin-bottom: 5px;
-            font-weight: 400;
+            font-size: 16px;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
         
         /* Ajuste para o valor principal */
         .metric-value {
-            font-size: 2em;  /* Tamanho da fonte */
+            font-size: 2.1em;  /* Tamanho da fonte aumentado */
             color: #333;
-            font-weight: 500;
+            font-weight: 600;
             margin-right: 8px;
             display: inline-block;
             align-self: flex-start; /* Alinhamento à esquerda */
@@ -136,7 +136,106 @@ st.markdown("""
             padding: 0 20px;
         }
             
+        .social-metrics-container {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 5px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .social-metrics-container {
+                justify-content: flex-start;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+        }
+        
+        .social-metric-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 15px;
+            flex: 0 0 auto;
+            width: 140px;
+            height: 140px;
+            position: relative;
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin: 5px;
+        }
+        
+        .social-metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .metric-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 22px;
+            opacity: 0.2;
+        }
+        
+        .metric-title {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .metric-comparison {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            margin-top: auto;
+        }
+        
+        .metric-past {
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f0f0f0;
+            margin-left: 5px;
+            font-size: 11px;
+        }
 
+        /* Estilo para os cards de métricas do Instagram */
+        .instagram-metric-card-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .instagram-metric-card-content {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -197,6 +296,32 @@ if st.session_state["authentication_status"]:
         aws_access_key_id='AKIA47GB733YQT2N7HNC',
         aws_secret_access_key='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'
     )
+
+    # =========================================================================
+    # Carregamento e Processamento de Dados
+    # =========================================================================
+    def convert_instagram_url_to_embed(url):
+        """
+        Converte uma URL normal do Instagram para uma URL de incorporação (embed).
+        
+        Exemplos de conversão:
+        - https://www.instagram.com/p/ABC123/ -> https://www.instagram.com/p/ABC123/embed/
+        - https://www.instagram.com/innovatismc/reel/DHV-f0vJ9aH/ -> https://www.instagram.com/innovatismc/reel/DHV-f0vJ9aH/embed/
+        - https://www.instagram.com/innovatismc/p/DHlmJ2p1zS/ -> https://www.instagram.com/innovatismc/p/DHlmJ2p1zS/embed/
+        """
+        # Se a URL já termina com /embed/ ou não é uma URL válida, retornar como está
+        if not url or not isinstance(url, str) or url.endswith('/embed/'):
+            return url
+        
+        # Remover parâmetros de consulta (tudo após ?)
+        url = url.split('?')[0]
+        
+        # Garantir que a URL termina com barra
+        if not url.endswith('/'):
+            url += '/'
+            
+        # Adicionar 'embed/' ao final da URL
+        return url + 'embed/'
 
     # Função para carregar o logo da empresa
     @st.cache_data
@@ -324,30 +449,26 @@ if st.session_state["authentication_status"]:
             else:
                 df_plataformas = pd.DataFrame()
             
-            # Seção 3: Captação Digital (Linhas 11-13)
+            # Seção 3: Captação Digital (Linhas 14-16)
             if len(valores) >= 16:
                 # Linha 13 (índice 13) contém os cabeçalhos para a nova estrutura
-                captacao_headers = valores[13][1:9]  # Colunas B-I (8 colunas)
+                captacao_headers = valores[13][1:10]  # Colunas B-J (9 colunas)
                 
                 # Linhas 14-16 (índices 14-15) contêm os dados: INSTAGRAM (atual e passado)
                 captacao_data = []
                 for i in range(14, 16):
-                    # Coluna B contém o nome, colunas C-I contêm os valores
-                    captacao_data.append(valores[i][1:9])
+                    # Coluna B contém o nome, colunas C-J contêm os valores
+                    captacao_data.append(valores[i][1:10])
                 
                 # Criar DataFrame com os nomes das colunas corretos - nova estrutura
                 df_captacao = pd.DataFrame(captacao_data, 
                                         columns=['Captação Digital', 'Impressões', 'Alcance', 
                                                'Visitas no Perfil', 'Cliques no link da bio', 
-                                               'Taxa de engajamento', 'Top conteudo 1', 'Top conteudo 2'])
+                                               'Interações totais', 'Top conteudo 1', 'Top conteudo 2', 'Seguidores'])
                 
                 # Converter colunas numéricas e porcentagens
                 for col in df_captacao.columns:
-                    if col == 'Taxa de engajamento':
-                        df_captacao[col] = df_captacao[col].apply(
-                            lambda x: float(str(x).replace('%', '').strip()) / 100 if isinstance(x, str) and x and x != '-' else 0
-                        )
-                    elif col not in ['Captação Digital', 'Top conteudo 1', 'Top conteudo 2']:  # Não converter colunas de texto
+                    if col not in ['Captação Digital', 'Top conteudo 1', 'Top conteudo 2']:  # Não converter colunas de texto
                         df_captacao[col] = pd.to_numeric(df_captacao[col], errors='coerce')
                         # Substituir NaN por 0
                         df_captacao[col] = df_captacao[col].fillna(0)
@@ -911,7 +1032,7 @@ if st.session_state["authentication_status"]:
             formatted_value = f"{faturamento['atual']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             formatted_percent = f"{percentual_progresso:.1f}".replace(".", ",")
             st.markdown(f"""
-                <div style='text-align: center; padding: 12px; background: linear-gradient(135deg, #2196F3, #0D47A1); color: white; border-radius: 15px; box-shadow: 0 8px 16px rgba(33, 150, 243, 0.3); margin: 15px auto 20px auto; max-width: 500px;'>
+                <div class="faturamento-atual-card" style='text-align: center; padding: 12px; background: linear-gradient(135deg, #2196F3, #0D47A1); color: white; border-radius: 15px; box-shadow: 0 8px 16px rgba(33, 150, 243, 0.3); margin: 15px auto 20px auto; max-width: 500px;'>
                     <p style='color: white; font-size: 16px; margin-bottom: 5px; opacity: 0.9;'>Faturamento Atual:</p>
                     <p style='color: white; font-size: 32px; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);'>
                         R$ {formatted_value}
@@ -1195,14 +1316,14 @@ if st.session_state["authentication_status"]:
             col1_, col2_, col3_, col4_ = st.columns([0.5, 1.7, 0.5, 1.7])
 
             with col1_:
-                st.markdown("<h3 style='margin-bottom: 20px; margin-top: 0px;'>Fundações</h3>", unsafe_allow_html=True)
+                st.markdown("<h3 style='margin-bottom: 20px; margin-top: 0px; font-size: 22px; font-weight: 600;'>Fundações</h3>", unsafe_allow_html=True)
                 st.markdown("<div class='metrics-container'>", unsafe_allow_html=True)
                 
                 st.markdown(f"""
                     <div class="metric-card" style="margin-bottom: 10px;">
-                        <div class="metric-title">2024</div>
+                        <div class="metric-title" style="font-size: 18px; font-weight: 600; color: #444;">2024</div>
                         <div>
-                            <span class="metric-value">{fundacoes["qtd_2024"]}</span>
+                            <span class="metric-value" style="font-size: 2.1em; font-weight: 700;">{fundacoes["qtd_2024"]}</span>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
@@ -1213,9 +1334,9 @@ if st.session_state["authentication_status"]:
                 
                 st.markdown(f"""
                     <div class="metric-card" style="margin-bottom: 10px;">
-                        <div class="metric-title">2025</div>
+                        <div class="metric-title" style="font-size: 18px; font-weight: 600; color: #444;">2025</div>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="metric-value">{fundacoes["qtd_2025"]}</span>
+                            <span class="metric-value" style="font-size: 2.1em; font-weight: 700;">{fundacoes["qtd_2025"]}</span>
                             <span class="metric-variation {variation_class}">
                                 {variation_symbol} {abs(variacao):.1f}%
                             </span>
@@ -1225,9 +1346,9 @@ if st.session_state["authentication_status"]:
                 
                 st.markdown(f"""
                     <div class="metric-card" style="margin-bottom: 10px;">
-                        <div class="metric-title">Meta 2025</div>
+                        <div class="metric-title" style="font-size: 18px; font-weight: 600; color: #444;">Meta 2025</div>
                         <div>
-                            <span class="metric-value">{fundacoes["meta_2025"]}</span>
+                            <span class="metric-value" style="font-size: 2.1em; font-weight: 700;">{fundacoes["meta_2025"]}</span>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
@@ -1235,7 +1356,7 @@ if st.session_state["authentication_status"]:
                 st.markdown("</div>", unsafe_allow_html=True)
             
             with col2_:
-                st.markdown("<div style='margin-top: 95px; margin-bottom: -48px;'><h4 style='text-align: center; font-size: 0.9em; opacity: 0.8;'>Progresso em relação à meta de 2025 para Fundações</h4></div>", unsafe_allow_html=True)
+                st.markdown("<div style='margin-top: 95px; margin-bottom: -48px;'><h4 style='text-align: center; font-size: 1em; opacity: 0.8;'>Progresso em relação à meta de 2025 para Fundações</h4></div>", unsafe_allow_html=True)
                 st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
                 create_gauge_chart(
                     "",
@@ -1248,14 +1369,14 @@ if st.session_state["authentication_status"]:
                 st.markdown("</div>", unsafe_allow_html=True)
             
             with col3_:
-                st.markdown("<h3 style='margin-bottom: 20px; margin-top: 0px;'>IFES</h3>", unsafe_allow_html=True)
+                st.markdown("<h3 style='margin-bottom: 20px; margin-top: 0px; font-size: 22px; font-weight: 600;'>IFES</h3>", unsafe_allow_html=True)
                 st.markdown("<div class='metrics-container'>", unsafe_allow_html=True)
                 
                 st.markdown(f"""
                     <div class="metric-card" style="margin-bottom: 10px;">
-                        <div class="metric-title">2024</div>
+                        <div class="metric-title" style="font-size: 18px; font-weight: 600; color: #444;">2024</div>
                         <div>
-                            <span class="metric-value">{ifes["qtd_2024"]}</span>
+                            <span class="metric-value" style="font-size: 2.1em; font-weight: 700;">{ifes["qtd_2024"]}</span>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
@@ -1266,9 +1387,9 @@ if st.session_state["authentication_status"]:
                 
                 st.markdown(f"""
                     <div class="metric-card" style="margin-bottom: 10px;">
-                        <div class="metric-title">2025</div>
+                        <div class="metric-title" style="font-size: 18px; font-weight: 600; color: #444;">2025</div>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="metric-value">{ifes["qtd_2025"]}</span>
+                            <span class="metric-value" style="font-size: 2.1em; font-weight: 700;">{ifes["qtd_2025"]}</span>
                             <span class="metric-variation {variation_class}">
                                 {variation_symbol} {abs(variacao):.1f}%
                             </span>
@@ -1278,9 +1399,9 @@ if st.session_state["authentication_status"]:
                 
                 st.markdown(f"""
                     <div class="metric-card" style="margin-bottom: 10px;">
-                        <div class="metric-title">Meta 2025</div>
+                        <div class="metric-title" style="font-size: 18px; font-weight: 600; color: #444;">Meta 2025</div>
                         <div>
-                            <span class="metric-value">{ifes["meta_2025"]}</span>
+                            <span class="metric-value" style="font-size: 2.1em; font-weight: 700;">{ifes["meta_2025"]}</span>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
@@ -1288,7 +1409,7 @@ if st.session_state["authentication_status"]:
                 st.markdown("</div>", unsafe_allow_html=True)
             
             with col4_:
-                st.markdown("<div style='margin-top: 95px; margin-bottom: -48px;'><h4 style='text-align: center; font-size: 0.9em; opacity: 0.8;'>Progresso em relação à meta de 2025 para IFES</h4></div>", unsafe_allow_html=True)
+                st.markdown("<div style='margin-top: 95px; margin-bottom: -48px;'><h4 style='text-align: center; font-size: 1em; opacity: 0.8;'>Progresso em relação à meta de 2025 para IFES</h4></div>", unsafe_allow_html=True)
                 st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
                 create_gauge_chart(
                     "",
@@ -1332,13 +1453,21 @@ if st.session_state["authentication_status"]:
             with col_o:
                 st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Plataforma de Oportunidades</h3>", unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['OPORTUNIDADES']["andamento"], key="oportunidades_chart")
-                st.markdown(f"<div style='position: relative; bottom: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'><strong>Última atualização:</strong> {plataformas_data['OPORTUNIDADES']['feedback']}</div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-top: -10px;'>
+                        <strong>Última atualização:</strong> {plataformas_data['OPORTUNIDADES']['feedback']}
+                    </div>
+                """, unsafe_allow_html=True)
 
         if 'GESTÃO DE PROJETOS' in plataformas_data:
             with col_g:
                 st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Gestão de Projetos</h3>", unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['GESTÃO DE PROJETOS']["andamento"], key="gestao_chart")
-                st.markdown(f"<div style='position: relative; bottom: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'><strong>Última atualização:</strong> {plataformas_data['GESTÃO DE PROJETOS']['feedback']}</div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-top: -10px;'>
+                        <strong>Última atualização:</strong> {plataformas_data['GESTÃO DE PROJETOS']['feedback']}
+                    </div>
+                """, unsafe_allow_html=True)
 
         if 'GAMIFICAÇÃO' in plataformas_data:
             with col_ga:
@@ -1349,19 +1478,31 @@ if st.session_state["authentication_status"]:
                     </h3>
                 """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['GAMIFICAÇÃO']["andamento"], key="gamificacao_chart")
-                st.markdown(f"<div style='position: relative; bottom: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'><strong>Última atualização:</strong> {plataformas_data['GAMIFICAÇÃO']['feedback']}</div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-top: -10px;'>
+                        <strong>Última atualização:</strong> {plataformas_data['GAMIFICAÇÃO']['feedback']}
+                    </div>
+                """, unsafe_allow_html=True)
 
         if 'PRODUTOS' in plataformas_data:
             with col_p:
                 st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Plataforma de Produtos</h3>", unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['PRODUTOS']["andamento"], key="produtos_chart")
-                st.markdown(f"<div style='position: relative; bottom: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'><strong>Última atualização:</strong> {plataformas_data['PRODUTOS']['feedback']}</div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-top: -10px;'>
+                        <strong>Última atualização:</strong> {plataformas_data['PRODUTOS']['feedback']}
+                    </div>
+                """, unsafe_allow_html=True)
 
         if 'ESCRITAS' in plataformas_data:
             with col_e:
                 st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Escrita de Projetos/Produtos</h3>", unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['ESCRITAS']["andamento"], key="escritas_chart")
-                st.markdown(f"<div style='position: relative; bottom: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'><strong>Última atualização:</strong> {plataformas_data['ESCRITAS']['feedback']}</div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-top: -10px;'>
+                        <strong>Última atualização:</strong> {plataformas_data['ESCRITAS']['feedback']}
+                    </div>
+                """, unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -1426,14 +1567,14 @@ if st.session_state["authentication_status"]:
             
             with col_m1:
                 st.markdown(f"""
-                <div style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #FFD966;">
+                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #FFD966;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Oportunidades</h4>
                     <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_oportunidades}</p>
                 </div>
                 """, unsafe_allow_html=True)
                     
                 st.markdown(f"""
-                <div style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #70AD47;">
+                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #70AD47;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Taxa de Conversão Total</h4>
                     <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{taxa_conversao_total:.1%}</p>
                 </div>
@@ -1441,14 +1582,14 @@ if st.session_state["authentication_status"]:
             
             with col_m2:
                 st.markdown(f"""
-                <div style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #9BC2E6;">
+                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #9BC2E6;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Contratos</h4>
                     <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_contratos}</p>
                 </div>
                 """, unsafe_allow_html=True)
                     
                 st.markdown(f"""
-                <div style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #C00000;">
+                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #C00000;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Tempo Médio Total (Exceto Execução) </h4>
                     <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{tempo_medio_total} dias</p>
                 </div>
@@ -1490,7 +1631,7 @@ if st.session_state["authentication_status"]:
             
             # Card de gargalos (sem título "Insights")
             st.markdown(f"""
-            <div style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+            <div class="gargalos-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-top: 15px;">
                 <h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">Principais Gargalos</h4>
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
                     <div style="background-color: #FFEBEE; color: #C00000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
@@ -1525,7 +1666,7 @@ if st.session_state["authentication_status"]:
     <div style="background: linear-gradient(90deg, #833AB4, #FD1D1D, #FCAF45); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div>
-                <h2 style="color: white; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Captação Digital</h2>
+                <h2 style="color: white; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Captação de Oportunidade por Redes Sociais</h2>
                 <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0; font-size: 15px;">Métricas e desempenho da presença digital</p>
             </div>
             <div style="font-size: 32px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
@@ -1547,9 +1688,19 @@ if st.session_state["authentication_status"]:
             <style>
                 .social-metrics-container {
                     display: flex;
-                    flex-wrap: wrap;
-                    gap: 15px;
+                    flex-flow: row wrap;
+                    justify-content: center;
+                    gap: 10px;
                     margin-bottom: 20px;
+                    padding: 5px 0;
+                }
+                
+                @media (max-width: 768px) {
+                    .social-metrics-container {
+                        justify-content: flex-start;
+                        overflow-x: auto;
+                        flex-wrap: nowrap;
+                    }
                 }
                 
                 .social-metric-card {
@@ -1557,10 +1708,16 @@ if st.session_state["authentication_status"]:
                     border-radius: 10px;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
                     padding: 15px;
-                    flex: 1;
-                    min-width: 160px;
+                    flex: 0 0 auto;
+                    width: 140px;
+                    height: 140px;
                     position: relative;
                     transition: transform 0.3s;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    margin: 5px;
                 }
                 
                 .social-metric-card:hover {
@@ -1579,30 +1736,31 @@ if st.session_state["authentication_status"]:
                 .metric-title {
                     color: #666;
                     font-size: 14px;
-                    margin-bottom: 15px;
+                    margin-bottom: 10px;
                     font-weight: 500;
                 }
                 
                 .metric-value {
-                    font-size: 28px;
+                    font-size: 24px;
                     font-weight: 600;
                     color: #333;
                     margin-bottom: 5px;
                 }
                 
                 .metric-comparison {
-                    font-size: 14px;
+                    font-size: 12px;
                     color: #666;
                     display: flex;
                     align-items: center;
-                    margin-top: 8px;
+                    margin-top: auto;
                 }
                 
                 .metric-past {
-                    padding: 3px 8px;
+                    padding: 2px 6px;
                     border-radius: 4px;
                     background: #f0f0f0;
                     margin-left: 5px;
+                    font-size: 11px;
                 }
                 
                 .content-card {
@@ -1658,10 +1816,7 @@ if st.session_state["authentication_status"]:
             """, unsafe_allow_html=True)
                 
             # Criar linha de métricas principais
-            st.subheader("Métricas do Instagram")
-            
-            # Criar container de métricas
-            st.markdown('<div class="social-metrics-container">', unsafe_allow_html=True)
+            st.markdown("<h2 style='font-size: 24px;'>Métricas do Instagram</h2>", unsafe_allow_html=True)
             
             # Definir métricas e ícones
             metrics = [
@@ -1669,11 +1824,135 @@ if st.session_state["authentication_status"]:
                 {"col": "Alcance", "icon": "🔍", "title": "Alcance"},
                 {"col": "Visitas no Perfil", "icon": "👤", "title": "Visitas no Perfil"},
                 {"col": "Cliques no link da bio", "icon": "🔗", "title": "Cliques no Link"},
-                {"col": "Taxa de engajamento", "icon": "❤️", "title": "Engajamento", "is_percentage": True}
+                {"col": "Interações totais", "icon": "❤️", "title": "Interações"},
+                {"col": "Seguidores", "icon": "👥", "title": "Seguidores"}
             ]
             
-            # Renderizar cards de métricas
-            for metric in metrics:
+            # Adicionar CSS para melhorar a responsividade
+            st.markdown("""
+            <style>
+                /* Efeito de hover para todos os cards */
+                .metric-card, .instagram-metric-card-content, .meta-card, .platform-card, .social-metric-card, 
+                div[style*="background: white; border-radius: 12px; box-shadow:"],
+                div[style*="background-color: white; border-radius: 10px;"],
+                div[style*="background-color: #f5f5f5; border-radius:"],
+                div[style*="background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px;"],
+                .funil-metric-card {
+                    transition: all 0.3s ease;
+                }
+                
+                .metric-card:hover, .instagram-metric-card-content:hover, .meta-card:hover, .platform-card:hover, 
+                .social-metric-card:hover, div[style*="background: white; border-radius: 12px; box-shadow:"]:hover,
+                div[style*="background-color: white; border-radius: 10px;"]:hover,
+                div[style*="background-color: #f5f5f5; border-radius:"]:hover,
+                div[style*="background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px;"]:hover,
+                .funil-metric-card:hover {
+                    transform: scale(1.03);
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+                    z-index: 10;
+                }
+                
+                /* Efeito específico para o card de Faturamento Atual */
+                div[style*="background: linear-gradient(120deg, #1a237e, #283593);"],
+                div[style*="background: linear-gradient(135deg, #1a237e, #283593);"],
+                div[style*="background: linear-gradient(135deg, #2196F3, #0D47A1);"],
+                .faturamento-atual-card {
+                    transition: all 0.3s ease;
+                }
+                
+                div[style*="background: linear-gradient(120deg, #1a237e, #283593);"]:hover,
+                div[style*="background: linear-gradient(135deg, #1a237e, #283593);"]:hover,
+                div[style*="background: linear-gradient(135deg, #2196F3, #0D47A1);"]:hover,
+                .faturamento-atual-card:hover {
+                    transform: scale(1.03);
+                    box-shadow: 0 12px 24px rgba(33, 150, 243, 0.4);
+                    z-index: 10;
+                }
+                
+                /* Efeito hover para os cards de Top Conteúdo */
+                .top-content-card {
+                    transition: all 0.3s ease;
+                }
+                
+                .top-content-card:hover {
+                    transform: scale(1.02);
+                    box-shadow: 0 8px 24px rgba(131, 58, 180, 0.25);
+                    z-index: 10;
+                }
+                
+                /* Efeito hover para os botões dentro dos cards de Top Conteúdo */
+                .top-content-card a[style*="background:"] {
+                    transition: all 0.3s ease;
+                }
+                
+                .top-content-card a[style*="background:"]:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                }
+                
+                /* Estilo para os cards de texto em Desenvolvimento de Plataformas */
+                div[style*="background-color: white; padding: 10px; border-radius: 8px;"],
+                div[style*="background-color: white; padding: 12px; border-radius: 10px;"] {
+                    transition: all 0.3s ease;
+                }
+                
+                div[style*="background-color: white; padding: 10px; border-radius: 8px;"]:hover,
+                div[style*="background-color: white; padding: 12px; border-radius: 10px;"]:hover {
+                    transform: scale(1.03);
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+                }
+                
+                /* Cards de Resumo do Funil */
+                div[style*="background-color: #ffffff; border-radius: 10px; padding: 15px;"] {
+                    transition: all 0.3s ease;
+                }
+                
+                div[style*="background-color: #ffffff; border-radius: 10px; padding: 15px;"]:hover {
+                    transform: scale(1.03);
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+                }
+                
+                /* Exceção para o card de Principais Gargalos */
+                .gargalos-card {
+                    transition: none !important;
+                }
+                
+                .gargalos-card:hover {
+                    transform: none !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+                }
+                
+                /* Estilo para os cards de métricas do Instagram */
+                .instagram-metric-card-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    height: 100%;
+                }
+
+                .instagram-metric-card-content {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    padding: 12px;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    position: relative;
+                }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            # Criar as colunas para os cards (com gap maior para espaçamento melhor)
+            metric_cols = st.columns(6, gap="medium")
+            
+            # Renderizar cards de métricas usando colunas
+            for i, metric in enumerate(metrics):
                 col_name = metric["col"]
                 current_value = instagram_row[col_name].values[0]
                 past_value = instagram_past_row[col_name].values[0]
@@ -1699,26 +1978,30 @@ if st.session_state["authentication_status"]:
                     formatted_current = f"{int(current_value):,}".replace(",", ".")
                     formatted_past = f"{int(past_value):,}".replace(",", ".")
                 
-                # Renderizar card
-                st.markdown(f"""
-                <div class="social-metric-card">
-                    <div class="metric-icon">{metric["icon"]}</div>
-                    <h4 class="metric-title">{metric["title"]}</h4>
-                    <div class="metric-value">{formatted_current}</div>
-                    <div class="metric-comparison">
-                        <span style="color: {variation_color}; margin-right: 8px;">{variation_symbol} {abs(variation):.1f}%</span>
-                        vs <span class="metric-past">{formatted_past}</span>
+                # Renderizar card em cada coluna
+                with metric_cols[i]:
+                    st.markdown(f"""
+                    <div class="instagram-metric-card-container">
+                        <div class="instagram-metric-card-content" style="border-top: 4px solid {variation_color};">
+                            <div style="position: absolute; top: 12px; right: 12px; font-size: 22px; opacity: 0.3;">{metric["icon"]}</div>
+                            <div>
+                                <h4 style="color: #555; font-size: 16px; margin-bottom: 8px; font-weight: 600;">{metric["title"]}</h4>
+                                <div style="font-size: 28px; font-weight: 700; color: #333; margin-top: 4px;">{formatted_current}</div>
+                            </div>
+                            <div style="font-size: 14px; color: #555; display: flex; align-items: center; margin-top: auto;">
+                                <span style="color: {variation_color}; margin-right: 6px; font-weight: 600; font-size: 16px; padding: 2px 6px; background-color: {variation_color}20; border-radius: 4px;">{variation_symbol} {abs(variation):.1f}%</span>
+                                vs <span style="padding: 3px 8px; border-radius: 4px; background: #f0f0f0; margin-left: 5px; font-size: 13px; font-weight: 500;">{formatted_past}</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            st.markdown('</div>', unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
+                
+            # Não é mais necessário fechar o container com st.markdown
             
             # Criar seção para os top conteúdos
             st.markdown("""
-            <div style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%); border-radius: 10px; padding: 20px; margin: 30px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                <h3 style="margin-top: 0; color: #333; font-size: 22px; border-bottom: 2px solid #EEE; padding-bottom: 10px;">Conteúdos de Maior Desempenho</h3>
-                <p style="color: #666; font-size: 15px; margin-bottom: 20px;">As postagens abaixo apresentaram o maior engajamento e alcance no período analisado.</p>
+            <div style="margin: 30px 0 20px 0;">
+                <h2 style="color: #333; font-size: 24px; font-weight: 600; margin-bottom: 10px;">Conteúdos de Maior Desempenho</h2>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1726,8 +2009,11 @@ if st.session_state["authentication_status"]:
             
             with col1:
                 top_content_1 = instagram_row['Top conteudo 1'].values[0]
+                # Converter URL normal para URL de incorporação (embed)
+                embed_url_1 = convert_instagram_url_to_embed(top_content_1)
+                
                 st.markdown(f"""
-                <div style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
+                <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
                     <div style="background: linear-gradient(90deg, #833AB4, #FD1D1D); height: 8px;"></div>
                     <div style="position: absolute; top: 20px; left: 20px; background: #FF9500; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(255, 149, 0, 0.3);">TOP #1</div>
                     <div style="padding: 25px 20px 20px 20px;">
@@ -1741,13 +2027,8 @@ if st.session_state["authentication_status"]:
                             </div>
                         </div>
                         
-                        <div style="background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
-                            <a href="{top_content_1}" target="_blank" style="color: #1a73e8; text-decoration: none; font-weight: 500; word-break: break-all; display: block;">
-                                <div style="display: flex; align-items: center;">
-                                    <span style="margin-right: 8px; font-size: 18px;">🔗</span>
-                                    <span>{top_content_1}</span>
-                                </div>
-                            </a>
+                        <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0;">
+                            <iframe src="{embed_url_1}" width="100%" height="530" frameborder="0" scrolling="no" allowtransparency="true" style="border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #f0f0f0;"></iframe>
                         </div>
                         
                         <a href="{top_content_1}" target="_blank" style="background: #1a73e8; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
@@ -1759,8 +2040,11 @@ if st.session_state["authentication_status"]:
             
             with col2:
                 top_content_2 = instagram_row['Top conteudo 2'].values[0]
+                # Converter URL normal para URL de incorporação (embed)
+                embed_url_2 = convert_instagram_url_to_embed(top_content_2)
+                
                 st.markdown(f"""
-                <div style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
+                <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
                     <div style="background: linear-gradient(90deg, #833AB4, #5851DB); height: 8px;"></div>
                     <div style="position: absolute; top: 20px; left: 20px; background: #5851DB; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(88, 81, 219, 0.3);">TOP #2</div>
                     <div style="padding: 25px 20px 20px 20px;">
@@ -1774,13 +2058,8 @@ if st.session_state["authentication_status"]:
                             </div>
                         </div>
                         
-                        <div style="background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
-                            <a href="{top_content_2}" target="_blank" style="color: #5851DB; text-decoration: none; font-weight: 500; word-break: break-all; display: block;">
-                                <div style="display: flex; align-items: center;">
-                                    <span style="margin-right: 8px; font-size: 18px;">🔗</span>
-                                    <span>{top_content_2}</span>
-                                </div>
-                            </a>
+                        <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0;">
+                            <iframe src="{embed_url_2}" width="100%" height="530" frameborder="0" scrolling="no" allowtransparency="true" style="border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #f0f0f0;"></iframe>
                         </div>
                         
                         <a href="{top_content_2}" target="_blank" style="background: #5851DB; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
@@ -1791,99 +2070,11 @@ if st.session_state["authentication_status"]:
                 """, unsafe_allow_html=True)
             
             # Taxa de engajamento com barra de progresso estilizada
-            engagement_rate = instagram_row['Taxa de engajamento'].values[0]
+            # Removido conforme solicitação do usuário para manter apenas os 6 cards
             
+            # Espaço após os cards
             st.markdown("<div style='margin-top: 40px; margin-bottom: 15px;'></div>", unsafe_allow_html=True)
             
-            # Determine engagement quality and color based on rate
-            engagement_quality = "Excelente" if engagement_rate >= 0.03 else "Bom" if engagement_rate >= 0.01 else "Médio" if engagement_rate >= 0.005 else "Baixo"
-            engagement_color = "#4CAF50" if engagement_rate >= 0.03 else "#2196F3" if engagement_rate >= 0.01 else "#FF9800" if engagement_rate >= 0.005 else "#F44336"
-            
-            # Criar gauge card para a taxa de engajamento
-            st.markdown(f"""
-            <div style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 40px;">
-                <div style="background: linear-gradient(90deg, #833AB4, #FD1D1D, #FCAF45); padding: 20px;">
-                    <h3 style="margin: 0; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2); display: flex; align-items: center;">
-                        <span style="margin-right: 12px; font-size: 24px;">❤️</span> Taxa de Engajamento
-                    </h3>
-                </div>
-                
-                <div style="padding: 25px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 500; color: #666; margin-bottom: 5px; font-size: 15px;">Engajamento atual</div>
-                            <div style="display: flex; align-items: baseline;">
-                                <span style="font-size: 42px; font-weight: 700; color: {engagement_color};">{engagement_rate:.1%}</span>
-                                <span style="margin-left: 8px; font-size: 15px; color: #666; font-weight: 500;">({engagement_quality})</span>
-                            </div>
-                            
-                            <div style="margin-top: 20px;">
-                                <div style="height: 8px; background-color: #f0f0f0; border-radius: 4px; margin-bottom: 10px; position: relative;">
-                                    <div style="position: absolute; top: 0; left: 0; height: 100%; width: {min(engagement_rate * 100 * 10, 100)}%; border-radius: 4px; background: linear-gradient(90deg, {engagement_color} 0%, {engagement_color}AA 100%);"></div>
-                                </div>
-                                
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                                    <span style="color: #777; font-size: 13px;">0%</span>
-                                    <span style="color: #777; font-size: 13px;">5%</span>
-                                    <span style="color: #777; font-size: 13px;">10%</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="border-left: 1px solid #eee; padding-left: 25px; margin-left: 25px; flex: 1;">
-                            <h4 style="margin-top: 0; color: #333; font-size: 16px; margin-bottom: 15px;">Referências de Mercado</h4>
-                            
-                            <div style="margin-bottom: 10px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                    <span style="font-size: 14px; color: #666;">Baixo</span>
-                                    <span style="font-size: 14px; font-weight: 500; color: #F44336;">< 0.5%</span>
-                                </div>
-                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
-                                    <div style="height: 100%; width: 25%; border-radius: 3px; background-color: #F44336;"></div>
-                                </div>
-                            </div>
-                            
-                            <div style="margin-bottom: 10px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                    <span style="font-size: 14px; color: #666;">Médio</span>
-                                    <span style="font-size: 14px; font-weight: 500; color: #FF9800;">0.5% - 1%</span>
-                                </div>
-                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
-                                    <div style="height: 100%; width: 50%; border-radius: 3px; background-color: #FF9800;"></div>
-                                </div>
-                            </div>
-                            
-                            <div style="margin-bottom: 10px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                    <span style="font-size: 14px; color: #666;">Bom</span>
-                                    <span style="font-size: 14px; font-weight: 500; color: #2196F3;">1% - 3%</span>
-                                </div>
-                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
-                                    <div style="height: 100%; width: 75%; border-radius: 3px; background-color: #2196F3;"></div>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                    <span style="font-size: 14px; color: #666;">Excelente</span>
-                                    <span style="font-size: 14px; font-weight: 500; color: #4CAF50;">> 3%</span>
-                                </div>
-                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
-                                    <div style="height: 100%; width: 100%; border-radius: 3px; background-color: #4CAF50;"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 25px; background-color: #f9f9f9; border-radius: 8px; padding: 15px; border-left: 4px solid #833AB4;">
-                        <p style="margin: 0; color: #555; font-size: 14px;">
-                            <span style="font-weight: 600; color: #833AB4;">💡 Dica:</span> 
-                            Para aumentar a taxa de engajamento, publique conteúdos que incentivem a interação dos seguidores, como enquetes, perguntas e conteúdos que gerem discussão. Responder aos comentários também pode aumentar significativamente o envolvimento.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
         else:
             st.warning("Dados incompletos para Captação Digital.")
     else:
