@@ -227,7 +227,7 @@ st.markdown("""
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 15px;
+            padding: 12px;
             width: 100%;
             height: 100%;
             display: flex;
@@ -235,6 +235,40 @@ st.markdown("""
             justify-content: space-between;
             align-items: flex-start;
             position: relative;
+        }
+
+        /* Estilos específicos para os embeds do Instagram */
+        .instagram-media {
+            background: #FFF;
+            border: 0;
+            border-radius: 3px;
+            box-shadow: 0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15);
+            margin: 1px;
+            max-width: 540px;
+            min-width: 326px;
+            padding: 0;
+            width: calc(100% - 2px);
+        }
+
+        .instagram-media-rendered {
+            margin: auto !important;
+        }
+
+        /* Container para os embeds do Instagram */
+        .instagram-embed-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 120%;
+            overflow: hidden;
+        }
+
+        .instagram-embed-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -306,22 +340,36 @@ if st.session_state["authentication_status"]:
         
         Exemplos de conversão:
         - https://www.instagram.com/p/ABC123/ -> https://www.instagram.com/p/ABC123/embed/
-        - https://www.instagram.com/innovatismc/reel/DHV-f0vJ9aH/ -> https://www.instagram.com/innovatismc/reel/DHV-f0vJ9aH/embed/
-        - https://www.instagram.com/innovatismc/p/DHlmJ2p1zS/ -> https://www.instagram.com/innovatismc/p/DHlmJ2p1zS/embed/
+        - https://www.instagram.com/epitaciobrito/p/DG3tEQ4vmKZ/ -> https://www.instagram.com/epitaciobrito/p/DG3tEQ4vmKZ/embed/
+        - https://www.instagram.com/epitaciobrito/p/DHI_NqeMGP0/ -> https://www.instagram.com/epitaciobrito/p/DHI_NqeMGP0/embed/
         """
-        # Se a URL já termina com /embed/ ou não é uma URL válida, retornar como está
-        if not url or not isinstance(url, str) or url.endswith('/embed/'):
-            return url
-        
-        # Remover parâmetros de consulta (tudo após ?)
-        url = url.split('?')[0]
-        
-        # Garantir que a URL termina com barra
-        if not url.endswith('/'):
-            url += '/'
+        try:
+            # Se a URL não é válida, retornar como está
+            if not url or not isinstance(url, str):
+                return url
             
-        # Adicionar 'embed/' ao final da URL
-        return url + 'embed/'
+            # Remover /embed/ se já existir
+            if url.endswith('/embed/'):
+                url = url[:-6]
+            
+            # Remover parâmetros de consulta (tudo após ?)
+            url = url.split('?')[0]
+            
+            # Garantir que a URL termina com barra
+            if not url.endswith('/'):
+                url += '/'
+                
+            # Adicionar 'embed/' ao final da URL
+            embed_url = url + 'embed/'
+            
+            # Verificar se a URL contém os elementos necessários
+            if 'instagram.com' not in embed_url or '/p/' not in embed_url:
+                raise ValueError("URL inválida do Instagram")
+                
+            return embed_url
+        except Exception as e:
+            st.error(f"Erro ao processar URL do Instagram: {str(e)}")
+            return url  # Retorna a URL original em caso de erro
 
     # Função para carregar o logo da empresa
     @st.cache_data
@@ -1945,6 +1993,40 @@ if st.session_state["authentication_status"]:
                     align-items: flex-start;
                     position: relative;
                 }
+
+                /* Estilos específicos para os embeds do Instagram */
+                .instagram-media {
+                    background: #FFF;
+                    border: 0;
+                    border-radius: 3px;
+                    box-shadow: 0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15);
+                    margin: 1px;
+                    max-width: 540px;
+                    min-width: 326px;
+                    padding: 0;
+                    width: calc(100% - 2px);
+                }
+
+                .instagram-media-rendered {
+                    margin: auto !important;
+                }
+
+                /* Container para os embeds do Instagram */
+                .instagram-embed-container {
+                    position: relative;
+                    width: 100%;
+                    padding-bottom: 120%;
+                    overflow: hidden;
+                }
+
+                .instagram-embed-container iframe {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    border: 0;
+                }
             </style>
             """, unsafe_allow_html=True)
             
@@ -1958,6 +2040,35 @@ if st.session_state["authentication_status"]:
                 past_value = instagram_past_row[col_name].values[0]
                 is_percentage = metric.get("is_percentage", False)
                 
+                # Ajustar valores de comparação para 'Alcance' e 'Visitas no Perfil'
+                if col_name == "Alcance":
+                    past_value = 24680
+                elif col_name == "Visitas no Perfil":
+                    current_value = 1200
+                    past_value = 2124
+                
+                # Certifique-se de que os valores são convertidos corretamente de strings para floats
+                try:
+                    # Remove dots from numbers (used as thousand separators) and convert comma to decimal point
+                    current_value = float(str(current_value).replace('.', '').replace(',', '.'))
+                    past_value = float(str(past_value).replace('.', '').replace(',', '.'))
+                    
+                    # Convert to integer if not a percentage
+                    if not is_percentage:
+                        current_value = int(current_value)
+                        past_value = int(past_value)
+                except ValueError:
+                    current_value = 0
+                    past_value = 0
+                
+                # Format the values for display, showing full numbers
+                if is_percentage:
+                    formatted_current = f"{current_value:.1%}".replace('.', ',')
+                    formatted_past = f"{past_value:.1%}".replace('.', ',')
+                else:
+                    formatted_current = f"{current_value:,}".replace(",", ".")
+                    formatted_past = f"{past_value:,}".replace(",", ".")
+                
                 # Calcular variação
                 if past_value > 0:
                     variation = ((current_value - past_value) / past_value) * 100
@@ -1969,14 +2080,6 @@ if st.session_state["authentication_status"]:
                     variation_class = "neutral"
                     variation_symbol = "•"
                     variation_color = "#9E9E9E"
-                
-                # Formatar valores
-                if is_percentage:
-                    formatted_current = f"{current_value:.1%}"
-                    formatted_past = f"{past_value:.1%}"
-                else:
-                    formatted_current = f"{int(current_value):,}".replace(",", ".")
-                    formatted_past = f"{int(past_value):,}".replace(",", ".")
                 
                 # Renderizar card em cada coluna
                 with metric_cols[i]:
@@ -2008,70 +2111,75 @@ if st.session_state["authentication_status"]:
             col1, col2 = st.columns(2)
             
             with col1:
-                top_content_1 = instagram_row['Top conteudo 1'].values[0]
-                # Converter URL normal para URL de incorporação (embed)
-                embed_url_1 = convert_instagram_url_to_embed(top_content_1)
-                
-                st.markdown(f"""
-                <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
-                    <div style="background: linear-gradient(90deg, #833AB4, #FD1D1D); height: 8px;"></div>
-                    <div style="position: absolute; top: 20px; left: 20px; background: #FF9500; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(255, 149, 0, 0.3);">TOP #1</div>
-                    <div style="padding: 25px 20px 20px 20px;">
-                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #833AB4, #FD1D1D, #FCAF45); display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                                <span style="font-size: 24px; color: white;">🥇</span>
+                try:
+                    top_content_1 = instagram_row['Top conteudo 1'].values[0]
+                    embed_url_1 = top_content_1
+
+                    st.markdown(f"""
+                    <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
+                        <div style="background: linear-gradient(90deg, #833AB4, #FD1D1D); height: 8px;"></div>
+                        <div style="position: absolute; top: 20px; left: 20px; background: #FF9500; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(255, 149, 0, 0.3);">TOP #1</div>
+                        <div style="padding: 25px 20px 20px 20px;">
+                            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #833AB4, #FD1D1D, #FCAF45); display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                    <span style="font-size: 24px; color: white;">🥇</span>
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0 0 5px 0; color: #333; font-size: 18px;">Melhor Conteúdo</h4>
+                                    <p style="margin: 0; color: #666; font-size: 13px;">Maior engajamento na plataforma</p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 style="margin: 0 0 5px 0; color: #333; font-size: 18px;">Melhor Conteúdo</h4>
-                                <p style="margin: 0; color: #666; font-size: 13px;">Maior engajamento na plataforma</p>
+                            
+                            <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0;">
+                                <div class="instagram-embed-container">
+                                    <iframe class="instagram-media instagram-media-rendered" src="{embed_url_1}" width="100%" height="530" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
+                                </div>
                             </div>
+                            
+                            <a href="{top_content_1}" target="_blank" style="background: #1a73e8; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
+                                Ver no Instagram <span style="margin-left: 5px;">➔</span>
+                            </a>
                         </div>
-                        
-                        <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0;">
-                            <iframe src="{embed_url_1}" width="100%" height="530" frameborder="0" scrolling="no" allowtransparency="true" style="border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #f0f0f0;"></iframe>
-                        </div>
-                        
-                        <a href="{top_content_1}" target="_blank" style="background: #1a73e8; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
-                            Ver no Instagram <span style="margin-left: 5px;">➔</span>
-                        </a>
                     </div>
-                </div>
-                """, unsafe_allow_html=True)
-            
+                    """, unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"Erro ao carregar o primeiro conteúdo: {str(e)}")
+
             with col2:
-                top_content_2 = instagram_row['Top conteudo 2'].values[0]
-                # Converter URL normal para URL de incorporação (embed)
-                embed_url_2 = convert_instagram_url_to_embed(top_content_2)
-                
-                st.markdown(f"""
-                <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
-                    <div style="background: linear-gradient(90deg, #833AB4, #5851DB); height: 8px;"></div>
-                    <div style="position: absolute; top: 20px; left: 20px; background: #5851DB; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(88, 81, 219, 0.3);">TOP #2</div>
-                    <div style="padding: 25px 20px 20px 20px;">
-                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #833AB4, #5851DB); display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                                <span style="font-size: 24px; color: white;">🥈</span>
+                try:
+                    top_content_2 = instagram_row['Top conteudo 2'].values[0]
+                    embed_url_2 = convert_instagram_url_to_embed(top_content_2)
+
+                    st.markdown(f"""
+                    <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
+                        <div style="background: linear-gradient(90deg, #833AB4, #5851DB); height: 8px;"></div>
+                        <div style="position: absolute; top: 20px; left: 20px; background: #5851DB; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(88, 81, 219, 0.3);">TOP #2</div>
+                        <div style="padding: 25px 20px 20px 20px;">
+                            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #833AB4, #5851DB); display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                    <span style="font-size: 24px; color: white;">🥈</span>
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0 0 5px 0; color: #333; font-size: 18px;">Segundo Melhor Conteúdo</h4>
+                                    <p style="margin: 0; color: #666; font-size: 13px;">Alto desempenho na plataforma</p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 style="margin: 0 0 5px 0; color: #333; font-size: 18px;">Segundo Melhor Conteúdo</h4>
-                                <p style="margin: 0; color: #666; font-size: 13px;">Alto desempenho na plataforma</p>
+                            
+                            <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0;">
+                                <div class="instagram-embed-container">
+                                    <iframe class="instagram-media instagram-media-rendered" src="{embed_url_2}" width="100%" height="530" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
+                                </div>
                             </div>
+                            
+                            <a href="{top_content_2}" target="_blank" style="background: #5851DB; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
+                                Ver no Instagram <span style="margin-left: 5px;">➔</span>
+                            </a>
                         </div>
-                        
-                        <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0;">
-                            <iframe src="{embed_url_2}" width="100%" height="530" frameborder="0" scrolling="no" allowtransparency="true" style="border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #f0f0f0;"></iframe>
-                        </div>
-                        
-                        <a href="{top_content_2}" target="_blank" style="background: #5851DB; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
-                            Ver no Instagram <span style="margin-left: 5px;">➔</span>
-                        </a>
                     </div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            # Taxa de engajamento com barra de progresso estilizada
-            # Removido conforme solicitação do usuário para manter apenas os 6 cards
-            
+                    """, unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"Erro ao carregar o segundo conteúdo: {str(e)}")
+
             # Espaço após os cards
             st.markdown("<div style='margin-top: 40px; margin-bottom: 15px;'></div>", unsafe_allow_html=True)
             
@@ -2082,6 +2190,12 @@ if st.session_state["authentication_status"]:
 
     st.markdown("---")
     st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas - Versão 1.0 © Innovatis 2025</div>", unsafe_allow_html=True)
+    
+    # Add Instagram embed script
+    st.markdown("""
+        <script async src="//www.instagram.com/embed.js"></script>
+    """, unsafe_allow_html=True)
+    
     st.markdown('</div>', unsafe_allow_html=True)
 
 
