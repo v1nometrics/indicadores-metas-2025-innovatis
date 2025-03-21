@@ -1004,6 +1004,9 @@ if st.session_state["authentication_status"]:
             meta2_br = f"{faturamento['meta2_2025']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             meta3_br = f"{faturamento['meta3_2025']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             
+            # Versão sem centavos para o marco da barra de progresso
+            meta1_br_sem_centavos = meta1_br.rstrip("0").rstrip(",") if meta1_br.endswith(",00") else meta1_br
+            
             # Cards das metas
             st.markdown("""
             <style>
@@ -1073,20 +1076,23 @@ if st.session_state["authentication_status"]:
             """, unsafe_allow_html=True)
                 
             # ================== AQUI ESTÃO AS ALTERAÇÕES DA BARRA DE PROGRESSO ===================
-            # Calcular o percentual de progresso (até a meta final de 50M, por exemplo)
+            # Calcular o percentual de progresso em relação à primeira meta (R$ 30.000.000)
+            percentual_progresso_meta1 = min((faturamento['atual'] / faturamento['meta1_2025']) * 100, 100)
+            
+            # Mantemos o percentual original para os marcos
             percentual_progresso = min((faturamento['atual'] / faturamento['meta3_2025']) * 100, 100)
 
             # Card de faturamento atual com design melhorado
             formatted_value = f"{faturamento['atual']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-            formatted_percent = f"{percentual_progresso:.1f}".replace(".", ",")
+            formatted_percent_meta1 = f"{percentual_progresso_meta1:.1f}".replace(".", ",")
             st.markdown(f"""
-                <div class="faturamento-atual-card" style='text-align: center; padding: 12px; background: linear-gradient(135deg, #2196F3, #0D47A1); color: white; border-radius: 15px; box-shadow: 0 8px 16px rgba(33, 150, 243, 0.3); margin: 15px auto 20px auto; max-width: 500px;'>
-                    <p style='color: white; font-size: 16px; margin-bottom: 5px; opacity: 0.9;'>Faturamento Atual:</p>
-                    <p style='color: white; font-size: 32px; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);'>
+                <div class="faturamento-atual-card" style='text-align: center; padding: 16px; background: linear-gradient(135deg, #2196F3, #0D47A1); color: white; border-radius: 20px; box-shadow: 0 10px 20px rgba(33, 150, 243, 0.3); margin: 20px auto 26px auto; max-width: 650px;'>
+                    <p style='color: white; font-size: 21px; margin-bottom: 7px; opacity: 0.9;'>Faturamento Atual:</p>
+                    <p style='color: white; font-size: 42px; font-weight: 700; margin: 0; text-shadow: 0 3px 5px rgba(0,0,0,0.2);'>
                         R$ {formatted_value}
                     </p>
-                    <p style='color: white; margin-top: 5px; font-size: 17px; opacity: 0.9;'>
-                        {formatted_percent}% da Meta Final
+                    <p style='color: white; margin-top: 7px; font-size: 22px; opacity: 0.9;'>
+                        {formatted_percent_meta1}% da Meta 1
                     </p>
                 </div>
             """, unsafe_allow_html=True)
@@ -1106,13 +1112,13 @@ if st.session_state["authentication_status"]:
             st.markdown(f"""
             <style>
                 .custom-progress {{
-                    height: 35px;
+                    height: 52px; /* Aumentando a espessura da barra em 15% (de 45px para 52px) */
                     background-color: #f0f0f0;
                     border-radius: 10px 10px 0 0;
                     margin: 10px 0 0 0;
                     position: relative;
                     box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-                    width: 96%; /* Reduzindo a largura total em 4% */
+                    width: 75%; /* Reduzindo a largura total para 75% */
                     margin-left: auto;
                     margin-right: auto;
                     overflow: hidden;
@@ -1121,7 +1127,7 @@ if st.session_state["authentication_status"]:
                     height: 100%;
                     background: linear-gradient(90deg, #1E88E5 0%, #42A5F5 100%);
                     border-radius: 10px 10px 0 0;
-                    width: {percentual_progresso}%;
+                    width: {percentual_progresso_meta1}%;
                     position: absolute;
                     top: 0; left: 0;
                     transition: width 1s ease-in-out;
@@ -1147,11 +1153,11 @@ if st.session_state["authentication_status"]:
                 .custom-progress-text {{
                     position: absolute;
                     top: 50%;
-                    left: {max(percentual_progresso/2, 3)}%;
+                    left: {max(percentual_progresso_meta1/2, 3)}%;
                     transform: translate(-50%, -50%);
                     color: white;
                     font-weight: bold;
-                    font-size: 16px;
+                    font-size: 18px; /* Aumentando o tamanho da fonte */
                     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
                     z-index: 10;
                 }}
@@ -1161,7 +1167,7 @@ if st.session_state["authentication_status"]:
                     margin: 0;
                     position: relative;
                     top: -1px;
-                    width: 96%; /* Reduzindo a largura para corresponder à barra de progresso */
+                    width: 75%; /* Reduzindo a largura para corresponder à barra de progresso */
                     margin-left: auto;
                     margin-right: auto;
                 }}
@@ -1172,7 +1178,7 @@ if st.session_state["authentication_status"]:
             progress_html = f"""
             <div class="custom-progress">
                 <div class="custom-progress-bar"></div>
-                <div class="custom-progress-text">{formatted_percent}%</div>
+                <div class="custom-progress-text">{formatted_percent_meta1}%</div>
             </div>
             <div class="marker-line"></div>
             """
@@ -1184,93 +1190,89 @@ if st.session_state["authentication_status"]:
                     <style>
                 .milestone-container {{
                     position: relative;
-                    width: 100%;
+                    width: 75%; /* Ajustando a largura para corresponder à barra de progresso */
                     margin-top: 5px;
                     padding-top: 10px;
+                    margin-left: auto;
+                    margin-right: auto;
+                    height: 110px; /* Altura suficiente para evitar conflito com outros elementos */
                 }}
                 .milestone-line {{
                     position: absolute;
-                    top: 72px;
-                    left: 2.5%;
-                    width: 94%;
-                    height: 3px;
+                    top: 69px;
+                    left: 0; /* Começa exatamente no início do container */
+                    width: 100%; /* Exatamente a largura do container */
+                    height: 2px;
                     background-color: #ddd;
                     z-index: 1;
                 }}
                 .milestone {{
-                    position: relative;
+                    position: absolute;
                     display: inline-block;
                     text-align: center;
                     z-index: 2;
+                    padding: 0;
+                    width: 110px;
+                }}
+                .milestone-left {{
+                    left: 0; /* Alinha com o extremo esquerdo */
+                    transform: translateX(-40%);
+                    margin-left: 0;
+                }}
+                .milestone-right {{
+                    right: -5px; /* Pequeno ajuste para alinhar com o extremo direito */
+                    transform: translateX(40%);
+                    margin-right: 0;
                 }}
                 .milestone-icon {{
                     font-size: 24px;
                     margin-bottom: 5px;
+                    text-align: center;
+                    display: block;
                 }}
                 .milestone-status {{
                     font-size: 20px;
                     margin-bottom: 8px;
                     position: relative;
                     z-index: 3;
+                    text-align: center;
+                    display: block;
                 }}
                 .milestone-value {{
                     font-weight: 600;
                     font-size: 14px;
+                    text-align: center;
+                    display: block;
+                    white-space: nowrap; /* Evita quebra de linha */
                 }}
                 .milestone-label {{
                     font-size: 13px;
+                    text-align: center;
+                    display: block;
                 }}
             </style>
             <div class="milestone-container">
                 <div class="milestone-line"></div>
-                <table style="width: 100%; border-collapse: collapse; border: none; position: relative; z-index: 2;">
-                    <tr style="border: none;">
-                        <td style="width: 5%; text-align: center; vertical-align: top; border: none;">
-                            <div class="milestone">
-                                <div class="milestone-icon">🏁</div>
-                                <div class="milestone-status">{"🔵" if percentual_progresso >= 0 else "⚪"}</div>
-                                <div class="milestone-value" style="color: #2196F3;">R$ 0,00</div>
-                                <div class="milestone-label" style="color: #2196F3;">Início</div>
-                            </div>
-                        </td>
-                        <td style="width: 45%; text-align: center; vertical-align: top; border: none;"></td>
-                        <td style="width: 22%; text-align: center; vertical-align: top; border: none;">
-                            <div class="milestone">
-                                <div class="milestone-icon">🥉</div>
-                                <div class="milestone-status">{"🔵" if percentual_progresso >= 60 else "⚪"}</div>
-                                <div class="milestone-value" style="color: #FF6B6B;">R$ 30.000.000</div>
-                                <div class="milestone-label" style="color: #FF6B6B;">1ª Meta • 60%</div>
-                            </div>
-                        </td>
-                        <td style="width: 3%; text-align: center; vertical-align: top; border: none;"></td>
-                        <td style="width: 14%; text-align: center; vertical-align: top; border: none;">
-                            <div class="milestone">
-                                <div class="milestone-icon">🥈</div>
-                                <div class="milestone-status">{"🔵" if percentual_progresso >= 80 else "⚪"}</div>
-                                <div class="milestone-value" style="color: #FF6B6B;">R$ 40.000.000</div>
-                                <div class="milestone-label" style="color: #FF6B6B;">2ª Meta • 80%</div>                           
-                            </div>
-                        </td>
-                        <td style="width: 3%; text-align: center; vertical-align: top; border: none;"></td>
-                        <td style="width: 100%; text-align: center; vertical-align: top; border: none;">
-                            <div class="milestone">
-                                <div class="milestone-icon">🥇</div>
-                                <div class="milestone-status">{"🔵" if percentual_progresso >= 100 else "⚪"}</div>
-                                <div class="milestone-value" style="color: #FF6B6B;">R$ 50.000.000</div>
-                                <div class="milestone-label" style="color: #FF6B6B;">3ª Meta • 100%</div>                           
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                <div class="milestone milestone-left">
+                    <div class="milestone-icon">🏁</div>
+                    <div class="milestone-status">{"🔵" if percentual_progresso_meta1 >= 0 else "⚪"}</div>
+                    <div class="milestone-value" style="color: #2196F3;">R$&nbsp;0,00</div>
+                    <div class="milestone-label" style="color: #2196F3;">Início</div>
+                </div>
+                <div class="milestone milestone-right">
+                    <div class="milestone-icon">🏆</div>
+                    <div class="milestone-status">{"🔵" if percentual_progresso_meta1 >= 100 else "⚪"}</div>
+                    <div class="milestone-value" style="color: #FF6B6B;">R$&nbsp;{meta1_br_sem_centavos}</div>
+                    <div class="milestone-label" style="color: #FF6B6B;">Meta Atingida</div>
+                </div>
             </div>
-            </table>
             """
                 
             # Dividindo a tabela em partes menores para evitar problemas de renderização
             st.markdown(markers_table, unsafe_allow_html=True)
                 
-            # Espaçamento após os marcadores
-            st.markdown("<div style='margin-bottom: 5px;'></div>", unsafe_allow_html=True)
+            # Espaçamento após os marcadores (aumentado para evitar sobreposição)
+            st.markdown("<div style='margin-bottom: 80px;'></div>", unsafe_allow_html=True)
 
             # Programa de Reconhecimento
             st.markdown("---")
@@ -1501,8 +1503,14 @@ if st.session_state["authentication_status"]:
             with col_o:
                 st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Plataforma de Oportunidades</h3>", unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['OPORTUNIDADES']["andamento"], key="oportunidades_chart")
+                # Card fino e elegante para o embaixador
+                st.markdown("""
+                    <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
+                        <span style='font-weight: 500;'>Embaixador: </span>Vinícius
+                    </div>
+                """, unsafe_allow_html=True)
                 st.markdown(f"""
-                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-top: -10px;'>
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
                         <strong>Última atualização:</strong> {plataformas_data['OPORTUNIDADES']['feedback']}
                     </div>
                 """, unsafe_allow_html=True)
@@ -1511,8 +1519,14 @@ if st.session_state["authentication_status"]:
             with col_g:
                 st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Gestão de Projetos</h3>", unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['GESTÃO DE PROJETOS']["andamento"], key="gestao_chart")
+                # Card fino e elegante para o embaixador
+                st.markdown("""
+                    <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
+                        <span style='font-weight: 500;'>Embaixador: </span>Maria Clara
+                    </div>
+                """, unsafe_allow_html=True)
                 st.markdown(f"""
-                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-top: -10px;'>
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
                         <strong>Última atualização:</strong> {plataformas_data['GESTÃO DE PROJETOS']['feedback']}
                     </div>
                 """, unsafe_allow_html=True)
@@ -1526,8 +1540,14 @@ if st.session_state["authentication_status"]:
                     </h3>
                 """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['GAMIFICAÇÃO']["andamento"], key="gamificacao_chart")
+                # Card fino e elegante para o embaixador
+                st.markdown("""
+                    <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
+                        <span style='font-weight: 500;'>Embaixador: </span>Marcus Varandas
+                    </div>
+                """, unsafe_allow_html=True)
                 st.markdown(f"""
-                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-top: -10px;'>
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
                         <strong>Última atualização:</strong> {plataformas_data['GAMIFICAÇÃO']['feedback']}
                     </div>
                 """, unsafe_allow_html=True)
@@ -1536,8 +1556,14 @@ if st.session_state["authentication_status"]:
             with col_p:
                 st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Plataforma de Produtos</h3>", unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['PRODUTOS']["andamento"], key="produtos_chart")
+                # Card fino e elegante para o embaixador
+                st.markdown("""
+                    <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
+                        <span style='font-weight: 500;'>Embaixador: </span>Victor Eduardo
+                    </div>
+                """, unsafe_allow_html=True)
                 st.markdown(f"""
-                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-top: -10px;'>
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
                         <strong>Última atualização:</strong> {plataformas_data['PRODUTOS']['feedback']}
                     </div>
                 """, unsafe_allow_html=True)
@@ -1546,8 +1572,14 @@ if st.session_state["authentication_status"]:
             with col_e:
                 st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Escrita de Projetos/Produtos</h3>", unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['ESCRITAS']["andamento"], key="escritas_chart")
+                # Card fino e elegante para o embaixador
+                st.markdown("""
+                    <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
+                        <span style='font-weight: 500;'>Embaixador: </span>Marcus Varandas
+                    </div>
+                """, unsafe_allow_html=True)
                 st.markdown(f"""
-                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-top: -10px;'>
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
                         <strong>Última atualização:</strong> {plataformas_data['ESCRITAS']['feedback']}
                     </div>
                 """, unsafe_allow_html=True)
@@ -1596,16 +1628,34 @@ if st.session_state["authentication_status"]:
             total_contratos = values[4] if len(values) > 4 else 0
             taxa_conversao_total = total_contratos / total_oportunidades if total_oportunidades > 0 else 0
             
-            # Calcular tempo médio total excluindo a etapa de EXECUÇÃO
-            # Identificar o índice da etapa de EXECUÇÃO
+            # Calcular taxa de conversão excluindo OPORTUNIDADES e EXECUÇÃO
+            # Identificar os índices das etapas a excluir
+            oportunidades_idx = -1
             execucao_idx = -1
             for i, stage in enumerate(stages):
-                if "EXECUÇÃO" in stage.upper():
+                if "OPORTUNIDADE" in stage.upper():
+                    oportunidades_idx = i
+                elif "EXECUÇÃO" in stage.upper():
                     execucao_idx = i
-                    break
             
-            # Calcular tempo médio total sem a etapa de EXECUÇÃO
-            tempo_medio_total = sum([time for i, time in enumerate(avg_times) if i != execucao_idx])
+            # Determinar as etapas relevantes (da modelagem até antes da execução)
+            # Assumindo que a etapa após OPORTUNIDADES é a modelagem
+            if oportunidades_idx != -1 and oportunidades_idx + 1 < len(values):
+                valores_relevantes = [values[i] for i in range(len(values)) if i != oportunidades_idx and i != execucao_idx]
+                # Valor de entrada é o primeiro valor após oportunidades
+                valor_entrada = values[oportunidades_idx + 1]
+                # Valor de saída é o último valor antes de execução (ou o último se não houver execução)
+                if execucao_idx != -1 and execucao_idx > 0:
+                    valor_saida = values[execucao_idx - 1]
+                else:
+                    valor_saida = values[-1]
+                
+                taxa_conversao_total = valor_saida / valor_entrada if valor_entrada > 0 else 0
+            else:
+                taxa_conversao_total = 0
+            
+            # Calcular tempo médio total excluindo as etapas de OPORTUNIDADES e EXECUÇÃO
+            tempo_medio_total = sum([time for i, time in enumerate(avg_times) if i != oportunidades_idx and i != execucao_idx])
             
             # Subseção de métricas
             st.subheader("Resumo do Funil")
@@ -1623,8 +1673,15 @@ if st.session_state["authentication_status"]:
                     
                 st.markdown(f"""
                 <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #70AD47;">
-                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Taxa de Conversão Total</h4>
-                    <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{taxa_conversao_total:.1%}</p>
+                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Taxa de Conversão</h4>
+                    <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até Pré-Execução)</p>
+                    <div style="display: flex; align-items: baseline;">
+                        <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{taxa_conversao_total:.1%}</p>
+                        <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">Meta: 75%</p>
+                    </div>
+                    <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
+                        <div style="width: {min(taxa_conversao_total*100/75*100, 100)}%; height: 100%; border-radius: 3px; background-color: {('#4CAF50' if taxa_conversao_total >= 0.75 else '#FFC107' if taxa_conversao_total >= 0.5 else '#F44336')}"></div>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -1638,8 +1695,15 @@ if st.session_state["authentication_status"]:
                     
                 st.markdown(f"""
                 <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #C00000;">
-                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Tempo Médio Total (Exceto Execução) </h4>
-                    <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{tempo_medio_total} dias</p>
+                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Tempo Médio</h4>
+                    <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até Pré-Execução)</p>
+                    <div style="display: flex; align-items: baseline;">
+                        <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{tempo_medio_total} dias</p>
+                        <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">Meta: 120 dias</p>
+                    </div>
+                    <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
+                        <div style="width: {min(100 - max(tempo_medio_total - 120, 0)/120*100, 100)}%; height: 100%; border-radius: 3px; background-color: {('#4CAF50' if tempo_medio_total <= 120 else '#FFC107' if tempo_medio_total <= 150 else '#F44336')}"></div>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
             
