@@ -2335,3 +2335,7 @@ if st.session_state["authentication_status"]:
             
         else:
             st.warning("Dados incompletos para Captação Digital.")
+
+
+    st.markdown("---")
+    st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas - Versão 1.0 © Innovatis 2025</div>", unsafe_allow_html=True)
