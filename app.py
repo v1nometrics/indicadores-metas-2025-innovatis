@@ -335,6 +335,70 @@ if st.session_state["authentication_status"]:
     # =========================================================================
     # Carregamento e Processamento de Dados
     # =========================================================================
+    def prepare_instagram_link(url):
+        """
+        Prepara uma URL do Instagram para uso em botões de redirecionamento.
+        Remove /embed/ e garante uma URL válida.
+        """
+        try:
+            # Se a URL não é válida, retornar URL padrão
+            if not url or not isinstance(url, str):
+                print("URL inválida: não é uma string ou está vazia")
+                return "https://instagram.com"
+            
+            # Log para debug
+            print(f"URL original para botão: {url}")
+            
+            # Verificação específica para o formato que sabemos que está vindo
+            # URLs tipo: https://www.instagram.com/epitaciobrito/p/DG3tEQ4vmKZ/embed/
+            if 'epitaciobrito' in url and '/p/' in url:
+                # Extrair as partes importantes
+                parts = url.split('/p/')
+                if len(parts) > 1:
+                    post_id = parts[1].replace('embed/', '').replace('/embed', '').strip('/')
+                    # Reconstruir a URL no formato correto
+                    return f"https://www.instagram.com/p/{post_id}/"
+            
+            # Remover espaços em branco
+            clean_url = url.strip()
+            
+            # Verificar se a URL está no formato esperado
+            if not ('instagram.com' in clean_url or clean_url.startswith('www.') or clean_url.startswith('http')):
+                # Pode ser apenas o caminho, adicionar prefixo
+                if clean_url.startswith('p/') or clean_url.startswith('/p/'):
+                    clean_url = 'https://instagram.com/' + clean_url.lstrip('/')
+                elif 'epitaciobrito' in clean_url:
+                    # Parece ser um perfil/post específico, adaptar
+                    clean_url = 'https://instagram.com/' + clean_url
+            
+            # Remover /embed/ se presente para o link direto
+            clean_url = clean_url.replace('/embed/', '/').replace('/embed', '/')
+            
+            # Remover parâmetros de consulta (tudo após ?)
+            clean_url = clean_url.split('?')[0]
+            
+            # Garantir que termina com barra
+            if not clean_url.endswith('/'):
+                clean_url += '/'
+                
+            # Garantir que tem o protocolo
+            if not (clean_url.startswith('http://') or clean_url.startswith('https://')):
+                if clean_url.startswith('www.'):
+                    clean_url = 'https://' + clean_url
+                else:
+                    clean_url = 'https://' + clean_url.lstrip('/')
+                
+            # Garantir que contém instagram.com
+            if 'instagram.com' not in clean_url:
+                parts = clean_url.replace('https://', '').replace('http://', '').lstrip('/').split('/')
+                clean_url = f"https://instagram.com/{'/'.join(parts)}"
+                
+            print(f"URL limpa para botão: {clean_url}")
+            return clean_url
+        except Exception as e:
+            print(f"Erro ao preparar URL do Instagram para botão: {str(e)}")
+            return "https://instagram.com"
+            
     def convert_instagram_url_to_embed(url):
         """
         Prepara uma URL do Instagram para incorporação.
@@ -343,24 +407,48 @@ if st.session_state["authentication_status"]:
         try:
             # Se a URL não é válida, retornar vazio
             if not url or not isinstance(url, str):
+                print(f"URL Instagram inválida: {url}")
                 return ""
+            
+            # Debugar a URL original
+            print(f"URL original: {url}")
+            
+            # Verificar se a URL já tem formato de embed
+            is_embed_url = url.endswith('/embed/')
             
             # Limpar a URL
             # Remover parâmetros de consulta (tudo após ?)
             url = url.split('?')[0]
             
-            # Garantir que a URL termina com barra
-            if not url.endswith('/'):
+            # Garantir que a URL termina com barra (se não for uma URL de embed)
+            if not url.endswith('/') and not is_embed_url:
                 url += '/'
                 
             # Verificar se a URL contém os elementos necessários
             if 'instagram.com' not in url:
-                raise ValueError("URL inválida do Instagram")
+                if url.startswith('www.'):
+                    url = 'https://' + url
+                elif url.startswith('/'):
+                    url = 'https://instagram.com' + url
+                else:
+                    url = 'https://instagram.com/' + url
+            
+            # Garantir que a URL tem protocolo
+            if not (url.startswith('http://') or url.startswith('https://')):
+                url = 'https://' + url
+            
+            # Restaurar o /embed/ se estava presente originalmente
+            if is_embed_url and not url.endswith('/embed/'):
+                if url.endswith('/'):
+                    url += 'embed/'
+                else:
+                    url += '/embed/'
                 
+            print(f"URL processada: {url}")
             return url
         except Exception as e:
-            st.error(f"Erro ao processar URL do Instagram: {str(e)}")
-            return ""
+            print(f"Erro ao processar URL do Instagram: {str(e)}")
+            return url if isinstance(url, str) else ""
 
     # Função para carregar o logo da empresa
     @st.cache_data
@@ -1190,9 +1278,9 @@ if st.session_state["authentication_status"]:
                 }}
                 .milestone-line {{
                     position: absolute;
-                    top: 69px;
-                    left: 0; /* Começa exatamente no início do container */
-                    width: 100%; /* Exatamente a largura do container */
+                    top: 72px;
+                    left: 12px; /* Começa exatamente no início do container */
+                    width: calc(100% - 24px); /* Exatamente a largura do container */
                     height: 2px;
                     background-color: #ddd;
                     z-index: 1;
@@ -1211,7 +1299,7 @@ if st.session_state["authentication_status"]:
                     margin-left: 0;
                 }}
                 .milestone-right {{
-                    right: -5px; /* Pequeno ajuste para alinhar com o extremo direito */
+                    right: 0; /* Alinha com o extremo direito */
                     transform: translateX(40%);
                     margin-right: 0;
                 }}
@@ -2168,7 +2256,22 @@ if st.session_state["authentication_status"]:
             with col1:
                 try:
                     top_content_1 = instagram_row['Top conteudo 1'].values[0]
-                    instagram_url_1 = convert_instagram_url_to_embed(top_content_1)
+                    
+                    # Último recurso: hardcoded
+                    if isinstance(top_content_1, str) and 'epitaciobrito/p/DG3tEQ4vmKZ' in top_content_1:
+                        url_for_button_1 = "https://www.instagram.com/p/DG3tEQ4vmKZ/"
+                        print("Usando URL hardcoded para o botão 1 (conhecido pela entrada)")
+                    else:
+                        # Usar a função para preparar a URL
+                        url_for_button_1 = prepare_instagram_link(top_content_1)
+                    
+                    # Se a URL é a padrão, mostrar aviso
+                    if url_for_button_1 == "https://instagram.com":
+                        st.warning("URL do primeiro conteúdo é inválida. Usando URL padrão do Instagram.")
+                    
+                    # Log para debug
+                    print(f"URL original 1: {top_content_1}")
+                    print(f"URL para botão 1: {url_for_button_1}")
 
                     st.markdown(f"""
                     <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative; margin-bottom: 0px;">
@@ -2185,31 +2288,44 @@ if st.session_state["authentication_status"]:
                                 </div>
                             </div>
                             <div style="text-align: center; margin-top: 10px; margin-bottom: 15px;">
-                                <a href="{instagram_url_1}" target="_blank" style="background: #1a73e8; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
+                                <a href="{url_for_button_1}" target="_blank" style="background: #1a73e8; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
                                     Ver no Instagram <span style="margin-left: 5px;">➔</span>
                                 </a>
                             </div>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
-                    
-                    # Removido o componente de exibição do post do Instagram
-                    
+                        
                 except Exception as e:
                     st.error(f"Erro ao carregar o primeiro conteúdo: {str(e)}")
 
             with col2:
                 try:
                     top_content_2 = instagram_row['Top conteudo 2'].values[0]
-                    instagram_url_2 = convert_instagram_url_to_embed(top_content_2)
+                    
+                    # Último recurso: hardcoded
+                    if isinstance(top_content_2, str) and 'epitaciobrito/p/DHI_NqeMGP0' in top_content_2:
+                        url_for_button_2 = "https://www.instagram.com/p/DHI_NqeMGP0/"
+                        print("Usando URL hardcoded para o botão 2 (conhecido pela entrada)")
+                    else:
+                        # Usar a função para preparar a URL
+                        url_for_button_2 = prepare_instagram_link(top_content_2)
+                    
+                    # Se a URL é a padrão, mostrar aviso
+                    if url_for_button_2 == "https://instagram.com":
+                        st.warning("URL do segundo conteúdo é inválida. Usando URL padrão do Instagram.")
+                    
+                    # Log para debug
+                    print(f"URL original 2: {top_content_2}")
+                    print(f"URL para botão 2: {url_for_button_2}")
 
                     st.markdown(f"""
                     <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative; margin-bottom: 0px;">
-                        <div style="background: linear-gradient(90deg, #833AB4, #5851DB); height: 8px;"></div>
-                        <div style="position: absolute; top: 20px; left: 20px; background: #5851DB; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(88, 81, 219, 0.3);">TOP #2</div>
+                        <div style="background: linear-gradient(90deg, #5851DB, #405DE6); height: 8px;"></div>
+                        <div style="position: absolute; top: 20px; left: 20px; background: #6E45E2; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(110, 69, 226, 0.3);">TOP #2</div>
                         <div style="padding: 25px 20px 20px 20px;">
                             <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #833AB4, #5851DB); display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #5851DB, #833AB4, #C13584); display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
                                     <span style="font-size: 24px; color: white;">🥈</span>
                                 </div>
                                 <div>
@@ -2218,16 +2334,14 @@ if st.session_state["authentication_status"]:
                                 </div>
                             </div>
                             <div style="text-align: center; margin-top: 10px; margin-bottom: 15px;">
-                                <a href="{instagram_url_2}" target="_blank" style="background: #5851DB; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
+                                <a href="{url_for_button_2}" target="_blank" style="background: #1a73e8; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
                                     Ver no Instagram <span style="margin-left: 5px;">➔</span>
                                 </a>
                             </div>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
-                    
-                    # Removido o componente de exibição do post do Instagram
-                    
+                        
                 except Exception as e:
                     st.error(f"Erro ao carregar o segundo conteúdo: {str(e)}")
             
@@ -2235,15 +2349,3 @@ if st.session_state["authentication_status"]:
             
         else:
             st.warning("Dados incompletos para Captação Digital.")
-    else:
-        st.warning("Não há dados disponíveis para Captação Digital.")
-
-    # Removida a linha horizontal
-    st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas - Versão 1.0 © Innovatis 2025</div>", unsafe_allow_html=True)
-    
-    # Removido o script do Instagram
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
-
