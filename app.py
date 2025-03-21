@@ -15,6 +15,7 @@ from io import BytesIO
 import yaml
 from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
+import streamlit.components.v1 as components
 
 # Configurações da página
 st.set_page_config(
@@ -336,22 +337,15 @@ if st.session_state["authentication_status"]:
     # =========================================================================
     def convert_instagram_url_to_embed(url):
         """
-        Converte uma URL normal do Instagram para uma URL de incorporação (embed).
-        
-        Exemplos de conversão:
-        - https://www.instagram.com/p/ABC123/ -> https://www.instagram.com/p/ABC123/embed/
-        - https://www.instagram.com/epitaciobrito/p/DG3tEQ4vmKZ/ -> https://www.instagram.com/epitaciobrito/p/DG3tEQ4vmKZ/embed/
-        - https://www.instagram.com/epitaciobrito/p/DHI_NqeMGP0/ -> https://www.instagram.com/epitaciobrito/p/DHI_NqeMGP0/embed/
+        Prepara uma URL do Instagram para incorporação.
+        Simplificado para garantir que a URL esteja limpa e válida.
         """
         try:
-            # Se a URL não é válida, retornar como está
+            # Se a URL não é válida, retornar vazio
             if not url or not isinstance(url, str):
-                return url
+                return ""
             
-            # Remover /embed/ se já existir
-            if url.endswith('/embed/'):
-                url = url[:-6]
-            
+            # Limpar a URL
             # Remover parâmetros de consulta (tudo após ?)
             url = url.split('?')[0]
             
@@ -359,17 +353,14 @@ if st.session_state["authentication_status"]:
             if not url.endswith('/'):
                 url += '/'
                 
-            # Adicionar 'embed/' ao final da URL
-            embed_url = url + 'embed/'
-            
             # Verificar se a URL contém os elementos necessários
-            if 'instagram.com' not in embed_url or '/p/' not in embed_url:
+            if 'instagram.com' not in url:
                 raise ValueError("URL inválida do Instagram")
                 
-            return embed_url
+            return url
         except Exception as e:
             st.error(f"Erro ao processar URL do Instagram: {str(e)}")
-            return url  # Retorna a URL original em caso de erro
+            return ""
 
     # Função para carregar o logo da empresa
     @st.cache_data
@@ -2177,10 +2168,10 @@ if st.session_state["authentication_status"]:
             with col1:
                 try:
                     top_content_1 = instagram_row['Top conteudo 1'].values[0]
-                    embed_url_1 = top_content_1
+                    instagram_url_1 = convert_instagram_url_to_embed(top_content_1)
 
                     st.markdown(f"""
-                    <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
+                    <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative; margin-bottom: 0px;">
                         <div style="background: linear-gradient(90deg, #833AB4, #FD1D1D); height: 8px;"></div>
                         <div style="position: absolute; top: 20px; left: 20px; background: #FF9500; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(255, 149, 0, 0.3);">TOP #1</div>
                         <div style="padding: 25px 20px 20px 20px;">
@@ -2193,29 +2184,27 @@ if st.session_state["authentication_status"]:
                                     <p style="margin: 0; color: #666; font-size: 13px;">Maior engajamento na plataforma</p>
                                 </div>
                             </div>
-                            
-                            <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0;">
-                                <div class="instagram-embed-container">
-                                    <iframe class="instagram-media instagram-media-rendered" src="{embed_url_1}" width="100%" height="530" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
-                                </div>
+                            <div style="text-align: center; margin-top: 10px; margin-bottom: 15px;">
+                                <a href="{instagram_url_1}" target="_blank" style="background: #1a73e8; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
+                                    Ver no Instagram <span style="margin-left: 5px;">➔</span>
+                                </a>
                             </div>
-                            
-                            <a href="{top_content_1}" target="_blank" style="background: #1a73e8; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
-                                Ver no Instagram <span style="margin-left: 5px;">➔</span>
-                            </a>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
+                    
+                    # Removido o componente de exibição do post do Instagram
+                    
                 except Exception as e:
                     st.error(f"Erro ao carregar o primeiro conteúdo: {str(e)}")
 
             with col2:
                 try:
                     top_content_2 = instagram_row['Top conteudo 2'].values[0]
-                    embed_url_2 = convert_instagram_url_to_embed(top_content_2)
+                    instagram_url_2 = convert_instagram_url_to_embed(top_content_2)
 
                     st.markdown(f"""
-                    <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative;">
+                    <div class="top-content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; height: 100%; position: relative; margin-bottom: 0px;">
                         <div style="background: linear-gradient(90deg, #833AB4, #5851DB); height: 8px;"></div>
                         <div style="position: absolute; top: 20px; left: 20px; background: #5851DB; color: white; padding: 5px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 8px rgba(88, 81, 219, 0.3);">TOP #2</div>
                         <div style="padding: 25px 20px 20px 20px;">
@@ -2228,37 +2217,31 @@ if st.session_state["authentication_status"]:
                                     <p style="margin: 0; color: #666; font-size: 13px;">Alto desempenho na plataforma</p>
                                 </div>
                             </div>
-                            
-                            <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0;">
-                                <div class="instagram-embed-container">
-                                    <iframe class="instagram-media instagram-media-rendered" src="{embed_url_2}" width="100%" height="530" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
-                                </div>
+                            <div style="text-align: center; margin-top: 10px; margin-bottom: 15px;">
+                                <a href="{instagram_url_2}" target="_blank" style="background: #5851DB; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
+                                    Ver no Instagram <span style="margin-left: 5px;">➔</span>
+                                </a>
                             </div>
-                            
-                            <a href="{top_content_2}" target="_blank" style="background: #5851DB; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: 500; display: inline-block; transition: all 0.3s;">
-                                Ver no Instagram <span style="margin-left: 5px;">➔</span>
-                            </a>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
+                    
+                    # Removido o componente de exibição do post do Instagram
+                    
                 except Exception as e:
                     st.error(f"Erro ao carregar o segundo conteúdo: {str(e)}")
-
-            # Espaço após os cards
-            st.markdown("<div style='margin-top: 40px; margin-bottom: 15px;'></div>", unsafe_allow_html=True)
+            
+            # Removido o espaçamento adicional após os cards
             
         else:
             st.warning("Dados incompletos para Captação Digital.")
     else:
         st.warning("Não há dados disponíveis para Captação Digital.")
 
-    st.markdown("---")
+    # Removida a linha horizontal
     st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas - Versão 1.0 © Innovatis 2025</div>", unsafe_allow_html=True)
     
-    # Add Instagram embed script
-    st.markdown("""
-        <script async src="//www.instagram.com/embed.js"></script>
-    """, unsafe_allow_html=True)
+    # Removido o script do Instagram
     
     st.markdown('</div>', unsafe_allow_html=True)
 
