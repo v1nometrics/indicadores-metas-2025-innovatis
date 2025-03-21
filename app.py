@@ -1585,7 +1585,7 @@ if st.session_state["authentication_status"]:
                 # Card fino e elegante para o embaixador
                 st.markdown("""
                     <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
-                        <span style='font-weight: 500;'>Embaixador: </span>Vinícius
+                        <span style='font-weight: 500;'>Embaixador: </span>Vinícius Torres
                     </div>
                 """, unsafe_allow_html=True)
                 st.markdown(f"""
