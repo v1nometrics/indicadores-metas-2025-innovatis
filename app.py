@@ -508,14 +508,14 @@ if st.session_state["authentication_status"]:
             else:
                 df_faturamento = pd.DataFrame()
             
-            # Nova seção: Funil de Vendas (Linhas 26-32)
-            if len(valores) >= 32:
+            # Nova seção: Funil de Vendas (Linhas 26-34)
+            if len(valores) >= 34:
                 # Linha 26 (índice 25) contém os cabeçalhos: FUNIL, Qtd., Taxa de Conversão, Tempo médio
                 funil_headers = valores[25][1:5]  # Colunas B-E
                 
-                # Linhas 27-32 (índices 26-31) contêm os dados das etapas do funil
+                # Linhas 27-34 (índices 26-33) contêm os dados das etapas do funil
                 funil_data = []
-                for i in range(26, 32):
+                for i in range(26, 34):
                     # Colunas B-E contêm os valores
                     funil_data.append(valores[i][1:5])
                 
@@ -882,12 +882,14 @@ if st.session_state["authentication_status"]:
         if color_stages is None:
             # Esquema de cores mais suave e agradável à visão
             color_stages = [
-                '#8ECAE6',  # Azul claro suave
-                '#219EBC',  # Azul médio
-                '#A8DADC',  # Azul pastel
-                '#457B9D',  # Azul petróleo
-                '#E9C46A',  # Amarelo pastel
-                '#F4A261'   # Laranja pastel
+                '#8ECAE6',  # Azul claro suave (Oportunidades)
+                '#FFD966',  # Amarelo institucional (Orçamento)
+                '#219EBC',  # Azul médio (Modelagem)
+                '#F4A261',  # Laranja pastel (Propostas)
+                '#A8DADC',  # Azul pastel (Cotação)
+                '#FFB347',  # Laranja médio (Contratos)
+                '#457B9D',  # Azul petróleo (Planejamento)
+                '#E9C46A'   # Amarelo pastel (Execução)
             ]
         
         # Criar figura
@@ -904,7 +906,7 @@ if st.session_state["authentication_status"]:
             opacity=0.85,  # Reduzir opacidade para cores mais suaves
             marker={
                 "color": color_stages,
-                "line": {"width": [1, 1, 1, 1, 1, 1], "color": ["white", "white", "white", "white", "white", "white"]}
+                "line": {"width": [1, 1, 1, 1, 1, 1, 1, 1], "color": ["white", "white", "white", "white", "white", "white", "white", "white"]}
             },
             connector={"line": {"color": "rgba(0,0,0,0.1)", "width": 1, "dash": "dot"}}
         ))
@@ -1601,7 +1603,7 @@ if st.session_state["authentication_status"]:
                 # Card fino e elegante para o embaixador
                 st.markdown("""
                     <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
-                        <span style='font-weight: 500;'>Embaixador: </span>Maria Clara
+                        <span style='font-weight: 500;'>Embaixador: </span>Raissa Cartaxo
                     </div>
                 """, unsafe_allow_html=True)
                 st.markdown(f"""
@@ -1610,8 +1612,24 @@ if st.session_state["authentication_status"]:
                     </div>
                 """, unsafe_allow_html=True)
 
-        if 'GAMIFICAÇÃO' in plataformas_data:
+        if 'PRODUTOS' in plataformas_data:
             with col_ga:
+                st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Plataforma de Produtos</h3>", unsafe_allow_html=True)
+                create_circular_progress_chart(plataformas_data['PRODUTOS']["andamento"], key="produtos_chart")
+                # Card fino e elegante para o embaixador
+                st.markdown("""
+                    <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
+                        <span style='font-weight: 500;'>Embaixador: </span>Victor Eduardo
+                    </div>
+                """, unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
+                        <strong>Última atualização:</strong> {plataformas_data['PRODUTOS']['feedback']}
+                    </div>
+                """, unsafe_allow_html=True)
+
+        if 'GAMIFICAÇÃO' in plataformas_data:
+            with col_p:
                 st.markdown("""
                     <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
                     height: 2.4em; display: flex; align-items: center; justify-content: center;'>
@@ -1628,22 +1646,6 @@ if st.session_state["authentication_status"]:
                 st.markdown(f"""
                     <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
                         <strong>Última atualização:</strong> {plataformas_data['GAMIFICAÇÃO']['feedback']}
-                    </div>
-                """, unsafe_allow_html=True)
-
-        if 'PRODUTOS' in plataformas_data:
-            with col_p:
-                st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Plataforma de Produtos</h3>", unsafe_allow_html=True)
-                create_circular_progress_chart(plataformas_data['PRODUTOS']["andamento"], key="produtos_chart")
-                # Card fino e elegante para o embaixador
-                st.markdown("""
-                    <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
-                        <span style='font-weight: 500;'>Embaixador: </span>Victor Eduardo
-                    </div>
-                """, unsafe_allow_html=True)
-                st.markdown(f"""
-                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
-                        <strong>Última atualização:</strong> {plataformas_data['PRODUTOS']['feedback']}
                     </div>
                 """, unsafe_allow_html=True)
 
@@ -1667,6 +1669,13 @@ if st.session_state["authentication_status"]:
 
     # Nova Seção: Funil de Vendas
     st.header("Funil de Vendas")
+    
+    # Adicionar informação do período
+    st.markdown("""
+        <div style="margin-top: -10px; margin-bottom: 25px;">
+            <p style="color: #666; font-size: 15px; font-style: italic;">Dados considerados: 01/01/2025 até hoje</p>
+        </div>
+    """, unsafe_allow_html=True)
 
     df_funil = data["funil"]
 
@@ -1704,37 +1713,29 @@ if st.session_state["authentication_status"]:
         with col_metricas:
             # Calcular métricas importantes
             total_oportunidades = values[0] if len(values) > 0 else 0
-            total_contratos = values[4] if len(values) > 4 else 0
-            taxa_conversao_total = total_contratos / total_oportunidades if total_oportunidades > 0 else 0
             
-            # Calcular taxa de conversão excluindo OPORTUNIDADES e EXECUÇÃO
-            # Identificar os índices das etapas a excluir
-            oportunidades_idx = -1
-            execucao_idx = -1
+            # Encontrar índices importantes
+            modelagem_idx = -1
+            planejamento_idx = -1
             for i, stage in enumerate(stages):
-                if "OPORTUNIDADE" in stage.upper():
-                    oportunidades_idx = i
-                elif "EXECUÇÃO" in stage.upper():
-                    execucao_idx = i
+                if "MODELAGEM" in stage.upper():
+                    modelagem_idx = i
+                elif "PLANEJAMENTO" in stage.upper():
+                    planejamento_idx = i
             
-            # Determinar as etapas relevantes (da modelagem até antes da execução)
-            # Assumindo que a etapa após OPORTUNIDADES é a modelagem
-            if oportunidades_idx != -1 and oportunidades_idx + 1 < len(values):
-                valores_relevantes = [values[i] for i in range(len(values)) if i != oportunidades_idx and i != execucao_idx]
-                # Valor de entrada é o primeiro valor após oportunidades
-                valor_entrada = values[oportunidades_idx + 1]
-                # Valor de saída é o último valor antes de execução (ou o último se não houver execução)
-                if execucao_idx != -1 and execucao_idx > 0:
-                    valor_saida = values[execucao_idx - 1]
-                else:
-                    valor_saida = values[-1]
-                
+            # Total de contratos agora usa o valor do Planejamento
+            total_contratos = values[planejamento_idx] if planejamento_idx >= 0 else 0
+            
+            # Calcular taxa de conversão da Modelagem até Planejamento
+            if modelagem_idx >= 0 and planejamento_idx >= 0 and modelagem_idx < planejamento_idx:
+                valor_entrada = values[modelagem_idx]
+                valor_saida = values[planejamento_idx]
                 taxa_conversao_total = valor_saida / valor_entrada if valor_entrada > 0 else 0
             else:
                 taxa_conversao_total = 0
             
-            # Calcular tempo médio total excluindo as etapas de OPORTUNIDADES e EXECUÇÃO
-            tempo_medio_total = sum([time for i, time in enumerate(avg_times) if i != oportunidades_idx and i != execucao_idx])
+            # Calcular tempo médio total da Modelagem até Planejamento
+            tempo_medio_total = sum([time for i, time in enumerate(avg_times) if modelagem_idx <= i <= planejamento_idx]) if modelagem_idx >= 0 and planejamento_idx >= 0 else 0
             
             # Subseção de métricas
             st.subheader("Resumo do Funil")
@@ -1789,7 +1790,8 @@ if st.session_state["authentication_status"]:
             # Encontrar gargalos no funil (menor taxa de conversão)
             conversion_values = []
             for i, rate in enumerate(conversion_rates):
-                if rate != '-' and isinstance(rate, str):
+                # Só considerar taxas entre Modelagem e Planejamento
+                if modelagem_idx <= i <= planejamento_idx and rate != '-' and isinstance(rate, str):
                     try:
                         # Converter string de porcentagem para float
                         rate_value = float(rate.strip('%')) / 100
@@ -1805,10 +1807,10 @@ if st.session_state["authentication_status"]:
                 min_conversion_stage = "N/A"
                 min_conversion_rate = "N/A"
             
-            # Encontrar etapa mais demorada (excluindo EXECUÇÃO)
-            if avg_times:
-                # Filtrar etapas excluindo EXECUÇÃO
-                filtered_times = [(i, time) for i, time in enumerate(avg_times) if i != execucao_idx]
+            # Encontrar etapa mais demorada (entre Modelagem e Planejamento)
+            if avg_times and modelagem_idx >= 0 and planejamento_idx >= 0:
+                # Filtrar etapas entre Modelagem e Planejamento
+                filtered_times = [(i, time) for i, time in enumerate(avg_times) if modelagem_idx <= i <= planejamento_idx]
                 if filtered_times:
                     max_time_idx = max(filtered_times, key=lambda x: x[1])[0]
                     max_time_stage = stages[max_time_idx]
@@ -1857,7 +1859,7 @@ if st.session_state["authentication_status"]:
     <div style="background: linear-gradient(90deg, #833AB4, #FD1D1D, #FCAF45); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div>
-                <h2 style="color: white; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Captação de Oportunidade por Redes Sociais</h2>
+                <h2 style="color: white; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Metas de Comunicação & Marketing</h2>
                 <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0; font-size: 15px;">Métricas e desempenho da presença digital</p>
             </div>
             <div style="font-size: 32px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
@@ -1866,6 +1868,157 @@ if st.session_state["authentication_status"]:
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # Dados das metas de comunicação e marketing
+    marketing_goals = [
+        # ——— COMUNICAÇÃO INTERNA ———
+        {"objetivo": "Comunicação Interna", "acao": "Comunicados",             "meta": "1 por semana",       "pct": 0.30, "status": "🟡 Em desenvolvimento"},
+        {"objetivo": "Comunicação Interna", "acao": "Templates",               "meta": "Finalizados",    "pct": 1.00, "status": "✅ Concluído"},
+        {"objetivo": "Comunicação Interna", "acao": "Material Institucional",  "meta": "Finalizado",     "pct": 0.80, "status": "🟡 Em desenvolvimento"},
+
+        # ——— SINALIZAÇÃO DO ESCRITÓRIO ———
+        {"objetivo": "Sinalização Escritório", "acao": "Layout",                   "meta": "Validado",          "pct": 1.00, "status": "✅ Concluído"},
+        {"objetivo": "Sinalização Escritório", "acao": "Preparação para impressão",  "meta": "Arquivos prontos",  "pct": 0.30, "status": "🟡 Em progresso"},
+        {"objetivo": "Sinalização Escritório", "acao": "Produção com fornecedor",   "meta": "—",                 "pct": 0.00, "status": "🔴 Não iniciado"},
+        {"objetivo": "Sinalização Escritório", "acao": "Aplicação adesivos/placas","meta": "—",                 "pct": 0.00, "status": "🔴 Não iniciado"},
+
+        # ——— ALCANCE NO INSTAGRAM ———
+        {"objetivo": "Alcance Instagram", "acao": "Captação novos projetos", "meta": "4 projetos por ano", "pct": 0.00, "status": "🔴 Não iniciado"},
+        {"objetivo": "Alcance Instagram", "acao": "Divulgação projetos",     "meta": "1 post a cada 5 dias", "pct": 0.40, "status": "🟡 Parcial"},
+        {"objetivo": "Alcance Instagram", "acao": "Vídeos semanais",         "meta": "2 vídeos por semana","pct": 0.50, "status": "🟡 Parcial"},
+    ]
+
+    # Criar três colunas para os objetivos
+    col1, col2, col3 = st.columns(3, gap="large")
+
+    # Mapear objetivos para colunas
+    cols = {
+        "Comunicação Interna": col1,
+        "Sinalização Escritório": col2,
+        "Alcance Instagram": col3
+    }
+
+    # Reordenar plataformas (trocando Gamificação com Produtos)
+    plataformas = ['OPORTUNIDADES', 'GESTÃO DE PROJETOS', 'PRODUTOS', 'GAMIFICAÇÃO', 'ESCRITAS']
+
+    # Estilo CSS para os cards de metas
+    card_style = """
+        padding: 16px;
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        cursor: default;
+    """
+
+    # Adicionar estilos CSS globais
+    st.markdown("""
+    <style>
+        /* Estilo para os títulos das colunas */
+        h3 {
+            color: #2C3E50;
+            font-weight: 500;
+            font-size: 19px !important;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 20px !important;
+            text-align: center;
+            opacity: 0.9;
+        }
+        
+        /* Estilo base para os cards */
+        div[style*="border-radius: 12px"] {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        /* Efeito hover apenas para os cards das metas */
+        div[style*="border-radius: 12px"]:hover {
+            transform: translateY(-4px);
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 8px 24px !important;
+        }
+        
+        /* Melhorar contraste do texto */
+        .meta-title {
+            color: #1a1a1a;
+            font-weight: 600;
+            font-size: 1.05em;
+            margin-bottom: 6px;
+        }
+        
+        .meta-value {
+            color: #444;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+        
+        .meta-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        /* Melhorar aparência da barra de progresso */
+        .progress-bar-bg {
+            background: #f5f5f5;
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+
+        /* Ajuste para centralizar o conteúdo das colunas */
+        [data-testid="column"] {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Renderizar metas em cada coluna
+    for objetivo in ["Comunicação Interna", "Sinalização Escritório", "Alcance Instagram"]:
+        col = cols[objetivo]
+        col.markdown(f"<h3>{objetivo}</h3>", unsafe_allow_html=True)
+        
+        # Filtrar metas do objetivo atual
+        metas_objetivo = [m for m in marketing_goals if m["objetivo"] == objetivo]
+        
+        for meta in metas_objetivo:
+            # Definir cor da barra de progresso
+            if meta["pct"] == 1:
+                bar_color = "#4CAF50"  # Verde para concluído
+            elif meta["pct"] > 0:
+                bar_color = "#FFC107"  # Amarelo para em progresso
+            else:
+                bar_color = "#F44336"  # Vermelho para não iniciado
+                
+            # Criar card para cada meta
+            col.markdown(f"""
+            <div style='{card_style}'>
+                <div class="meta-title">{meta['acao']}</div>
+                <div class="meta-value">Meta: {meta['meta']}</div>
+                <div class="meta-status">
+                    <span style="color: #1a1a1a;">{int(meta['pct']*100)}%</span>
+                    <span>{meta['status']}</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style='
+                        background: {bar_color}; 
+                        width: {meta["pct"]*100}%;'>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
     df_captacao = data["captacao_digital"]
 
@@ -2005,6 +2158,8 @@ if st.session_state["authentication_status"]:
                 }
             </style>
             """, unsafe_allow_html=True)
+
+           
                 
             # Criar linha de métricas principais
             st.markdown("<h2 style='font-size: 24px;'>Métricas do Instagram</h2>", unsafe_allow_html=True)
@@ -2339,3 +2494,6 @@ if st.session_state["authentication_status"]:
 
     st.markdown("---")
     st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas - Versão 1.0 © Innovatis 2025</div>", unsafe_allow_html=True)
+
+    
+
