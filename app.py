@@ -2342,8 +2342,8 @@ if st.session_state["authentication_status"]:
                 if col_name == "Alcance":
                     past_value = 24680
                 elif col_name == "Visitas no Perfil":
-                    current_value = 1200
-                    past_value = 2124
+                    current_value = 2053
+                    past_value = 2024
                 
                 # Certifique-se de que os valores são convertidos corretamente de strings para floats
                 try:
