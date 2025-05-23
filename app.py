@@ -2163,7 +2163,14 @@ if st.session_state["authentication_status"]:
                 
             # Criar linha de métricas principais
             st.markdown("<h2 style='font-size: 24px;'>Métricas do Instagram</h2>", unsafe_allow_html=True)
-            
+
+            # Adicionar informação do período
+            st.markdown("""
+                <div style="margin-top: -10px; margin-bottom: 25px;">
+                    <p style="color: #666; font-size: 15px; font-style: italic;">Dados considerados: últimos 30 dias vs dados da última reunião de metas (21 de março)</p>
+                </div>
+            """, unsafe_allow_html=True)
+
             # Definir métricas e ícones
             metrics = [
                 {"col": "Impressões", "icon": "👁️", "title": "Impressões"},
