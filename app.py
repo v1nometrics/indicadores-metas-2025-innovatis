@@ -490,9 +490,14 @@ if st.session_state["authentication_status"]:
         max_retries = 3
         retry_delay = 2  # segundos
         
+        # Criar placeholders para mensagens que podem ser limpas
+        status_placeholder = st.empty()
+        error_placeholder = st.empty()
+        
         for attempt in range(max_retries):
             try:
-                st.info(f"Tentativa {attempt + 1} de {max_retries} - Carregando dados da planilha...")
+                with status_placeholder:
+                    st.info(f"Tentativa {attempt + 1} de {max_retries} - Carregando dados da planilha...")
                 
                 # Baixar o arquivo JSON diretamente do S3
                 obj = s3.Bucket('jsoninnovatis').Object('chave2.json').get()
@@ -510,38 +515,48 @@ if st.session_state["authentication_status"]:
                     # Primeira tentativa: pelo nome exato
                     planilha = client.open("INDICADORES DE CRESCIMENTO").worksheet("INDICADORES")
                 except Exception as e1:
-                    st.warning(f"Erro ao acessar pelo nome exato: {str(e1)}")
+                    with error_placeholder:
+                        st.warning(f"Erro ao acessar pelo nome exato, tentando alternativas...")
                     try:
                         # Segunda tentativa: listar todas as planilhas para debug
-                        st.info("Listando planilhas disponíveis...")
+                        with status_placeholder:
+                            st.info("Listando planilhas disponíveis...")
                         all_sheets = client.openall()
                         sheet_names = [sheet.title for sheet in all_sheets]
-                        st.info(f"Planilhas encontradas: {sheet_names}")
                         
                         # Tentar encontrar uma planilha com nome similar
                         for sheet in all_sheets:
                             if "INDICADORES" in sheet.title.upper() or "CRESCIMENTO" in sheet.title.upper():
-                                st.info(f"Tentando acessar planilha: {sheet.title}")
+                                with status_placeholder:
+                                    st.info(f"Tentando acessar planilha: {sheet.title}")
                                 planilha = sheet.worksheet("INDICADORES")
                                 break
                     except Exception as e2:
-                        st.error(f"Erro ao listar planilhas: {str(e2)}")
+                        with error_placeholder:
+                            st.error(f"Erro ao listar planilhas: {str(e2)}")
                         raise e1  # Re-raise o erro original
                 
                 if planilha is None:
                     raise Exception("Não foi possível acessar nenhuma planilha")
                 
+                # Limpar todas as mensagens de status quando bem-sucedido
+                status_placeholder.empty()
+                error_placeholder.empty()
                 break  # Sair do loop se teve sucesso
                 
             except Exception as e:
-                st.error(f"Tentativa {attempt + 1} falhou: {str(e)}")
+                with error_placeholder:
+                    st.error(f"Tentativa {attempt + 1} falhou: {str(e)}")
                 
                 if attempt < max_retries - 1:
-                    st.info(f"Aguardando {retry_delay} segundos antes da próxima tentativa...")
+                    with status_placeholder:
+                        st.info(f"Aguardando {retry_delay} segundos antes da próxima tentativa...")
                     time.sleep(retry_delay)
                     retry_delay *= 2  # Backoff exponencial
                 else:
-                    st.error("Todas as tentativas falharam. Retornando dados vazios.")
+                    with error_placeholder:
+                        st.error("Todas as tentativas falharam. Retornando dados vazios.")
+                    status_placeholder.empty()  # Limpar mensagem de status
                     return {
                         'faturamento': pd.DataFrame(),
                         'funil': pd.DataFrame(),
@@ -1201,8 +1216,7 @@ if st.session_state["authentication_status"]:
         authenticator.logout("Logout", "main", key="logout_sidebar")
 
     # Carregar dados
-    with st.spinner("Carregando dados..."):
-        data = carregar_planilha()
+    data = carregar_planilha()
 
     # Verificar se há dados válidos
     if not data or not all(key in data for key in ['faturamento', 'funil', 'funil_past', 'metricas_parceiros', 'desenvolvimento_plataformas', 'captacao_digital', 'captacao_digital_innovatis', 'total_contratos_2025', 'total_oportunidades_2025']):
