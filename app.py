@@ -535,6 +535,40 @@ if st.session_state["authentication_status"]:
                 df_funil['Tempo médio'] = pd.to_numeric(df_funil['Tempo médio'], errors='coerce').fillna(0).astype(int)
             else:
                 df_funil = pd.DataFrame()
+
+            # Nova seção: Funil de Vendas - Dados do Período Anterior (Linhas 42-43)
+            if len(valores) >= 43:
+                # Linha 42 (índice 41) contém os cabeçalhos: Funil Past, Total de Oportunidades, Taxa de Conversão, Total de Contratos, Tempo Médio
+                funil_past_headers = valores[41][1:6]  # Colunas B-F
+                
+                # Linha 43 (índice 42) contém os dados do período anterior
+                # Conforme anexo: C=Total de Oportunidades, D=Taxa de Conversão, E=Total de Contratos, F=Tempo Médio
+                funil_past_data = []
+                funil_past_row = valores[42]  # Linha 43 (índice 42)
+                funil_past_data.append([
+                    'Past',  # Nome do período
+                    funil_past_row[2],  # Coluna C - Total de Oportunidades (107)
+                    funil_past_row[3],  # Coluna D - Taxa de Conversão (20,7%)
+                    funil_past_row[4],  # Coluna E - Total de Contratos (12)
+                    funil_past_row[5]   # Coluna F - Tempo Médio (198)
+                ])
+                
+                # Criar DataFrame para dados do período anterior
+                df_funil_past = pd.DataFrame(funil_past_data, 
+                                           columns=['Período', 'Total de Oportunidades', 'Taxa de Conversão', 'Total de Contratos', 'Tempo Médio'])
+                
+                # Converter colunas numéricas
+                df_funil_past['Total de Oportunidades'] = pd.to_numeric(df_funil_past['Total de Oportunidades'], errors='coerce').fillna(0).astype(int)
+                df_funil_past['Total de Contratos'] = pd.to_numeric(df_funil_past['Total de Contratos'], errors='coerce').fillna(0).astype(int)
+                
+                df_funil_past['Tempo Médio'] = pd.to_numeric(df_funil_past['Tempo Médio'], errors='coerce').fillna(0).astype(int)
+                
+                # Converter taxa de conversão para formato decimal
+                df_funil_past['Taxa de Conversão'] = df_funil_past['Taxa de Conversão'].apply(
+                    lambda x: float(str(x).replace('%', '').replace(',', '.').strip()) / 100 if isinstance(x, str) and x and x != '-' else 0
+                )
+            else:
+                df_funil_past = pd.DataFrame()
             
             # Seção 1: Métricas de Parceiros (Linhas 3-5)
             if len(valores) >= 5:
@@ -576,7 +610,7 @@ if st.session_state["authentication_status"]:
             else:
                 df_plataformas = pd.DataFrame()
             
-            # Seção 3: Captação Digital (Linhas 14-16)
+            # Seção 3: Captação Digital - @epitaciobrito (Linhas 14-16)
             if len(valores) >= 16:
                 # Linha 13 (índice 13) contém os cabeçalhos para a nova estrutura
                 captacao_headers = valores[13][1:10]  # Colunas B-J (9 colunas)
@@ -601,6 +635,48 @@ if st.session_state["authentication_status"]:
                         df_captacao[col] = df_captacao[col].fillna(0)
             else:
                 df_captacao = pd.DataFrame()
+
+            # Nova Seção: Captação Digital - @innovatismc (Linhas 37-39)
+            if len(valores) >= 39:
+                # Linha 37 (índice 36) contém os cabeçalhos
+                captacao_innovatis_headers = valores[36][1:8]  # Colunas B-H (7 colunas)
+                
+                # Linhas 38-39 (índices 37-38) contêm os dados: INSTAGRAM (atual e passado)
+                captacao_innovatis_data = []
+                for i in range(37, 39):
+                    # Coluna B contém o nome, colunas C-H contêm os valores
+                    captacao_innovatis_data.append(valores[i][1:8])
+                
+                # Criar DataFrame para @innovatismc
+                df_captacao_innovatis = pd.DataFrame(captacao_innovatis_data, 
+                                               columns=['Captação Digital', 'Impressões', 'Alcance', 
+                                                      'Visitas no Perfil', 'Cliques no link da bio', 
+                                                      'Interações totais', 'Seguidores'])
+                
+                # Converter colunas numéricas
+                for col in df_captacao_innovatis.columns:
+                    if col != 'Captação Digital':  # Não converter a coluna de nomes
+                        df_captacao_innovatis[col] = pd.to_numeric(df_captacao_innovatis[col], errors='coerce')
+                        # Substituir NaN por 0
+                        df_captacao_innovatis[col] = df_captacao_innovatis[col].fillna(0)
+            else:
+                df_captacao_innovatis = pd.DataFrame()
+
+            # Capturar Total de Contratos Fechados em 2025 da célula 44E
+            total_contratos_2025 = 0
+            if len(valores) >= 44:
+                try:
+                    total_contratos_2025 = int(pd.to_numeric(valores[43][4], errors='coerce')) if valores[43][4] else 0
+                except:
+                    total_contratos_2025 = 0
+
+            # Capturar Total de Oportunidades 2025 da célula 44C
+            total_oportunidades_2025 = 0
+            if len(valores) >= 44:
+                try:
+                    total_oportunidades_2025 = int(pd.to_numeric(valores[43][2], errors='coerce')) if valores[43][2] else 0
+                except:
+                    total_oportunidades_2025 = 0
             
             st.success("Dados carregados com sucesso!")
             
@@ -608,9 +684,13 @@ if st.session_state["authentication_status"]:
             return {
                 'faturamento': df_faturamento,
                 'funil': df_funil,
+                'funil_past': df_funil_past,
                 'metricas_parceiros': df_metricas,
                 'desenvolvimento_plataformas': df_plataformas,
-                'captacao_digital': df_captacao
+                'captacao_digital': df_captacao,
+                'captacao_digital_innovatis': df_captacao_innovatis,
+                'total_contratos_2025': total_contratos_2025,
+                'total_oportunidades_2025': total_oportunidades_2025
             }
         
         except Exception as e:
@@ -963,7 +1043,7 @@ if st.session_state["authentication_status"]:
                 'font': dict(size=22, family="Poppins", color="#444")
             },
             font=dict(family="Poppins", size=13, color="#555"),
-            height=550,  # Altura ligeiramente aumentada para melhor visualização
+            height=655,  # Altura aumentada em ~19% para melhor proporção com os cards
             margin=dict(l=80, r=150, t=80, b=40),  # Margens ajustadas
             funnelmode="stack",
             showlegend=False,
@@ -1046,7 +1126,7 @@ if st.session_state["authentication_status"]:
         data = carregar_planilha()
 
     # Verificar se há dados válidos
-    if not data or not all(key in data for key in ['faturamento', 'funil', 'metricas_parceiros', 'desenvolvimento_plataformas', 'captacao_digital']):
+    if not data or not all(key in data for key in ['faturamento', 'funil', 'funil_past', 'metricas_parceiros', 'desenvolvimento_plataformas', 'captacao_digital', 'captacao_digital_innovatis', 'total_contratos_2025', 'total_oportunidades_2025']):
         st.warning("Não foi possível carregar dados válidos. Verifique as configurações e a estrutura da planilha.")
         st.stop()
 
@@ -1674,6 +1754,9 @@ if st.session_state["authentication_status"]:
     st.markdown("""
         <div style="margin-top: -10px; margin-bottom: 25px;">
             <p style="color: #666; font-size: 15px; font-style: italic;">Dados considerados: 01/01/2025 até hoje</p>
+            <p style="color: #ff8c00; font-size: 14px; font-style: italic; margin-top: 8px; padding: 8px 12px; background-color: #fff8f0; border-left: 4px solid #ff8c00; border-radius: 4px;">
+                <strong>Observação:</strong> Apenas o funil de "Produtos" está sendo analisado, pois "Projetos" foi recentemente reestruturado e será avaliado a partir das reuniões de meta dos próximos meses.
+            </p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -1712,21 +1795,25 @@ if st.session_state["authentication_status"]:
         
         with col_metricas:
             # Calcular métricas importantes
-            total_oportunidades = values[0] if len(values) > 0 else 0
+            # Total de oportunidades vem da célula 44C (capturadas e tratadas em 2025)
+            total_oportunidades = data.get("total_oportunidades_2025", 0)
             
             # Encontrar índices importantes
             modelagem_idx = -1
             planejamento_idx = -1
+            contratos_idx = -1
             for i, stage in enumerate(stages):
                 if "MODELAGEM" in stage.upper():
                     modelagem_idx = i
                 elif "PLANEJAMENTO" in stage.upper():
                     planejamento_idx = i
+                elif "CONTRATOS" in stage.upper():
+                    contratos_idx = i
             
-            # Total de contratos agora usa o valor do Planejamento
-            total_contratos = values[planejamento_idx] if planejamento_idx >= 0 else 0
+            # Total de contratos será carregado dos dados da planilha
+            total_contratos = data.get("total_contratos_2025", 0)
             
-            # Calcular taxa de conversão da Modelagem até Planejamento
+            # Calcular taxa de conversão dos cards que saíram de Modelagem e chegaram até Planejamento
             if modelagem_idx >= 0 and planejamento_idx >= 0 and modelagem_idx < planejamento_idx:
                 valor_entrada = values[modelagem_idx]
                 valor_saida = values[planejamento_idx]
@@ -1734,8 +1821,29 @@ if st.session_state["authentication_status"]:
             else:
                 taxa_conversao_total = 0
             
-            # Calcular tempo médio total da Modelagem até Planejamento
-            tempo_medio_total = sum([time for i, time in enumerate(avg_times) if modelagem_idx <= i <= planejamento_idx]) if modelagem_idx >= 0 and planejamento_idx >= 0 else 0
+            # Calcular tempo médio total da Modelagem até o contrato ser assinado (antes de entrar em Planejamento)
+            # Isso inclui: Modelagem + Propostas + Cotação + Contratos (mas exclui Planejamento e Execução)
+            if modelagem_idx >= 0 and contratos_idx >= 0:
+                tempo_medio_total = sum([time for i, time in enumerate(avg_times) if modelagem_idx <= i <= contratos_idx])
+            else:
+                tempo_medio_total = 0
+
+            # Carregar dados do período anterior para comparação
+            df_funil_past = data["funil_past"]
+            
+            # Inicializar variáveis do período anterior
+            past_oportunidades = 0
+            past_contratos = 0
+            past_taxa_conversao = 0
+            past_tempo_medio = 0
+            
+            if not df_funil_past.empty:
+                past_row = df_funil_past[df_funil_past['Período'] == 'Past']
+                if not past_row.empty:
+                    past_oportunidades = int(past_row['Total de Oportunidades'].values[0])
+                    past_contratos = int(past_row['Total de Contratos'].values[0])
+                    past_taxa_conversao = float(past_row['Taxa de Conversão'].values[0])
+                    past_tempo_medio = int(past_row['Tempo Médio'].values[0])
             
             # Subseção de métricas
             st.subheader("Resumo do Funil")
@@ -1744,17 +1852,34 @@ if st.session_state["authentication_status"]:
             col_m1, col_m2 = st.columns(2)
             
             with col_m1:
+                # Calcular variação para Total de Oportunidades
+                oportunidades_variation = ((total_oportunidades - past_oportunidades) / past_oportunidades * 100) if past_oportunidades > 0 else 0
+                oportunidades_var_color = "#4CAF50" if oportunidades_variation >= 0 else "#F44336"
+                oportunidades_var_symbol = "↑" if oportunidades_variation >= 0 else "↓"
+                
                 st.markdown(f"""
                 <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #FFD966;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Oportunidades</h4>
+                    <p style="margin: 0; font-size: 12px; color: #777;">(Captadas e tratadas em 2025)</p>
                     <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_oportunidades}</p>
+                    <div style="margin-top: 8px; display: flex; align-items: center;">
+                        <span style="color: {oportunidades_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {oportunidades_var_color}20; border-radius: 4px; margin-right: 8px;">
+                            {oportunidades_var_symbol} {abs(oportunidades_variation):.1f}%
+                        </span>
+                        <span style="color: #777; font-size: 12px;">vs {past_oportunidades} (até mês passado)</span>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
                     
+                # Calcular variação para Taxa de Conversão (em pontos percentuais)
+                conversao_variation = (taxa_conversao_total - past_taxa_conversao) * 100 if past_taxa_conversao > 0 else 0
+                conversao_var_color = "#4CAF50" if conversao_variation >= 0 else "#F44336"
+                conversao_var_symbol = "↑" if conversao_variation >= 0 else "↓"
+                
                 st.markdown(f"""
                 <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #70AD47;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Taxa de Conversão</h4>
-                    <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até Pré-Execução)</p>
+                    <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até Planejamento)</p>
                     <div style="display: flex; align-items: baseline;">
                         <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{taxa_conversao_total:.1%}</p>
                         <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">Meta: 75%</p>
@@ -1762,27 +1887,57 @@ if st.session_state["authentication_status"]:
                     <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
                         <div style="width: {min(taxa_conversao_total*100/75*100, 100)}%; height: 100%; border-radius: 3px; background-color: {('#4CAF50' if taxa_conversao_total >= 0.75 else '#FFC107' if taxa_conversao_total >= 0.5 else '#F44336')}"></div>
                     </div>
+                    <div style="margin-top: 8px; display: flex; align-items: center;">
+                        <span style="color: {conversao_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {conversao_var_color}20; border-radius: 4px; margin-right: 8px;">
+                            {conversao_var_symbol} {abs(conversao_variation):.1f}%
+                        </span>
+                        <span style="color: #777; font-size: 12px;">vs {past_taxa_conversao:.1%} (período anterior)</span>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col_m2:
+                # Calcular variação para Total de Contratos
+                contratos_variation = ((total_contratos - past_contratos) / past_contratos * 100) if past_contratos > 0 else 0
+                contratos_var_color = "#4CAF50" if contratos_variation >= 0 else "#F44336"
+                contratos_var_symbol = "↑" if contratos_variation >= 0 else "↓"
+                
                 st.markdown(f"""
                 <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #9BC2E6;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Contratos</h4>
+                    <p style="margin: 0; font-size: 12px; color: #777;">(Fechados em 2025)</p>
                     <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_contratos}</p>
+                    <div style="margin-top: 8px; display: flex; align-items: center;">
+                        <span style="color: {contratos_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {contratos_var_color}20; border-radius: 4px; margin-right: 8px;">
+                            {contratos_var_symbol} {abs(contratos_variation):.1f}%
+                        </span>
+                        <span style="color: #777; font-size: 12px;">vs {past_contratos} (período anterior)</span>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
                     
+                # Calcular variação para Tempo Médio (para tempo médio, menor é melhor, então invertemos a lógica)
+                tempo_variation = ((tempo_medio_total - past_tempo_medio) / past_tempo_medio * 100) if past_tempo_medio > 0 else 0
+                # Para tempo médio: diminuição é boa (verde), aumento é ruim (vermelho)
+                tempo_var_color = "#4CAF50" if tempo_variation < 0 else "#F44336"  # Verde se diminuiu, vermelho se aumentou
+                tempo_var_symbol = "↓" if tempo_variation < 0 else "↑"  # Seta para baixo se diminuiu, para cima se aumentou
+                
                 st.markdown(f"""
                 <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #C00000;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Tempo Médio</h4>
-                    <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até Pré-Execução)</p>
+                    <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até contrato assinado)</p>
                     <div style="display: flex; align-items: baseline;">
                         <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{tempo_medio_total} dias</p>
                         <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">Meta: 120 dias</p>
                     </div>
                     <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
                         <div style="width: {min(100 - max(tempo_medio_total - 120, 0)/120*100, 100)}%; height: 100%; border-radius: 3px; background-color: {('#4CAF50' if tempo_medio_total <= 120 else '#FFC107' if tempo_medio_total <= 150 else '#F44336')}"></div>
+                    </div>
+                    <div style="margin-top: 8px; display: flex; align-items: center;">
+                        <span style="color: {tempo_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {tempo_var_color}20; border-radius: 4px; margin-right: 8px;">
+                            {tempo_var_symbol} {abs(tempo_variation):.1f}%
+                        </span>
+                        <span style="color: #777; font-size: 12px;">vs {past_tempo_medio} dias (período anterior)</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -1807,10 +1962,10 @@ if st.session_state["authentication_status"]:
                 min_conversion_stage = "N/A"
                 min_conversion_rate = "N/A"
             
-            # Encontrar etapa mais demorada (entre Modelagem e Planejamento)
-            if avg_times and modelagem_idx >= 0 and planejamento_idx >= 0:
-                # Filtrar etapas entre Modelagem e Planejamento
-                filtered_times = [(i, time) for i, time in enumerate(avg_times) if modelagem_idx <= i <= planejamento_idx]
+            # Encontrar etapa mais demorada (entre Modelagem e Contratos)
+            if avg_times and modelagem_idx >= 0 and contratos_idx >= 0:
+                # Filtrar etapas entre Modelagem e Contratos (excluindo Planejamento e Execução)
+                filtered_times = [(i, time) for i, time in enumerate(avg_times) if modelagem_idx <= i <= contratos_idx]
                 if filtered_times:
                     max_time_idx = max(filtered_times, key=lambda x: x[1])[0]
                     max_time_stage = stages[max_time_idx]
@@ -1846,7 +2001,7 @@ if st.session_state["authentication_status"]:
                         <p style="margin: 3px 0 0 0; font-size: 14px; color: #666;">
                             <span style="color: #C00000; font-weight: 600;">{max_time_stage}</span> ({max_time_value} dias)
                         </p>
-                        <p style="margin: 3px 0 0 0; font-size: 12px; color: #666; font-style: italic;">Excluindo a etapa de Execução (que naturalmente é mais longa)</p>
+                        <p style="margin: 3px 0 0 0; font-size: 12px; color: #666; font-style: italic;">Até o contrato ser assinado (exclui Planejamento e Execução)</p>
                     </div>
                 </div>
             </div>
@@ -1872,9 +2027,9 @@ if st.session_state["authentication_status"]:
     # Dados das metas de comunicação e marketing
     marketing_goals = [
         # ——— COMUNICAÇÃO INTERNA ———
-        {"objetivo": "Comunicação Interna", "acao": "Comunicados",             "meta": "1 por semana",       "pct": 0.90, "status": "🟡 Em desenvolvimento"},
+        {"objetivo": "Comunicação Interna", "acao": "Comunicados",             "meta": "1 por semana",       "pct": 0.90, "status": "🟡 Em progresso"},
         {"objetivo": "Comunicação Interna", "acao": "Templates",               "meta": "Finalizados",    "pct": 1.00, "status": "✅ Concluído"},
-        {"objetivo": "Comunicação Interna", "acao": "Material Institucional",  "meta": "Finalizado",     "pct": 0.85, "status": "🟡 Em desenvolvimento"},
+        {"objetivo": "Comunicação Interna", "acao": "Material Institucional",  "meta": "Finalizado",     "pct": 0.85, "status": "🟡 Em progresso"},
 
         # ——— SINALIZAÇÃO DO ESCRITÓRIO ———
         {"objetivo": "Sinalização Escritório", "acao": "Layout",                   "meta": "Validado",          "pct": 1.00, "status": "✅ Concluído"},
@@ -1884,8 +2039,8 @@ if st.session_state["authentication_status"]:
 
         # ——— ALCANCE NO INSTAGRAM ———
         {"objetivo": "Alcance Instagram", "acao": "Captação novos projetos", "meta": "4 projetos por ano", "pct": 0.00, "status": "🔴 Não iniciado"},
-        {"objetivo": "Alcance Instagram", "acao": "Divulgação projetos",     "meta": "1 post por semana", "pct": 0.80, "status": "🟡 Parcial"},
-        {"objetivo": "Alcance Instagram", "acao": "Vídeos semanais",         "meta": "2 vídeos por semana","pct": 0.80, "status": "🟡 Parcial"},
+        {"objetivo": "Alcance Instagram", "acao": "Divulgação projetos",     "meta": "1 post por semana", "pct": 0.80, "status": "🟡 Em progresso"},
+        {"objetivo": "Alcance Instagram", "acao": "Vídeos semanais",         "meta": "2 vídeos por semana","pct": 0.80, "status": "🟡 Em progresso"},
     ]
 
     # Criar três colunas para os objetivos
@@ -2180,6 +2335,16 @@ if st.session_state["authentication_status"]:
                 {"col": "Interações totais", "icon": "❤️", "title": "Interações"},
                 {"col": "Seguidores", "icon": "👥", "title": "Seguidores"}
             ]
+
+            # ========== MÉTRICAS @EPITACIOBRITO ==========
+            st.markdown("""
+                <div style="margin: 10px 0 20px 0;">
+                    <h3 style="color: #333; font-size: 20px; font-weight: 600; margin-bottom: 15px; 
+                               display: flex; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">
+                        @epitaciobrito
+                    </h3>
+                </div>
+            """, unsafe_allow_html=True)
             
             # Adicionar CSS para melhorar a responsividade
             st.markdown("""
@@ -2406,6 +2571,90 @@ if st.session_state["authentication_status"]:
                 
             # Não é mais necessário fechar o container com st.markdown
             
+            # ========== MÉTRICAS @INNOVATISMC ==========
+            st.markdown("""
+                <div style="margin: 50px 0 20px 0;">
+                    <h3 style="color: #333; font-size: 20px; font-weight: 600; margin-bottom: 15px; 
+                               display: flex; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">
+                        @innovatismc
+                    </h3>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Dados do @innovatismc da planilha (linhas 37-39)
+            df_captacao_innovatis = data["captacao_digital_innovatis"]
+            
+            if not df_captacao_innovatis.empty:
+                instagram_innovatis_row = df_captacao_innovatis[df_captacao_innovatis['Captação Digital'] == 'INSTAGRAM']
+                instagram_innovatis_past_row = df_captacao_innovatis[df_captacao_innovatis['Captação Digital'] == 'INSTAGRAM (Past)']
+                
+                if not instagram_innovatis_row.empty and not instagram_innovatis_past_row.empty:
+                    # Dados atuais do @innovatismc
+                    innovatis_current = {}
+                    innovatis_past = {}
+                    
+                    for col_name in ["Impressões", "Alcance", "Visitas no Perfil", "Cliques no link da bio", "Interações totais", "Seguidores"]:
+                        innovatis_current[col_name] = int(instagram_innovatis_row[col_name].values[0])
+                        innovatis_past[col_name] = int(instagram_innovatis_past_row[col_name].values[0])
+                else:
+                    st.warning("Dados incompletos para @innovatismc.")
+                    innovatis_current = {}
+                    innovatis_past = {}
+            else:
+                st.warning("Não há dados disponíveis para @innovatismc.")
+                innovatis_current = {}
+                innovatis_past = {}
+            
+            # Renderizar cards apenas se houver dados válidos
+            if innovatis_current and innovatis_past:
+                # Criar as colunas para os cards do @innovatismc
+                innovatis_metric_cols = st.columns(6, gap="medium")
+                
+                # Renderizar cards de métricas para @innovatismc
+                for i, metric in enumerate(metrics):
+                    col_name = metric["col"]
+                    current_value = innovatis_current.get(col_name, 0)
+                    past_value = innovatis_past.get(col_name, 0)
+                    is_percentage = metric.get("is_percentage", False)
+                    
+                    # Format the values for display
+                    if is_percentage:
+                        formatted_current = f"{current_value:.1%}".replace('.', ',')
+                        formatted_past = f"{past_value:.1%}".replace('.', ',')
+                    else:
+                        formatted_current = f"{current_value:,}".replace(",", ".")
+                        formatted_past = f"{past_value:,}".replace(",", ".")
+                    
+                    # Calcular variação
+                    if past_value > 0:
+                        variation = ((current_value - past_value) / past_value) * 100
+                        variation_class = "positive" if variation >= 0 else "negative"
+                        variation_symbol = "↑" if variation >= 0 else "↓"
+                        variation_color = "#4CAF50" if variation >= 0 else "#F44336"
+                    else:
+                        variation = 0
+                        variation_class = "neutral"
+                        variation_symbol = "•"
+                        variation_color = "#9E9E9E"
+                    
+                    # Renderizar card em cada coluna
+                    with innovatis_metric_cols[i]:
+                        st.markdown(f"""
+                        <div class="instagram-metric-card-container">
+                            <div class="instagram-metric-card-content" style="border-top: 4px solid {variation_color};">
+                                <div style="position: absolute; top: 12px; right: 12px; font-size: 22px; opacity: 0.3;">{metric["icon"]}</div>
+                                <div>
+                                    <h4 style="color: #555; font-size: 16px; margin-bottom: 8px; font-weight: 600;">{metric["title"]}</h4>
+                                    <div style="font-size: 28px; font-weight: 700; color: #333; margin-top: 4px;">{formatted_current}</div>
+                                </div>
+                                <div style="font-size: 14px; color: #555; display: flex; align-items: center; margin-top: auto;">
+                                    <span style="color: {variation_color}; margin-right: 6px; font-weight: 600; font-size: 16px; padding: 2px 6px; background-color: {variation_color}20; border-radius: 4px;">{variation_symbol} {abs(variation):.1f}%</span>
+                                    vs <span style="padding: 3px 8px; border-radius: 4px; background: #f0f0f0; margin-left: 5px; font-size: 13px; font-weight: 500;">{formatted_past}</span>
+                                </div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
             # Criar seção para os top conteúdos
             st.markdown("""
             <div style="margin: 30px 0 20px 0;">
@@ -2421,7 +2670,7 @@ if st.session_state["authentication_status"]:
                     
                     # Solução direta: sempre usar a URL fixa para o botão 1, ignorando processamento
                     # Esta abordagem é mais robusta para diferentes ambientes
-                    url_for_button_1 = "https://www.instagram.com/p/DJmTSAPNyQF/"
+                    url_for_button_1 = "https://www.instagram.com/reel/DK2hIGvvtRq/embed/"
                     print("Usando URL fixa para o botão 1 (ignorando processamento)")
                     
                     # Log para debug
@@ -2460,7 +2709,7 @@ if st.session_state["authentication_status"]:
                     
                     # Solução direta: sempre usar a URL fixa para o botão 2, ignorando processamento
                     # Esta abordagem é mais robusta para diferentes ambientes
-                    url_for_button_2 = "https://www.instagram.com/p/DJjmGkjtXQu/"
+                    url_for_button_2 = "https://www.instagram.com/p/DKNfxxbyq2E/embed/"
                     print("Usando URL fixa para o botão 2 (ignorando processamento)")
                     
                     # Log para debug
