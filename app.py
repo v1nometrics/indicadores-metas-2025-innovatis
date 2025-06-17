@@ -1769,24 +1769,8 @@ if st.session_state["authentication_status"]:
                     </div>
                 """, unsafe_allow_html=True)
 
-        if 'GESTÃO DE PROJETOS' in plataformas_data:
-            with col_g:
-                st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Gestão de Projetos</h3>", unsafe_allow_html=True)
-                create_circular_progress_chart(plataformas_data['GESTÃO DE PROJETOS']["andamento"], key="gestao_chart")
-                # Card fino e elegante para o embaixador
-                st.markdown("""
-                    <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
-                        <span style='font-weight: 500;'>Embaixador: </span>Raissa Cartaxo
-                    </div>
-                """, unsafe_allow_html=True)
-                st.markdown(f"""
-                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
-                        <strong>Última atualização:</strong> {plataformas_data['GESTÃO DE PROJETOS']['feedback']}
-                    </div>
-                """, unsafe_allow_html=True)
-
         if 'PRODUTOS' in plataformas_data:
-            with col_ga:
+            with col_g:
                 st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Plataforma de Produtos</h3>", unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['PRODUTOS']["andamento"], key="produtos_chart")
                 # Card fino e elegante para o embaixador
@@ -1798,6 +1782,22 @@ if st.session_state["authentication_status"]:
                 st.markdown(f"""
                     <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
                         <strong>Última atualização:</strong> {plataformas_data['PRODUTOS']['feedback']}
+                    </div>
+                """, unsafe_allow_html=True)
+
+        if 'GESTÃO DE PROJETOS' in plataformas_data:
+            with col_ga:
+                st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Gestão de Projetos</h3>", unsafe_allow_html=True)
+                create_circular_progress_chart(plataformas_data['GESTÃO DE PROJETOS']["andamento"], key="gestao_chart")
+                # Card fino e elegante para o embaixador
+                st.markdown("""
+                    <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
+                        <span style='font-weight: 500;'>Embaixador: </span>Raissa Cartaxo
+                    </div>
+                """, unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
+                        <strong>Última atualização:</strong> {plataformas_data['GESTÃO DE PROJETOS']['feedback']}
                     </div>
                 """, unsafe_allow_html=True)
 
@@ -2415,7 +2415,7 @@ if st.session_state["authentication_status"]:
             # Adicionar informação do período
             st.markdown("""
                 <div style="margin-top: -10px; margin-bottom: 25px;">
-                    <p style="color: #666; font-size: 15px; font-style: italic;">Dados considerados: últimos 30 dias vs dados da última reunião de metas (21 de março)</p>
+                    <p style="color: #666; font-size: 15px; font-style: italic;">Dados considerados: últimos 30 dias vs os 30 anteriores a estes</p>
                 </div>
             """, unsafe_allow_html=True)
 
