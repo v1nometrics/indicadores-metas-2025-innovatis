@@ -461,21 +461,100 @@ if st.session_state["authentication_status"]:
             st.error(f"Erro ao carregar o logo: {str(e)}")
             return None
 
-    # Função para carregar dados da planilha
-    @st.cache_data(ttl=3600)  # Cache por 1 hora
-    def carregar_planilha():
+    # Função para verificar credenciais
+    def verificar_credenciais():
         try:
             # Baixar o arquivo JSON diretamente do S3
             obj = s3.Bucket('jsoninnovatis').Object('chave2.json').get()
-            # Ler o conteúdo do objeto e decodificar para string, em seguida converter para dict
             creds_json = json.loads(obj['Body'].read().decode('utf-8'))
-            # Definir o escopo de acesso para Google Sheets e Google Drive
-            scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-            # Criar as credenciais a partir do JSON baixado
-            creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_json, scope)
-            client = gspread.authorize(creds)
-            # Acessar a planilha do Google
-            planilha = client.open("INDICADORES DE CRESCIMENTO").worksheet("INDICADORES")
+            
+            # Verificar se as credenciais têm os campos necessários
+            required_fields = ['type', 'project_id', 'private_key_id', 'private_key', 'client_email', 'client_id', 'auth_uri', 'token_uri']
+            missing_fields = [field for field in required_fields if field not in creds_json]
+            
+            if missing_fields:
+                st.error(f"Campos ausentes nas credenciais: {missing_fields}")
+                return False
+                
+            st.success("Credenciais carregadas com sucesso do S3")
+            return True
+            
+        except Exception as e:
+            st.error(f"Erro ao verificar credenciais: {str(e)}")
+            return False
+
+    # Função para carregar dados da planilha
+    @st.cache_data(ttl=3600)  # Cache por 1 hora
+    def carregar_planilha():
+        import time
+        max_retries = 3
+        retry_delay = 2  # segundos
+        
+        for attempt in range(max_retries):
+            try:
+                st.info(f"Tentativa {attempt + 1} de {max_retries} - Carregando dados da planilha...")
+                
+                # Baixar o arquivo JSON diretamente do S3
+                obj = s3.Bucket('jsoninnovatis').Object('chave2.json').get()
+                # Ler o conteúdo do objeto e decodificar para string, em seguida converter para dict
+                creds_json = json.loads(obj['Body'].read().decode('utf-8'))
+                # Definir o escopo de acesso para Google Sheets e Google Drive
+                scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+                # Criar as credenciais a partir do JSON baixado
+                creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_json, scope)
+                client = gspread.authorize(creds)
+                
+                # Tentar diferentes abordagens para acessar a planilha
+                planilha = None
+                try:
+                    # Primeira tentativa: pelo nome exato
+                    planilha = client.open("INDICADORES DE CRESCIMENTO").worksheet("INDICADORES")
+                except Exception as e1:
+                    st.warning(f"Erro ao acessar pelo nome exato: {str(e1)}")
+                    try:
+                        # Segunda tentativa: listar todas as planilhas para debug
+                        st.info("Listando planilhas disponíveis...")
+                        all_sheets = client.openall()
+                        sheet_names = [sheet.title for sheet in all_sheets]
+                        st.info(f"Planilhas encontradas: {sheet_names}")
+                        
+                        # Tentar encontrar uma planilha com nome similar
+                        for sheet in all_sheets:
+                            if "INDICADORES" in sheet.title.upper() or "CRESCIMENTO" in sheet.title.upper():
+                                st.info(f"Tentando acessar planilha: {sheet.title}")
+                                planilha = sheet.worksheet("INDICADORES")
+                                break
+                    except Exception as e2:
+                        st.error(f"Erro ao listar planilhas: {str(e2)}")
+                        raise e1  # Re-raise o erro original
+                
+                if planilha is None:
+                    raise Exception("Não foi possível acessar nenhuma planilha")
+                
+                break  # Sair do loop se teve sucesso
+                
+            except Exception as e:
+                st.error(f"Tentativa {attempt + 1} falhou: {str(e)}")
+                
+                if attempt < max_retries - 1:
+                    st.info(f"Aguardando {retry_delay} segundos antes da próxima tentativa...")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Backoff exponencial
+                else:
+                    st.error("Todas as tentativas falharam. Retornando dados vazios.")
+                    return {
+                        'faturamento': pd.DataFrame(),
+                        'funil': pd.DataFrame(),
+                        'funil_past': pd.DataFrame(),
+                        'metricas_parceiros': pd.DataFrame(),
+                        'desenvolvimento_plataformas': pd.DataFrame(),
+                        'captacao_digital': pd.DataFrame(),
+                        'captacao_digital_innovatis': pd.DataFrame(),
+                        'total_contratos_2025': 0,
+                        'total_oportunidades_2025': 0
+                    }
+        
+        try:
             
             # Obtenha todos os valores da planilha (incluindo cabeçalhos)
             valores = planilha.get_all_values()
@@ -2750,6 +2829,3 @@ if st.session_state["authentication_status"]:
 
     st.markdown("---")
     st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas - Versão 1.0 © Innovatis 2025</div>", unsafe_allow_html=True)
-
-    
-
