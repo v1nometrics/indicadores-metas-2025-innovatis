@@ -1536,7 +1536,7 @@ if st.session_state["authentication_status"]:
             faturamento_2024_s1 = 10_618_617.76
             faturamento_2024_s2 = 7_299_772.79
             faturamento_2025_s1 = 14_305_053.60
-            contratos_execucao = 11_660_037.00
+            contratos_execucao = 22_000_000.00
 
             # Cálculos
             crescimento_s1 = (faturamento_2025_s1 / faturamento_2024_s1) - 1
@@ -1562,7 +1562,16 @@ if st.session_state["authentication_status"]:
             # Cálculos para o Card 3 - Meta de 30 milhões
             meta_30_milhoes = 30_000_000.00
             pendencia_meta = meta_30_milhoes - faturamento['atual']
-            cobertura_meta = (contratos_execucao / pendencia_meta) * 100 if pendencia_meta > 0 else 100
+            
+            # Se contratos em execução cobrem a pendência ou não
+            if contratos_execucao >= pendencia_meta:
+                status_meta = "Meta coberta pelos contratos"
+                percentual_cobertura = 100
+                excedente = contratos_execucao - pendencia_meta
+            else:
+                status_meta = "Cobertura parcial"
+                percentual_cobertura = (contratos_execucao / pendencia_meta) * 100 if pendencia_meta > 0 else 100
+                excedente = 0
             
             # CARD 1: Performance 1º Semestre
             with col1:
@@ -1579,7 +1588,7 @@ if st.session_state["authentication_status"]:
                     </div>
                     <div style="text-align: center; margin-bottom: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
                         <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">+{crescimento_s1:.1%}</div>
-                        <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; font-size: 14px;">Forte aceleração identificada</div>
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; font-size: 14px;">Forte crescimento identificado</div>
                     </div>
                     <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 16px; margin-top: auto;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -1637,14 +1646,19 @@ if st.session_state["authentication_status"]:
                         <div style="font-size: 22px; font-weight: 700; margin-bottom: 8px;">{brl_format(contratos_execucao)}</div>
                         <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; font-size: 14px;">{progresso_contratos:.1f}% da projeção</div>
                     </div>
-                    <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 16px; margin-top: auto;">
-                        <div style="margin-bottom: 8px; font-size: 12px; opacity: 0.8;">Cobertura vs Meta R$ 30mi:</div>
-                        <div style="background: rgba(255,255,255,0.2); border-radius: 4px; height: 8px; margin-bottom: 8px;">
-                            <div style="background: white; height: 100%; border-radius: 4px; width: {min(cobertura_meta, 100)}%;"></div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; margin-top: auto;">
+                        <div style="margin-bottom: 6px; font-size: 11px; opacity: 0.8;">Projeção para a Meta de R$ 30mi:</div>
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 4px; height: 16px; margin-bottom: 6px; position: relative; display: flex; align-items: center;">
+                            <div style="background: white; height: 100%; border-radius: 4px; width: {min(percentual_cobertura, 100)}%; position: absolute; top: 0; left: 0;"></div>
+                            <div style="position: relative; z-index: 10; width: 100%; text-align: center; font-size: 11px; font-weight: 600; color: #333;">
+                                {percentual_cobertura:.1f}%
+                            </div>
                         </div>
-                        <div style="text-align: center; font-size: 12px;">
-                            <div style="margin-bottom: 4px;">Pendência: <strong>{brl_format(pendencia_meta)}</strong></div>
-                            <div style="opacity: 0.9;">{cobertura_meta:.1f}% coberto</div>
+                        <div style="text-align: center; font-size: 12px; line-height: 1.2;">
+                            <div style="margin-bottom: 2px;">Pendência atual para bater a meta: <strong>{brl_format(pendencia_meta)}</strong></div>
+                            <div style="opacity: 0.9;">
+                                {f"{status_meta} - Excedente: <strong>{brl_format(excedente)}</strong>" if contratos_execucao >= pendencia_meta else f"{percentual_cobertura:.1f}% da pendência coberta"}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1864,7 +1878,7 @@ if st.session_state["authentication_status"]:
     if df_plataformas.empty:
         st.warning("Não há dados disponíveis para Desenvolvimento de Plataformas.")
     else:
-        plataformas = ['OPORTUNIDADES', 'MONITORAMENTO FINANCEIRO', 'GESTÃO DE PROJETOS', 'GAMIFICAÇÃO', 'PRODUTOS', 'ESCRITAS']
+        plataformas = ['OPORTUNIDADES', 'MONITORAMENTO FINANCEIRO', 'GESTÃO DE PROJETOS', 'PRODUTOS', 'GAMIFICAÇÃO', 'ESCRITAS']
         plataformas_data = {}
 
         for plataforma in plataformas:
@@ -2295,7 +2309,7 @@ if st.session_state["authentication_status"]:
         {"objetivo": "Sinalização Escritório", "acao": "Layout",                   "meta": "Validado",          "pct": 1.00, "pct_anterior": None, "status": "✅ Concluído"},
         {"objetivo": "Sinalização Escritório", "acao": "Preparação para impressão",  "meta": "Arquivos prontos",  "pct": 0.70, "pct_anterior": 0.30, "status": "🟡 Em progresso"},
         {"objetivo": "Sinalização Escritório", "acao": "Produção com fornecedor",   "meta": "—",                 "pct": 0.00, "pct_anterior": None, "status": "🔴 Não iniciado"},
-        {"objetivo": "Sinalização Escritório", "acao": "Aplicação adesivos/placas","meta": "—",                 "pct": 0.00, "pct_anterior": None, "status": "🔴 Não iniciado"},
+        {"objetivo": "Sinalização Escritório", "acao": "Aplicação adesivos/placas",  "meta": "—",                 "pct": 0.00, "pct_anterior": None, "status": "🔴 Não iniciado"},
 
         # ——— ALCANCE NO INSTAGRAM ———
         {"objetivo": "Alcance Instagram", "acao": "Captação novos projetos", "meta": "4 projetos por ano", "pct": 0.00, "pct_anterior": None, "status": "🔴 Não iniciado"},
@@ -3028,4 +3042,4 @@ if st.session_state["authentication_status"]:
 
 
     st.markdown("---")
-    st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas - Versão 1.0 © Innovatis 2025</div>", unsafe_allow_html=True)
+    st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas - Versão 1.3 © Innovatis 2025</div>", unsafe_allow_html=True)
