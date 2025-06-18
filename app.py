@@ -688,11 +688,11 @@ if st.session_state["authentication_status"]:
             else:
                 df_metricas = pd.DataFrame()
             
-            # Seção 2: Desenvolvimento de Plataformas (Linhas 7-10)
-            if len(valores) >= 12:
+            # Seção 2: Desenvolvimento de Plataformas (Linhas 7-12)
+            if len(valores) >= 13:
                 plataformas_headers = ['Desenvolvimento de plataformas', 'Andamento (%)', 'Feedback']
                 plataformas_data = []
-                for i in range(7, 12):  # Certifique-se de que o índice está correto
+                for i in range(7, 13):  # Incluindo linha 13 para a sexta plataforma
                     plataformas_data.append([valores[i][1], valores[i][2], valores[i][3]])  # Add feedback column
                 
                 df_plataformas = pd.DataFrame(plataformas_data, columns=plataformas_headers)
@@ -1528,8 +1528,133 @@ if st.session_state["authentication_status"]:
             # Espaçamento após os marcadores (aumentado para evitar sobreposição)
             st.markdown("<div style='margin-bottom: 80px;'></div>", unsafe_allow_html=True)
 
-            # Programa de Reconhecimento
+            # ========== NOVA SEÇÃO: ANÁLISE COMPARATIVA E PROJEÇÕES ==========
             st.markdown("---")
+            st.subheader("Análise Comparativa com 2024 e Projeções de Faturamento")
+
+            # Dados históricos e atuais
+            faturamento_2024_s1 = 10_618_617.76
+            faturamento_2024_s2 = 7_299_772.79
+            faturamento_2025_s1 = 14_305_053.60
+            contratos_execucao = 11_660_037.00
+
+            # Cálculos
+            crescimento_s1 = (faturamento_2025_s1 / faturamento_2024_s1) - 1
+            proporcao_s2_2024 = faturamento_2024_s2 / faturamento_2024_s1
+            projecao_2025_s2 = faturamento_2025_s1 * proporcao_s2_2024
+            progresso_contratos = (contratos_execucao / projecao_2025_s2) * 100 if projecao_2025_s2 > 0 else 0
+
+            # Função de formatação BRL
+            def brl_format(val):
+                return f"R$ {val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+                        # Cálculo adicional para análise
+            diferenca_valor = contratos_execucao - projecao_2025_s2
+            
+            # SVG Icons
+            icon_growth = '<svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>'
+            icon_target = '<svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>'
+            icon_contract = '<svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>'
+            
+            # CARDS PRINCIPAIS - Layout Horizontal (altura fixa para alinhamento perfeito)
+            col1, col2, col3 = st.columns(3, gap="large")
+            
+            # Cálculos para o Card 3 - Meta de 30 milhões
+            meta_30_milhoes = 30_000_000.00
+            pendencia_meta = meta_30_milhoes - faturamento['atual']
+            cobertura_meta = (contratos_execucao / pendencia_meta) * 100 if pendencia_meta > 0 else 100
+            
+            # CARD 1: Performance 1º Semestre
+            with col1:
+                st.markdown(f"""
+                <div class="analise-card-hover" style="background: linear-gradient(135deg, #2196F3, #0D47A1); border-radius: 16px; padding: 24px; color: white; box-shadow: 0 8px 24px rgba(33, 150, 243, 0.3); margin-bottom: 20px; height: 320px; display: flex; flex-direction: column; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-right: 16px; flex-shrink: 0;">
+                            {icon_growth}
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <h4 style="margin: 0; color: white; font-size: 16px; opacity: 0.9;">Performance 1º Semestre</h4>
+                            <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 14px;">Crescimento vs. 2024</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">+{crescimento_s1:.1%}</div>
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; font-size: 14px;">Forte aceleração identificada</div>
+                    </div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 16px; margin-top: auto;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="opacity: 0.8;">2024:</span>
+                            <span style="font-weight: 600; font-size: 13px;">{brl_format(faturamento_2024_s1)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="opacity: 0.8;">2025:</span>
+                            <span style="font-weight: 600; font-size: 13px;">{brl_format(faturamento_2025_s1)}</span>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # CARD 2: Projeção 2º Semestre
+            with col2:
+                st.markdown(f"""
+                <div class="analise-card-hover" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); border-radius: 16px; padding: 24px; color: white; box-shadow: 0 8px 24px rgba(107, 114, 128, 0.3); margin-bottom: 20px; height: 320px; display: flex; flex-direction: column; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-right: 16px; flex-shrink: 0;">
+                            {icon_target}
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <h4 style="margin: 0; color: white; font-size: 16px; opacity: 0.9;">Projeção 2º Semestre</h4>
+                            <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 14px;">Para 2025.02</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">{brl_format(projecao_2025_s2)}</div>
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; font-size: 14px;">Calculado via regra de três</div>
+                    </div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 16px; margin-top: auto;">
+                        <div style="font-size: 13px; opacity: 0.9; line-height: 1.4; text-align: center;">
+                            <div style="margin-bottom: 6px;">2º sem 2024 = <strong>{proporcao_s2_2024:.1%}</strong> do 1º sem 2024</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Proporção aplicada para 2025.02</div>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # CARD 3: Contratos em Execução
+            with col3:
+                st.markdown(f"""
+                <div class="analise-card-hover" style="background: linear-gradient(135deg, #2196F3, #0D47A1); border-radius: 16px; padding: 24px; color: white; box-shadow: 0 8px 24px rgba(33, 150, 243, 0.3); margin-bottom: 20px; height: 320px; display: flex; flex-direction: column; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-right: 16px; flex-shrink: 0;">
+                            {icon_contract}
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <h4 style="margin: 0; color: white; font-size: 16px; opacity: 0.9;">Contratos em Execução</h4>
+                            <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 14px;">Desembolso até Dez/2025</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-size: 22px; font-weight: 700; margin-bottom: 8px;">{brl_format(contratos_execucao)}</div>
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; font-size: 14px;">{progresso_contratos:.1f}% da projeção</div>
+                    </div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 16px; margin-top: auto;">
+                        <div style="margin-bottom: 8px; font-size: 12px; opacity: 0.8;">Cobertura vs Meta R$ 30mi:</div>
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 4px; height: 8px; margin-bottom: 8px;">
+                            <div style="background: white; height: 100%; border-radius: 4px; width: {min(cobertura_meta, 100)}%;"></div>
+                        </div>
+                        <div style="text-align: center; font-size: 12px;">
+                            <div style="margin-bottom: 4px;">Pendência: <strong>{brl_format(pendencia_meta)}</strong></div>
+                            <div style="opacity: 0.9;">{cobertura_meta:.1f}% coberto</div>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+
+            
+            st.markdown("---")
+            
+            # Programa de Reconhecimento
             st.subheader("Programa de Reconhecimento")
             st.markdown("#### INNOVASTAR ⭐", unsafe_allow_html=True)
             
@@ -1732,13 +1857,14 @@ if st.session_state["authentication_status"]:
 
     # Seção 2: Desenvolvimento de Plataformas
     st.header("Desenvolvimento de Plataformas")
+    st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
 
     df_plataformas = data["desenvolvimento_plataformas"]
 
     if df_plataformas.empty:
         st.warning("Não há dados disponíveis para Desenvolvimento de Plataformas.")
     else:
-        plataformas = ['OPORTUNIDADES', 'GESTÃO DE PROJETOS', 'GAMIFICAÇÃO', 'PRODUTOS', 'ESCRITAS']
+        plataformas = ['OPORTUNIDADES', 'MONITORAMENTO FINANCEIRO', 'GESTÃO DE PROJETOS', 'GAMIFICAÇÃO', 'PRODUTOS', 'ESCRITAS']
         plataformas_data = {}
 
         for plataforma in plataformas:
@@ -1751,11 +1877,16 @@ if st.session_state["authentication_status"]:
             else:
                 st.warning(f"Dados incompletos para {plataforma}.")
 
-        col_o, col_g, col_ga, col_p, col_e = st.columns(5)
+        col_o, col_mf, col_g, col_ga, col_p, col_e = st.columns(6)
 
         if 'OPORTUNIDADES' in plataformas_data:
             with col_o:
-                st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Plataforma de Oportunidades</h3>", unsafe_allow_html=True)
+                st.markdown("""
+                    <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
+                    height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
+                        Plataforma de Oportunidades
+                    </h3>
+                """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['OPORTUNIDADES']["andamento"], key="oportunidades_chart")
                 # Card fino e elegante para o embaixador
                 st.markdown("""
@@ -1769,9 +1900,35 @@ if st.session_state["authentication_status"]:
                     </div>
                 """, unsafe_allow_html=True)
 
+        if 'MONITORAMENTO FINANCEIRO' in plataformas_data:
+            with col_mf:
+                st.markdown("""
+                    <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
+                    height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
+                        Plataforma de Monitoramento Financeiro
+                    </h3>
+                """, unsafe_allow_html=True)
+                create_circular_progress_chart(plataformas_data['MONITORAMENTO FINANCEIRO']["andamento"], key="monitoramento_chart")
+                # Card fino e elegante para o embaixador
+                st.markdown("""
+                    <div style='background-color: #f8f8f8; text-align: center; margin: 5px 0; padding: 3px 0; border-radius: 3px; font-size: 13px;'>
+                        <span style='font-weight: 500;'>Embaixador: </span>Vinícius Torres
+                    </div>
+                """, unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style='background-color: rgba(255, 255, 255, 0.6); padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
+                        <strong>Última atualização:</strong> {plataformas_data['MONITORAMENTO FINANCEIRO']['feedback']}
+                    </div>
+                """, unsafe_allow_html=True)
+
         if 'PRODUTOS' in plataformas_data:
             with col_g:
-                st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Plataforma de Produtos</h3>", unsafe_allow_html=True)
+                st.markdown("""
+                    <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
+                    height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
+                        Plataforma de Produtos
+                    </h3>
+                """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['PRODUTOS']["andamento"], key="produtos_chart")
                 # Card fino e elegante para o embaixador
                 st.markdown("""
@@ -1787,7 +1944,12 @@ if st.session_state["authentication_status"]:
 
         if 'GESTÃO DE PROJETOS' in plataformas_data:
             with col_ga:
-                st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Gestão de Projetos</h3>", unsafe_allow_html=True)
+                st.markdown("""
+                    <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
+                    height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
+                        Gestão de Projetos
+                    </h3>
+                """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['GESTÃO DE PROJETOS']["andamento"], key="gestao_chart")
                 # Card fino e elegante para o embaixador
                 st.markdown("""
@@ -1805,7 +1967,7 @@ if st.session_state["authentication_status"]:
             with col_p:
                 st.markdown("""
                     <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
-                    height: 2.4em; display: flex; align-items: center; justify-content: center;'>
+                    height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
                         Gamificação do<br>Relacionamento
                     </h3>
                 """, unsafe_allow_html=True)
@@ -1824,7 +1986,12 @@ if st.session_state["authentication_status"]:
 
         if 'ESCRITAS' in plataformas_data:
             with col_e:
-                st.markdown("<h3 style='text-align: center; font-size: 1.2em;'>Escrita de Projetos/Produtos</h3>", unsafe_allow_html=True)
+                st.markdown("""
+                    <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
+                    height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
+                        Escrita de Projetos/Produtos
+                    </h3>
+                """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['ESCRITAS']["andamento"], key="escritas_chart")
                 # Card fino e elegante para o embaixador
                 st.markdown("""
@@ -2120,20 +2287,20 @@ if st.session_state["authentication_status"]:
     # Dados das metas de comunicação e marketing
     marketing_goals = [
         # ——— COMUNICAÇÃO INTERNA ———
-        {"objetivo": "Comunicação Interna", "acao": "Comunicados",             "meta": "1 por semana",       "pct": 0.90, "status": "🟡 Em progresso"},
-        {"objetivo": "Comunicação Interna", "acao": "Templates",               "meta": "Finalizados",    "pct": 1.00, "status": "✅ Concluído"},
-        {"objetivo": "Comunicação Interna", "acao": "Material Institucional",  "meta": "Finalizado",     "pct": 0.85, "status": "🟡 Em progresso"},
+        {"objetivo": "Comunicação Interna", "acao": "Comunicados",             "meta": "1 por semana",       "pct": 0.90, "pct_anterior": 0.30, "status": "🟡 Em progresso"},
+        {"objetivo": "Comunicação Interna", "acao": "Templates",               "meta": "Finalizados",    "pct": 1.00, "pct_anterior": None, "status": "✅ Concluído"},
+        {"objetivo": "Comunicação Interna", "acao": "Material Institucional",  "meta": "Finalizado",     "pct": 0.85, "pct_anterior": 0.80, "status": "🟡 Em progresso"},
 
         # ——— SINALIZAÇÃO DO ESCRITÓRIO ———
-        {"objetivo": "Sinalização Escritório", "acao": "Layout",                   "meta": "Validado",          "pct": 1.00, "status": "✅ Concluído"},
-        {"objetivo": "Sinalização Escritório", "acao": "Preparação para impressão",  "meta": "Arquivos prontos",  "pct": 0.70, "status": "🟡 Em progresso"},
-        {"objetivo": "Sinalização Escritório", "acao": "Produção com fornecedor",   "meta": "—",                 "pct": 0.00, "status": "🔴 Não iniciado"},
-        {"objetivo": "Sinalização Escritório", "acao": "Aplicação adesivos/placas","meta": "—",                 "pct": 0.00, "status": "🔴 Não iniciado"},
+        {"objetivo": "Sinalização Escritório", "acao": "Layout",                   "meta": "Validado",          "pct": 1.00, "pct_anterior": None, "status": "✅ Concluído"},
+        {"objetivo": "Sinalização Escritório", "acao": "Preparação para impressão",  "meta": "Arquivos prontos",  "pct": 0.70, "pct_anterior": 0.30, "status": "🟡 Em progresso"},
+        {"objetivo": "Sinalização Escritório", "acao": "Produção com fornecedor",   "meta": "—",                 "pct": 0.00, "pct_anterior": None, "status": "🔴 Não iniciado"},
+        {"objetivo": "Sinalização Escritório", "acao": "Aplicação adesivos/placas","meta": "—",                 "pct": 0.00, "pct_anterior": None, "status": "🔴 Não iniciado"},
 
         # ——— ALCANCE NO INSTAGRAM ———
-        {"objetivo": "Alcance Instagram", "acao": "Captação novos projetos", "meta": "4 projetos por ano", "pct": 0.00, "status": "🔴 Não iniciado"},
-        {"objetivo": "Alcance Instagram", "acao": "Divulgação projetos",     "meta": "1 post por semana", "pct": 0.80, "status": "🟡 Em progresso"},
-        {"objetivo": "Alcance Instagram", "acao": "Vídeos semanais",         "meta": "2 vídeos por semana","pct": 0.80, "status": "🟡 Em progresso"},
+        {"objetivo": "Alcance Instagram", "acao": "Captação novos projetos", "meta": "4 projetos por ano", "pct": 0.00, "pct_anterior": None, "status": "🔴 Não iniciado"},
+        {"objetivo": "Alcance Instagram", "acao": "Divulgação projetos",     "meta": "1 post por semana", "pct": 0.80, "pct_anterior": 0.40, "status": "🟡 Em progresso"},
+        {"objetivo": "Alcance Instagram", "acao": "Vídeos semanais",         "meta": "2 vídeos por semana","pct": 0.80, "pct_anterior": 0.50, "status": "🟡 Em progresso"},
     ]
 
     # Criar três colunas para os objetivos
@@ -2147,7 +2314,7 @@ if st.session_state["authentication_status"]:
     }
 
     # Reordenar plataformas (trocando Gamificação com Produtos)
-    plataformas = ['OPORTUNIDADES', 'GESTÃO DE PROJETOS', 'PRODUTOS', 'GAMIFICAÇÃO', 'ESCRITAS']
+    plataformas = ['OPORTUNIDADES', 'MONITORAMENTO FINANCEIRO', 'GESTÃO DE PROJETOS', 'PRODUTOS', 'GAMIFICAÇÃO', 'ESCRITAS']
 
     # Estilo CSS para os cards de metas
     card_style = """
@@ -2249,22 +2416,34 @@ if st.session_state["authentication_status"]:
                 bar_color = "#FFC107"  # Amarelo para em progresso
             else:
                 bar_color = "#F44336"  # Vermelho para não iniciado
+            
+            # Calcular variação se existe valor anterior
+            if meta["pct_anterior"] is not None:
+                variation = (meta["pct"] - meta["pct_anterior"]) * 100
+                variation_percent = f"{abs(variation):.0f}%"
+                previous_percent = f"{int(meta['pct_anterior']*100)}%"
+            else:
+                variation_percent = None
+                previous_percent = None
                 
-            # Criar card para cada meta
+            # Criar card usando a mesma estrutura dos outros cards
             col.markdown(f"""
-            <div style='{card_style}'>
-                <div class="meta-title">{meta['acao']}</div>
-                <div class="meta-value">Meta: {meta['meta']}</div>
-                <div class="meta-status">
-                    <span style="color: #1a1a1a;">{int(meta['pct']*100)}%</span>
-                    <span>{meta['status']}</span>
+            <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid {bar_color};">
+                <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">{meta['acao']}</h4>
+                <p style="margin: 0; font-size: 12px; color: #777;">Meta: {meta['meta']}</p>
+                <div style="display: flex; align-items: baseline;">
+                    <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{int(meta['pct']*100)}%</p>
+                    <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">{meta['status']}</p>
                 </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style='
-                        background: {bar_color}; 
-                        width: {meta["pct"]*100}%;'>
-                    </div>
+                <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
+                    <div style="width: {meta['pct']*100}%; height: 100%; border-radius: 3px; background-color: {bar_color}"></div>
                 </div>
+                {f'''<div style="margin-top: 8px; display: flex; align-items: center;">
+                    <span style="color: #4CAF50; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: #4CAF5020; border-radius: 4px; margin-right: 8px;">
+                        ↑ {variation_percent}
+                    </span>
+                    <span style="color: #777; font-size: 12px;">vs {previous_percent} (período anterior)</span>
+                </div>''' if variation_percent else ''}
             </div>
             """, unsafe_allow_html=True)
 
@@ -2488,6 +2667,13 @@ if st.session_state["authentication_status"]:
                 .top-content-card:hover {
                     transform: scale(1.02);
                     box-shadow: 0 8px 24px rgba(131, 58, 180, 0.25);
+                    z-index: 10;
+                }
+                
+                /* Efeito hover para os cards de Análise Comparativa */
+                .analise-card-hover:hover {
+                    transform: translateY(-8px) scale(1.02);
+                    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2) !important;
                     z-index: 10;
                 }
                 
