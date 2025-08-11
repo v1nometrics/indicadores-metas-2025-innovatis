@@ -328,8 +328,8 @@ if st.session_state["authentication_status"]:
     s3 = boto3.resource(
         service_name='s3',
         region_name='us-east-2',
-        aws_access_key_id='AKIA47GB733YQT2N7HNC',
-        aws_secret_access_key='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'
+        aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"]
     )
 
     # =========================================================================
