@@ -15,7 +15,13 @@ credentials:
       logged_in: False
       name: "Epitacio Brito"
       password: "HgEB1234***"
+     clara:
+      email: "clara.santos@innovatismc.com"
+      logged_in: False
+      name: "Clara Santos"
+      password: "InnovaLabs86"
 cookie:
   expiry_days: 30
   key: "some_signature_key"
+
   name: "some_cookie_name"
