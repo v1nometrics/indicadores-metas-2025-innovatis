@@ -2301,20 +2301,20 @@ if st.session_state["authentication_status"]:
     # Dados das metas de comunicação e marketing
     marketing_goals = [
         # ——— COMUNICAÇÃO INTERNA ———
-        {"objetivo": "Comunicação Interna", "acao": "Comunicados",             "meta": "1 por semana",       "pct": 0.90, "pct_anterior": 0.30, "status": "🟡 Em progresso"},
-        {"objetivo": "Comunicação Interna", "acao": "Templates",               "meta": "Finalizados",    "pct": 1.00, "pct_anterior": None, "status": "✅ Concluído"},
-        {"objetivo": "Comunicação Interna", "acao": "Material Institucional",  "meta": "Finalizado",     "pct": 0.85, "pct_anterior": 0.80, "status": "🟡 Em progresso"},
+        {"objetivo": "Comunicação Interna", "acao": "Comunicados",             "meta": "1 por semana",       "pct": 1.00, "pct_anterior": 0.90, "status": "🟡 Em progresso"},
+        {"objetivo": "Comunicação Interna", "acao": "Templates",               "meta": "Finalizados",    "pct": 1.00, "pct_anterior": 1.00, "status": "✅ Concluído"},
+        {"objetivo": "Comunicação Interna", "acao": "Material Institucional",  "meta": "Finalizado",     "pct": 0.90, "pct_anterior": 0.85, "status": "🟡 Em progresso"},
 
         # ——— SINALIZAÇÃO DO ESCRITÓRIO ———
-        {"objetivo": "Sinalização Escritório", "acao": "Layout",                   "meta": "Validado",          "pct": 1.00, "pct_anterior": None, "status": "✅ Concluído"},
-        {"objetivo": "Sinalização Escritório", "acao": "Preparação para impressão",  "meta": "Arquivos prontos",  "pct": 0.70, "pct_anterior": 0.30, "status": "🟡 Em progresso"},
-        {"objetivo": "Sinalização Escritório", "acao": "Produção com fornecedor",   "meta": "—",                 "pct": 0.00, "pct_anterior": None, "status": "🔴 Não iniciado"},
-        {"objetivo": "Sinalização Escritório", "acao": "Aplicação adesivos/placas",  "meta": "—",                 "pct": 0.00, "pct_anterior": None, "status": "🔴 Não iniciado"},
+        {"objetivo": "Sinalização Escritório", "acao": "Layout",                   "meta": "Validado",          "pct": 1.00, "pct_anterior": 1.00, "status": "✅ Concluído"},
+        {"objetivo": "Sinalização Escritório", "acao": "Preparação para impressão",  "meta": "Arquivos prontos",  "pct": 0.95, "pct_anterior": 0.70, "status": "🟡 Em progresso"},
+        {"objetivo": "Sinalização Escritório", "acao": "Produção com fornecedor",   "meta": "—",                 "pct": 0.00, "pct_anterior": 0.00, "status": "🔴 Não iniciado"},
+        {"objetivo": "Sinalização Escritório", "acao": "Aplicação adesivos/placas",  "meta": "—",                 "pct": 0.00, "pct_anterior": 0.00, "status": "🔴 Não iniciado"},
 
         # ——— ALCANCE NO INSTAGRAM ———
-        {"objetivo": "Alcance Instagram", "acao": "Captação novos projetos", "meta": "4 projetos por ano", "pct": 0.00, "pct_anterior": None, "status": "🔴 Não iniciado"},
-        {"objetivo": "Alcance Instagram", "acao": "Divulgação projetos",     "meta": "1 post por semana", "pct": 0.80, "pct_anterior": 0.40, "status": "🟡 Em progresso"},
-        {"objetivo": "Alcance Instagram", "acao": "Vídeos semanais",         "meta": "2 vídeos por semana","pct": 0.80, "pct_anterior": 0.50, "status": "🟡 Em progresso"},
+        {"objetivo": "Alcance Instagram", "acao": "Captação novos projetos", "meta": "4 projetos por ano", "pct": 0.00, "pct_anterior": 0.00, "status": "🔴 Não iniciado"},
+        {"objetivo": "Alcance Instagram", "acao": "Divulgação projetos",     "meta": "1 post por semana", "pct": 1.00, "pct_anterior": 0.80, "status": "🟡 Em progresso"},
+        {"objetivo": "Alcance Instagram", "acao": "Vídeos semanais",         "meta": "2 vídeos por semana","pct": 1.00, "pct_anterior": 0.80, "status": "🟡 Em progresso"},
     ]
 
     # Criar três colunas para os objetivos
