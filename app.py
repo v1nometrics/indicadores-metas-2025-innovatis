@@ -1612,7 +1612,7 @@ if st.session_state["authentication_status"]:
                             {icon_target}
                         </div>
                         <div style="flex: 1; min-width: 0;">
-                            <h4 style="margin: 0; color: white; font-size: 16px; opacity: 0.9;">Projeção 2º Semestre</h4>
+                            <h4 style="margin: 0; color: white; font-size: 16px; opacity: 0.9;">Projeção Até o Fim do Ano</h4>
                             <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 14px;">Para 2025.02</p>
                         </div>
                     </div>
@@ -1622,8 +1622,8 @@ if st.session_state["authentication_status"]:
                     </div>
                     <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 16px; margin-top: auto;">
                         <div style="font-size: 13px; opacity: 0.9; line-height: 1.4; text-align: center;">
-                            <div style="margin-bottom: 6px;">2º sem 2024 = <strong>{proporcao_s2_2024:.1%}</strong> do 1º sem 2024</div>
-                            <div style="font-size: 12px; opacity: 0.8;">Proporção aplicada para 2025.02</div>
+                            <div style="margin-bottom: 6px;">De Outubro a Dezembro de 2024 = <strong>{proporcao_s2_2024:.1%}</strong> De Janeiro a Setembro de 2024</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Proporção aplicada estimar de Outubro a Dezembro de 2025</div>
                         </div>
                     </div>
                 </div>
