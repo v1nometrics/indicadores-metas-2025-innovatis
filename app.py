@@ -1533,9 +1533,9 @@ if st.session_state["authentication_status"]:
             st.subheader("Análise Comparativa com 2024 e Projeções de Faturamento")
 
             # Dados históricos e atuais
-            faturamento_2024_s1 = 10_618_617.76
+            faturamento_2024_s1 = 13_530_429.17
             faturamento_2024_s2 = 7_299_772.79
-            faturamento_2025_s1 = 14_305_053.60
+            faturamento_2025_s1 = 21_609_306.06
             contratos_execucao = 22_000_000.00
 
             # Cálculos
@@ -1582,7 +1582,7 @@ if st.session_state["authentication_status"]:
                             {icon_growth}
                         </div>
                         <div style="flex: 1; min-width: 0;">
-                            <h4 style="margin: 0; color: white; font-size: 16px; opacity: 0.9;">Performance 1º Semestre</h4>
+                            <h4 style="margin: 0; color: white; font-size: 16px; opacity: 0.9;">Performance Até Setembro </h4>
                             <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 14px;">Crescimento vs. 2024</p>
                         </div>
                     </div>
