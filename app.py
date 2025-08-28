@@ -1898,7 +1898,7 @@ if st.session_state["authentication_status"]:
                 st.markdown("""
                     <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
                     height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
-                        Plataforma de Oportunidades
+                        Sistema de Análise de Emendas Parlamentares | SAEP
                     </h3>
                 """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['OPORTUNIDADES']["andamento"], key="oportunidades_chart")
@@ -1919,7 +1919,7 @@ if st.session_state["authentication_status"]:
                 st.markdown("""
                     <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
                     height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
-                        Plataforma de Monitoramento
+                        Painel Gerenciador de Acessos | AdminConsole
                     </h3>
                 """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['MONITORAMENTO FINANCEIRO']["andamento"], key="monitoramento_chart")
@@ -1940,7 +1940,7 @@ if st.session_state["authentication_status"]:
                 st.markdown("""
                     <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
                     height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
-                        Plataforma de Produtos
+                        Plataforma de Produtos | NEXUS
                     </h3>
                 """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['PRODUTOS']["andamento"], key="produtos_chart")
@@ -1961,7 +1961,7 @@ if st.session_state["authentication_status"]:
                 st.markdown("""
                     <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
                     height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
-                        Gestão de Projetos
+                        Gestão de Projetos - GOPRO
                     </h3>
                 """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['GESTÃO DE PROJETOS']["andamento"], key="gestao_chart")
