@@ -1897,7 +1897,7 @@ if st.session_state["authentication_status"]:
             with col_o:
                 st.markdown("""
                     <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
-                    height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0; margin-top: 3;''>
+                    height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0; margin-top: -5;''>
                         Sistema de Análise de Emendas Parlamentares <br>SAEP
                     </h3>
                 """, unsafe_allow_html=True)
