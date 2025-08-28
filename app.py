@@ -1897,8 +1897,8 @@ if st.session_state["authentication_status"]:
             with col_o:
                 st.markdown("""
                     <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
-                    height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
-                        Sistema de Análise de Emendas Parlamentares <br>SAEP<br>
+                    height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0; margin-top: 3;''>
+                        Sistema de Análise de Emendas Parlamentares <br>SAEP
                     </h3>
                 """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['OPORTUNIDADES']["andamento"], key="oportunidades_chart")
@@ -1940,7 +1940,7 @@ if st.session_state["authentication_status"]:
                 st.markdown("""
                     <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
                     height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
-                        Plataforma de Produtos   NEXUS
+                        Plataforma de Produtos <br>NEXUS
                     </h3>
                 """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['PRODUTOS']["andamento"], key="produtos_chart")
@@ -1961,7 +1961,7 @@ if st.session_state["authentication_status"]:
                 st.markdown("""
                     <h3 style='text-align: center; font-size: 1.2em; line-height: 1.2; 
                     height: 2.4em; display: flex; align-items: center; justify-content: center; margin-bottom: 0;'>
-                        Gestão de Projetos   GOPRO
+                        Gestão de Projetos <br>GOPRO
                     </h3>
                 """, unsafe_allow_html=True)
                 create_circular_progress_chart(plataformas_data['GESTÃO DE PROJETOS']["andamento"], key="gestao_chart")
