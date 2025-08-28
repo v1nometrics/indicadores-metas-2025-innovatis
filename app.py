@@ -1623,7 +1623,7 @@ if st.session_state["authentication_status"]:
                     <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 16px; margin-top: auto;">
                         <div style="font-size: 13px; opacity: 0.9; line-height: 1.4; text-align: center;">
                             <div style="margin-bottom: 6px;">De Outubro a Dezembro de 2024 = <strong>{proporcao_s2_2024:.1%}</strong> De Janeiro a Setembro de 2024</div>
-                            <div style="font-size: 12px; opacity: 0.8;">Proporção aplicada estimar de Outubro a Dezembro de 2025</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Proporção aplicada para estimar de Outubro a Dezembro de 2025</div>
                         </div>
                     </div>
                 </div>
