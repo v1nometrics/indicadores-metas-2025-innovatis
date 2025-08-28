@@ -2307,7 +2307,7 @@ if st.session_state["authentication_status"]:
 
         # ——— SINALIZAÇÃO DO ESCRITÓRIO ———
         {"objetivo": "Sinalização Escritório", "acao": "Layout",                   "meta": "Validado",          "pct": 1.00, "pct_anterior": 1.00, "status": "✅ Concluído"},
-        {"objetivo": "Sinalização Escritório", "acao": "Preparação para impressão",  "meta": "Arquivos prontos",  "pct": 0.95, "pct_anterior": 0.70, "status": "🟡 Em progresso"},
+        {"objetivo": "Sinalização Escritório", "acao": "Preparação para impressão",  "meta": "Arquivos prontos",  "pct": 1.00, "pct_anterior": 0.70, "status": "🟡 Em progresso"},
         {"objetivo": "Sinalização Escritório", "acao": "Produção com fornecedor",   "meta": "—",                 "pct": 0.00, "pct_anterior": 0.00, "status": "🔴 Não iniciado"},
         {"objetivo": "Sinalização Escritório", "acao": "Aplicação adesivos/placas",  "meta": "—",                 "pct": 0.00, "pct_anterior": 0.00, "status": "🔴 Não iniciado"},
 
