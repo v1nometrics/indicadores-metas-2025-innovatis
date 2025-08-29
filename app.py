@@ -1425,6 +1425,7 @@ if st.session_state["authentication_status"]:
                     width: {percentual_progresso_meta1}%;
                     position: absolute;
                     top: 0; left: 0;
+                    z-index: 2;
                     transition: width 1s ease-in-out;
                     box-shadow: 0 1px 5px rgba(0,0,0,0.1);
                     position: relative;
@@ -1519,6 +1520,10 @@ if st.session_state["authentication_status"]:
                     transform: translateX(40%);
                     margin-right: 0;
                 }}
+                .milestone-center {{
+                    left: 92.2%; /* Posiciona proporcionalmente onde seria 100% da meta (100/108.5 = 92.2%) */
+                    transform: translateX(-50%);
+                }}
                 .milestone-icon {{
                     font-size: 24px;
                     margin-bottom: 5px;
@@ -1554,11 +1559,17 @@ if st.session_state["authentication_status"]:
                     <div class="milestone-value" style="color: #2196F3;">R$&nbsp;0,00</div>
                     <div class="milestone-label" style="color: #2196F3;">Início</div>
                 </div>
-                <div class="milestone milestone-right">
-                    <div class="milestone-icon">🏆</div>
+                <div class="milestone milestone-center">
+                    <div class="milestone-icon">🎯</div>
                     <div class="milestone-status">{"🔵" if percentual_progresso_meta1 >= 100 else "⚪"}</div>
                     <div class="milestone-value" style="color: #FF6B6B;">R$&nbsp;{meta1_br_sem_centavos}</div>
                     <div class="milestone-label" style="color: #FF6B6B;">Meta Atingida</div>
+                </div>
+                <div class="milestone milestone-right">
+                    <div class="milestone-icon">🏆</div>
+                    <div class="milestone-status">{"🟢" if percentual_progresso_meta1 >= 108.5 else "🟡"}</div>
+                    <div class="milestone-value" style="color: #4CAF50;">R$&nbsp;32.550.000</div>
+                    <div class="milestone-label" style="color: #4CAF50;">Projeção 108,5%</div>
                 </div>
             </div>
             """
