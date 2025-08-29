@@ -1654,7 +1654,7 @@ if st.session_state["authentication_status"]:
                         </div>
                         <div style="flex: 1; min-width: 0;">
                             <h4 style="margin: 0; color: white; font-size: 16px; opacity: 0.9;">Projeção Até o Fim do Ano</h4>
-                            <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 14px;">Para 2025.02</p>
+                            <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 14px;">Para até Dez/2025</p>
                         </div>
                     </div>
                     <div style="text-align: center; margin-bottom: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
