@@ -1906,6 +1906,63 @@ if st.session_state["authentication_status"]:
                 )
                 st.markdown("</div>", unsafe_allow_html=True)
             
+            # Adicionar seção com listas das instituições parceiras
+            st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
+            
+            # Criar layout equilibrado com cards de mesma altura
+            col_fund, col_ifes = st.columns(2, gap="large")
+            
+            with col_fund:
+                st.markdown("""
+                <div style="background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); height: 450px; display: flex; flex-direction: column;">
+                    <h4 style="color: white; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; text-align: center; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 8px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                        Fundações Parceiras
+                    </h4>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 280px;">
+                        <div style="text-align: center; font-size: 15px; font-weight: 500; line-height: 1.3;">
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">FADEX</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">FAPTO</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">FUNCERN</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">FUNPEC</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">FACTO</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; font-size: 15px; opacity: 0.9; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="font-size: 16px;">Total: 5 Fundações</strong><br>
+                        <small style="opacity: 0.8; font-size: 16px;">Projetos vigentes ou em assinatura</small>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col_ifes:
+                st.markdown("""
+                <div style="background: linear-gradient(135deg, #2196F3, #0D47A1); color: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3); height: 450px; display: flex; flex-direction: column;">
+                    <h4 style="color: white; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; text-align: center; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 8px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                        IFES Parceiras
+                    </h4>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 280px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; font-weight: 500;">
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFMA</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFMS</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UNIVASF</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IF SERTÃO PE</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UFPI</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFPI</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFRN</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UFDPAR</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UFPB</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UFCAT</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFSP</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFTO</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; font-size: 15px; opacity: 0.9; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="font-size: 16px;">Total: 12 IFES</strong><br>
+                        <small style="opacity: 0.8; font-size: 16px;">Projetos vigentes ou em assinatura</small>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+        
         else:
             st.warning("Dados incompletos para Relacionamento.")
 
