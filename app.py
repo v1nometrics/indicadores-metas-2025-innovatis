@@ -2355,8 +2355,6 @@ if st.session_state["authentication_status"]:
                         <p style="margin: 0; font-size: 14px; font-weight: 500;">Etapa mais demorada</p>
                         <p style="margin: 3px 0 0 0; font-size: 14px; color: #666;">
                             <span style="color: #C00000; font-weight: 600;">{max_time_stage}</span> ({max_time_value} dias)
-                        </p>
-                        <p style="margin: 3px 0 0 0; font-size: 12px; color: #666; font-style: italic;">Até o contrato ser assinado (exclui Planejamento e Execução)</p>
                     </div>
                 </div>
             </div>
