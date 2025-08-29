@@ -1576,7 +1576,7 @@ if st.session_state["authentication_status"]:
             # Dados históricos e atuais
             faturamento_2024_s1 = 13_530_429.17
             faturamento_2024_s2 = 4_387_961.38
-            faturamento_2025_s1 = 21_609_306.06
+            faturamento_2025_s1 = 21_696_806.06
             contratos_execucao = 27_196_863.51
 
             # Cálculos
