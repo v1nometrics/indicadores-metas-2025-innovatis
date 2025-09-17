@@ -20,9 +20,15 @@ credentials:
       logged_in: False
       name: "Clara Santos"
       password: "InnovaLabs86"
+    diego:
+      email: "diego.melo@innovatismc.com"
+      logged_in: False
+      name: "Diego Melo"
+      password: "InnovaLabs86"
 cookie:
   expiry_days: 30
   key: "some_signature_key"
 
   name: "some_cookie_name"
+
 
