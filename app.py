@@ -2059,7 +2059,7 @@ if st.session_state["authentication_status"]:
                             <span style="color: {oportunidades_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {oportunidades_var_color}20; border-radius: 4px; margin-right: 8px;">
                                 {oportunidades_var_symbol} {abs(oportunidades_variation):.1f}%
                             </span>
-                            <span style="color: #777; font-size: 12px;">vs {past_oportunidades} (até mês passado)</span>
+                            <span style="color: #777; font-size: 12px;">vs {past_oportunidades} (período anterior)</span>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -2309,7 +2309,7 @@ if st.session_state["authentication_status"]:
                         <span style="color: {oportunidades_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {oportunidades_var_color}20; border-radius: 4px; margin-right: 8px;">
                             {oportunidades_var_symbol} {abs(oportunidades_variation):.1f}%
                         </span>
-                        <span style="color: #777; font-size: 12px;">vs {past_oportunidades} (até mês passado)</span>
+                        <span style="color: #777; font-size: 12px;">vs {past_oportunidades} (período anterior)</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -3107,7 +3107,7 @@ if st.session_state["authentication_status"]:
                     <span style="font-size: 16px; font-weight: 600; color: #2196F3;">{seguidores_epitacio:,} / {meta_seguidores:,}</span>
                 </div>
                 <div style="text-align: center; margin-bottom: 18px;">
-                    <span style="font-size: 13px; color: #666;">Crescimento desde junho: </span>
+                    <span style="font-size: 13px; color: #666;">Crescimento desde agosto: </span>
                     <span style="font-size: 13px; font-weight: 600; color: #4CAF50;">+{crescimento_epitacio:.1f}% (+{seguidores_epitacio - seguidores_epitacio_anterior:,})</span>
                 </div>
                 <div style="background-color: #f0f0f0; border-radius: 10px; height: 20px; position: relative; overflow: hidden;">
@@ -3540,7 +3540,7 @@ if st.session_state["authentication_status"]:
                             <span style="font-size: 16px; font-weight: 600; color: #2196F3;">{seguidores_innovatis:,} / {meta_seguidores:,}</span>
                         </div>
                         <div style="text-align: center; margin-bottom: 18px;">
-                            <span style="font-size: 13px; color: #666;">Crescimento desde junho: </span>
+                            <span style="font-size: 13px; color: #666;">Crescimento desde agosto: </span>
                             <span style="font-size: 13px; font-weight: 600; color: #4CAF50;">+{crescimento_innovatis:.1f}% (+{seguidores_innovatis - seguidores_innovatis_anterior:,})</span>
                         </div>
                         <div style="background-color: #f0f0f0; border-radius: 10px; height: 20px; position: relative; overflow: hidden;">
