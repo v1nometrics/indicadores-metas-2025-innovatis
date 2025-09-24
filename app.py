@@ -2252,7 +2252,7 @@ if st.session_state["authentication_status"]:
         
         with col_metricas:
             # Calcular métricas importantes - IFES
-            total_oportunidades_ifes = data.get("total_oportunidades_ifes_2025", values[0])  # Usar primeira etapa se não houver dados específicos
+            total_oportunidades_ifes = 60  # Usar primeira etapa se não houver dados específicos
             
             # Encontrar índices importantes (usando os novos nomes)
             modelagem_idx = -1
@@ -2295,21 +2295,17 @@ if st.session_state["authentication_status"]:
             col_m1, col_m2 = st.columns(2)
             
             with col_m1:
-                # Calcular variação para Total de Oportunidades
-                oportunidades_variation = ((total_oportunidades_ifes - past_oportunidades) / past_oportunidades * 100) if past_oportunidades > 0 else 0
-                oportunidades_var_color = "#4CAF50" if oportunidades_variation >= 0 else "#F44336"
-                oportunidades_var_symbol = "↑" if oportunidades_variation >= 0 else "↓"
-                
+                # Total de Oportunidades IFES - Sem comparativo (zerado)
                 st.markdown(f"""
                 <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #FFD966;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Oportunidades</h4>
                     <p style="margin: 0; font-size: 12px; color: #777;">(IFES - Captadas e tratadas em 2025)</p>
                     <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_oportunidades_ifes}</p>
                     <div style="margin-top: 8px; display: flex; align-items: center;">
-                        <span style="color: {oportunidades_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {oportunidades_var_color}20; border-radius: 4px; margin-right: 8px;">
-                            {oportunidades_var_symbol} {abs(oportunidades_variation):.1f}%
+                        <span style="color: #777; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: #f5f5f5; border-radius: 4px; margin-right: 8px;">
+                            ± 0%
                         </span>
-                        <span style="color: #777; font-size: 12px;">vs {past_oportunidades} (período anterior)</span>
+                        <span style="color: #777; font-size: 12px;">vs 0 (período anterior)</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -2341,21 +2337,17 @@ if st.session_state["authentication_status"]:
                 """, unsafe_allow_html=True)
             
             with col_m2:
-                # Calcular variação para Total de Contratos
-                contratos_variation = ((total_contratos_ifes - past_contratos) / past_contratos * 100) if past_contratos > 0 else 0
-                contratos_var_color = "#4CAF50" if contratos_variation >= 0 else "#F44336"
-                contratos_var_symbol = "↑" if contratos_variation >= 0 else "↓"
-                
+                # Total de Contratos IFES - Sem comparativo (zerado)
                 st.markdown(f"""
                 <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #9BC2E6;">
                     <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Contratos</h4>
                     <p style="margin: 0; font-size: 12px; color: #777;">(IFES - Fechados em 2025)</p>
                     <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_contratos_ifes}</p>
                     <div style="margin-top: 8px; display: flex; align-items: center;">
-                        <span style="color: {contratos_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {contratos_var_color}20; border-radius: 4px; margin-right: 8px;">
-                            {contratos_var_symbol} {abs(contratos_variation):.1f}%
+                        <span style="color: #777; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: #f5f5f5; border-radius: 4px; margin-right: 8px;">
+                            ± 0%
                         </span>
-                        <span style="color: #777; font-size: 12px;">vs {past_contratos} (período anterior)</span>
+                        <span style="color: #777; font-size: 12px;">vs 0 (período anterior)</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
