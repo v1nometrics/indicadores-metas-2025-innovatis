@@ -3081,6 +3081,45 @@ if st.session_state["authentication_status"]:
         instagram_past_row = df_captacao[df_captacao['Captação Digital'] == 'INSTAGRAM (Past)']
         
         if not instagram_row.empty and not instagram_past_row.empty:
+            # ========== MÉTRICAS @EPITACIOBRITO ==========
+            st.markdown("""
+                <div style="margin: 10px 0 20px 0;">
+                    <h3 style="color: #333; font-size: 20px; font-weight: 600; margin-bottom: 15px; 
+                               display: flex; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">
+                        @epitaciobrito
+                    </h3>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Barra de progresso de seguidores para @epitaciobrito
+            seguidores_epitacio = 3763
+            seguidores_epitacio_anterior = int(instagram_past_row["Seguidores"].values[0])  # Dados Past da planilha
+            meta_seguidores = 10000
+            progresso_epitacio = (seguidores_epitacio / meta_seguidores) * 100
+            
+            # Calcular crescimento percentual
+            crescimento_epitacio = ((seguidores_epitacio - seguidores_epitacio_anterior) / seguidores_epitacio_anterior) * 100
+            
+            st.markdown(f"""
+            <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="text-align: center; margin-bottom: 8px;">
+                    <span style="font-size: 16px; font-weight: 500; color: #333;">Meta de Seguidores: </span>
+                    <span style="font-size: 16px; font-weight: 600; color: #2196F3;">{seguidores_epitacio:,} / {meta_seguidores:,}</span>
+                </div>
+                <div style="text-align: center; margin-bottom: 18px;">
+                    <span style="font-size: 13px; color: #666;">Crescimento desde junho: </span>
+                    <span style="font-size: 13px; font-weight: 600; color: #4CAF50;">+{crescimento_epitacio:.1f}% (+{seguidores_epitacio - seguidores_epitacio_anterior:,})</span>
+                </div>
+                <div style="background-color: #f0f0f0; border-radius: 10px; height: 20px; position: relative; overflow: hidden;">
+                    <div style="background: linear-gradient(90deg, #2196F3, #42A5F5); height: 100%; width: {progresso_epitacio:.1f}%; border-radius: 10px; transition: width 1s ease-in-out; position: relative;">
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%); background-size: 200% 100%; animation: shine 3s infinite linear;"></div>
+                    </div>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #333; font-weight: bold; font-size: 12px; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
+                        {progresso_epitacio:.1f}%
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
             # Adicionar estilo CSS para cards de métricas e links
             st.markdown("""
             <style>
@@ -3235,46 +3274,6 @@ if st.session_state["authentication_status"]:
                 {"col": "Seguidores", "icon": "👥", "title": "Seguidores"}
             ]
 
-            # ========== MÉTRICAS @EPITACIOBRITO ==========
-            st.markdown("""
-                <div style="margin: 10px 0 20px 0;">
-                    <h3 style="color: #333; font-size: 20px; font-weight: 600; margin-bottom: 15px; 
-                               display: flex; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">
-                        @epitaciobrito
-                    </h3>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            # Barra de progresso de seguidores para @epitaciobrito
-            seguidores_epitacio = 3234
-            seguidores_epitacio_anterior = 2688  # Dados até 31 de junho
-            meta_seguidores = 10000
-            progresso_epitacio = (seguidores_epitacio / meta_seguidores) * 100
-            
-            # Calcular crescimento percentual
-            crescimento_epitacio = ((seguidores_epitacio - seguidores_epitacio_anterior) / seguidores_epitacio_anterior) * 100
-            
-            st.markdown(f"""
-            <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <div style="text-align: center; margin-bottom: 8px;">
-                    <span style="font-size: 16px; font-weight: 500; color: #333;">Meta de Seguidores: </span>
-                    <span style="font-size: 16px; font-weight: 600; color: #2196F3;">{seguidores_epitacio:,} / {meta_seguidores:,}</span>
-                </div>
-                <div style="text-align: center; margin-bottom: 18px;">
-                    <span style="font-size: 13px; color: #666;">Crescimento desde junho: </span>
-                    <span style="font-size: 13px; font-weight: 600; color: #4CAF50;">+{crescimento_epitacio:.1f}% (+{seguidores_epitacio - seguidores_epitacio_anterior:,})</span>
-                </div>
-                <div style="background-color: #f0f0f0; border-radius: 10px; height: 20px; position: relative; overflow: hidden;">
-                    <div style="background: linear-gradient(90deg, #2196F3, #42A5F5); height: 100%; width: {progresso_epitacio:.1f}%; border-radius: 10px; transition: width 1s ease-in-out; position: relative;">
-                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%); background-size: 200% 100%; animation: shine 3s infinite linear;"></div>
-                    </div>
-                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #333; font-weight: bold; font-size: 12px; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
-                        {progresso_epitacio:.1f}%
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
             # Adicionar CSS para melhorar a responsividade
             st.markdown("""
             <style>
@@ -3517,36 +3516,6 @@ if st.session_state["authentication_status"]:
                 </div>
             """, unsafe_allow_html=True)
             
-            # Barra de progresso de seguidores para @innovatismc
-            seguidores_innovatis = 2224
-            seguidores_innovatis_anterior = 1116  # Dados até 31 de junho
-            meta_seguidores = 10000
-            progresso_innovatis = (seguidores_innovatis / meta_seguidores) * 100
-            
-            # Calcular crescimento percentual
-            crescimento_innovatis = ((seguidores_innovatis - seguidores_innovatis_anterior) / seguidores_innovatis_anterior) * 100
-            
-            st.markdown(f"""
-            <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <div style="text-align: center; margin-bottom: 8px;">
-                    <span style="font-size: 16px; font-weight: 500; color: #333;">Meta de Seguidores: </span>
-                    <span style="font-size: 16px; font-weight: 600; color: #2196F3;">{seguidores_innovatis:,} / {meta_seguidores:,}</span>
-                </div>
-                <div style="text-align: center; margin-bottom: 18px;">
-                    <span style="font-size: 13px; color: #666;">Crescimento desde junho: </span>
-                    <span style="font-size: 13px; font-weight: 600; color: #4CAF50;">+{crescimento_innovatis:.1f}% (+{seguidores_innovatis - seguidores_innovatis_anterior:,})</span>
-                </div>
-                <div style="background-color: #f0f0f0; border-radius: 10px; height: 20px; position: relative; overflow: hidden;">
-                    <div style="background: linear-gradient(90deg, #2196F3, #42A5F5); height: 100%; width: {progresso_innovatis:.1f}%; border-radius: 10px; transition: width 1s ease-in-out; position: relative;">
-                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%); background-size: 200% 100%; animation: shine 3s infinite linear;"></div>
-                    </div>
-                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #333; font-weight: bold; font-size: 12px; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
-                        {progresso_innovatis:.1f}%
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
             # Dados do @innovatismc da planilha (linhas 37-39)
             df_captacao_innovatis = data["captacao_digital_innovatis"]
             
@@ -3555,6 +3524,36 @@ if st.session_state["authentication_status"]:
                 instagram_innovatis_past_row = df_captacao_innovatis[df_captacao_innovatis['Captação Digital'] == 'INSTAGRAM (Past)']
                 
                 if not instagram_innovatis_row.empty and not instagram_innovatis_past_row.empty:
+                    # Barra de progresso de seguidores para @innovatismc
+                    seguidores_innovatis = 2447
+                    seguidores_innovatis_anterior = int(instagram_innovatis_past_row["Seguidores"].values[0])  # Dados Past da planilha
+                    meta_seguidores = 10000
+                    progresso_innovatis = (seguidores_innovatis / meta_seguidores) * 100
+                    
+                    # Calcular crescimento percentual
+                    crescimento_innovatis = ((seguidores_innovatis - seguidores_innovatis_anterior) / seguidores_innovatis_anterior) * 100
+                    
+                    st.markdown(f"""
+                    <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="text-align: center; margin-bottom: 8px;">
+                            <span style="font-size: 16px; font-weight: 500; color: #333;">Meta de Seguidores: </span>
+                            <span style="font-size: 16px; font-weight: 600; color: #2196F3;">{seguidores_innovatis:,} / {meta_seguidores:,}</span>
+                        </div>
+                        <div style="text-align: center; margin-bottom: 18px;">
+                            <span style="font-size: 13px; color: #666;">Crescimento desde junho: </span>
+                            <span style="font-size: 13px; font-weight: 600; color: #4CAF50;">+{crescimento_innovatis:.1f}% (+{seguidores_innovatis - seguidores_innovatis_anterior:,})</span>
+                        </div>
+                        <div style="background-color: #f0f0f0; border-radius: 10px; height: 20px; position: relative; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #2196F3, #42A5F5); height: 100%; width: {progresso_innovatis:.1f}%; border-radius: 10px; transition: width 1s ease-in-out; position: relative;">
+                                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%); background-size: 200% 100%; animation: shine 3s infinite linear;"></div>
+                            </div>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #333; font-weight: bold; font-size: 12px; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
+                                {progresso_innovatis:.1f}%
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
                     # Dados atuais do @innovatismc
                     innovatis_current = {}
                     innovatis_past = {}
@@ -3636,7 +3635,7 @@ if st.session_state["authentication_status"]:
                     
                     # Solução direta: sempre usar a URL fixa para o botão 1, ignorando processamento
                     # Esta abordagem é mais robusta para diferentes ambientes
-                    url_for_button_1 = "https://www.instagram.com/reel/DK2hIGvvtRq/embed/"
+                    url_for_button_1 = "https://www.instagram.com/p/DOWAbvODVII/embed/"
                     print("Usando URL fixa para o botão 1 (ignorando processamento)")
                     
                     # Log para debug
@@ -3675,7 +3674,7 @@ if st.session_state["authentication_status"]:
                     
                     # Solução direta: sempre usar a URL fixa para o botão 2, ignorando processamento
                     # Esta abordagem é mais robusta para diferentes ambientes
-                    url_for_button_2 = "https://www.instagram.com/p/DKNfxxbyq2E/embed/"
+                    url_for_button_2 = "https://www.instagram.com/p/DOOZqtKDe7a/embed/"
                     print("Usando URL fixa para o botão 2 (ignorando processamento)")
                     
                     # Log para debug
