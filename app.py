@@ -16,6 +16,7 @@ import yaml
 from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 import streamlit.components.v1 as components
+import textwrap
 
 # Configurações da página
 st.set_page_config(
@@ -844,7 +845,7 @@ if st.session_state["authentication_status"]:
         # Criar barra de progresso
         st.progress(percent)
 
-    def create_gauge_chart(title, value, min_value=0, max_value=100, is_percentage=True, color=None):
+    def create_gauge_chart(title, value, min_value=0, max_value=100, is_percentage=True, color=None, unique_key=None):
         """
         Cria um gráfico de medidor (gauge) com estilo minimalista.
         """
@@ -913,7 +914,13 @@ if st.session_state["authentication_status"]:
             yaxis={'showgrid': False, 'zeroline': False}
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        # Gerar chave única
+        if unique_key:
+            key = f"gauge_chart_{unique_key}"
+        else:
+            key = f"gauge_chart_{title.replace(' ', '_').lower()}" if title else f"gauge_chart_default_{hash(str(value))}"
+        
+        st.plotly_chart(fig, use_container_width=True, key=key)
 
     def create_comparison_chart(title, categories, values_2024, values_2025, metas_2025=None, color_2024=None, color_2025=None, color_meta=None):
         """
@@ -972,7 +979,7 @@ if st.session_state["authentication_status"]:
             font={'family': "Poppins"}
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key=f"comparison_chart_{title.replace(' ', '_').lower()}")
 
     def create_variation_chart(title, categories, values, variations, color_positive=None, color_negative=None):
         """
@@ -1004,7 +1011,7 @@ if st.session_state["authentication_status"]:
             font={'family': "Poppins"}
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key=f"variation_chart_{title.replace(' ', '_').lower()}")
 
     def create_circular_progress_chart(value, max_value=1, key=None, overlay_html=None):
         # Calcular porcentagem
@@ -1113,26 +1120,53 @@ if st.session_state["authentication_status"]:
         
         # Adicionar setas indicando o fluxo entre etapas com design mais elegante
         for i in range(len(stages) - 1):
-            # Calcular a taxa de conversão entre etapas consecutivas
-            if i < len(stages) - 1 and values[i] > 0 and values[i+1] > 0:
-                conversion = values[i+1] / values[i]
-                conversion_percent = f"{conversion:.0%}"
-                
-                # Adicionar seta e taxa de conversão entre etapas com estilo mais elegante
+            # Não mostrar conversão para BACKLOG (última etapa)
+            if i == len(stages) - 2:  # Penúltima etapa (CONTRATOS -> BACKLOG)
+                # Para BACKLOG, adicionar separação visual ao invés de conversão
                 fig.add_annotation(
                     x=0.5,  # Centro do funil
                     y=i + 0.5,  # Entre as etapas
                     xref="paper",
                     yref="y",
-                    text=f"↓ <b>Conversão: {conversion_percent}</b>",
+                    text="<b>BACKLOG</b>",
                     showarrow=False,
-                    font=dict(size=13, color="#555", family="Poppins"),
-                    bgcolor="rgba(255,255,255,0.9)",
-                    bordercolor="#ddd",
+                    font=dict(size=14, color="#888", family="Poppins", weight="bold"),
+                    bgcolor="rgba(248,248,248,0.9)",
+                    bordercolor="#ccc",
                     borderwidth=1,
-                    borderpad=6,
+                    borderpad=8,
                     align="center"
                 )
+            else:
+                # Usar as taxas de conversão manuais ao invés de calcular automaticamente
+                if i < len(stages) - 1 and i + 1 < len(conversion_rates):
+                    # Usar a taxa de conversão manual da próxima etapa
+                    manual_rate = conversion_rates[i + 1]
+                    if manual_rate and manual_rate != '-':
+                        conversion_percent = manual_rate
+                    else:
+                        # Fallback: calcular automaticamente apenas se não houver taxa manual
+                        if values[i] > 0 and values[i+1] > 0:
+                            conversion = values[i+1] / values[i]
+                            conversion_percent = f"{conversion:.0%}"
+                        else:
+                            conversion_percent = "N/A"
+                    
+                    # Adicionar seta e taxa de conversão entre etapas com estilo mais elegante
+                    fig.add_annotation(
+                        x=0.5,  # Centro do funil
+                        y=i + 0.5,  # Entre as etapas
+                        xref="paper",
+                        yref="y",
+                        text=f"↓ <b>Conversão: {conversion_percent}</b>",
+                        showarrow=False,
+                        font=dict(size=13, color="#555", family="Poppins"),
+                        bgcolor="rgba(255,255,255,0.9)",
+                        bordercolor="#ddd",
+                        borderwidth=1,
+                        borderpad=6,
+                        align="center"
+                    )
         
         # Configurar layout com estilo mais moderno, elegante e compacto
         fig.update_layout(
@@ -1171,7 +1205,7 @@ if st.session_state["authentication_status"]:
             y=-0.20,
             xref="paper",
             yref="paper",
-            text="<i>2. Esta análise considera apenas oportunidades iniciadas em 2025. Cards oriundos de anos anteriores não estão incluídos nos dados apresentados.</i>",
+            text="<i>2. Esta análise considera apenas oportunidades GOV iniciadas em 2025. Cards oriundos de anos anteriores não estão incluídos nos dados apresentados.</i>",
             showarrow=False,
             font=dict(size=11, color="#777", family="Poppins"),
             align="right"
@@ -1246,7 +1280,7 @@ if st.session_state["authentication_status"]:
     st.markdown("---")
 
     # Nova Seção: Meta de Faturamento Anual
-    st.header("Meta de Faturamento Anual")
+    st.markdown("<h2 style='text-align: center;'>Meta de Faturamento Anual</h2>", unsafe_allow_html=True)
 
     df_faturamento = data["faturamento"]
 
@@ -1358,7 +1392,7 @@ if st.session_state["authentication_status"]:
 
             # Cálculos para o sub-box de comparação com valor esperado
             meta_anual = 30_000_000.00  # Meta anual de 30 milhões
-            mes_atual = 8  # Agosto (considerando que estamos em setembro)
+            mes_atual = 9  # Agosto (considerando que estamos em setembro)
             valor_esperado = (meta_anual / 12) * mes_atual  # 2.5mi * 8 meses = 20mi
             diferenca_absoluta = faturamento['atual'] - valor_esperado
             percentual_acima = (diferenca_absoluta / valor_esperado) * 100
@@ -1366,31 +1400,101 @@ if st.session_state["authentication_status"]:
             # Formatação dos valores
             formatted_value = f"{faturamento['atual']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             formatted_valor_esperado = f"{valor_esperado:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+            # Valor mensal para explicar o cálculo do esperado
+            valor_mensal = meta_anual / 12
+            formatted_valor_mensal = f"{valor_mensal:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
             formatted_percent_meta1 = f"{percentual_progresso_meta1:.1f}".replace(".", ",")
             formatted_percentual_acima = f"{percentual_acima:.1f}".replace(".", ",")
-            
-            # Card de faturamento atual com design melhorado e sub-box
-            st.markdown(f"""
-            <div style="text-align: center; padding: 16px; background: linear-gradient(135deg, #2196F3, #0D47A1); color: white; border-radius: 20px; box-shadow: 0 10px 20px rgba(33, 150, 243, 0.3); margin: 20px auto 26px auto; max-width: 650px;">
-                <p style="color: white; font-size: 21px; margin-bottom: 7px; opacity: 0.9;">Faturamento Atual:</p>
-                <p style="color: white; font-size: 42px; font-weight: 700; margin: 0; text-shadow: 0 3px 5px rgba(0,0,0,0.2);">
-                    R$ {formatted_value}
-                </p>
-                <p style="color: white; margin-top: 7px; font-size: 22px; opacity: 0.9;">
-                    {formatted_percent_meta1}% da Meta 1
-                </p>
-                <div style="background: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 12px; margin-top: 15px; border: 1px solid rgba(255, 255, 255, 0.2);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span style="font-size: 17px; opacity: 0.8;">Valor Esperado (8 meses):</span>
-                        <span style="font-size: 18px; font-weight: 600;">R$ {formatted_valor_esperado}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 17px; opacity: 0.8;">Acima do Esperado:</span>
-                        <span style="font-size: 18px; font-weight: 600; color: #4CAF50;">+{formatted_percentual_acima}%</span>
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+
+            # ================= NOVA SEÇÃO: Composição por Origem (IFES vs GOV) =================
+            # Valores fornecidos (jan-set 2025) – poderão ser integrados à planilha futuramente
+            faturamento_ifes = 17_928_630.77
+            faturamento_gov  =  3_575_018.72
+            total_origem = faturamento_ifes + faturamento_gov
+            # Porcentagens
+            pct_ifes = (faturamento_ifes / total_origem) * 100 if total_origem > 0 else 0
+            pct_gov  = (faturamento_gov  / total_origem) * 100 if total_origem > 0 else 0
+
+            # Formatação BRL e percentuais
+            def _fmt_brl(v: float) -> str:
+                return f"{v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+            formatted_ifes = _fmt_brl(faturamento_ifes)
+            formatted_gov  = _fmt_brl(faturamento_gov)
+            pct_ifes_br = f"{pct_ifes:.1f}".replace(".", ",") + "%"
+            pct_gov_br  = f"{pct_gov:.1f}".replace(".", ",") + "%"
+
+            # Card de faturamento atual integrado e dedentado (único bloco)
+            card_html = textwrap.dedent(f"""
+                        <div style="width: 53.0%; margin: 20px auto 26px auto; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">
+                            <div style="padding: 22px 22px 24px 22px; background: linear-gradient(135deg, #2196F3, #0D47A1); color: white; border-radius: 20px; box-shadow: 0 12px 26px rgba(13, 71, 161, 0.35);">
+                                <div style="max-width: 980px; margin: 0 auto;">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 20px; opacity: .9; margin-bottom: 6px;">Faturamento Atual</div>
+                                        <div style="font-size: 44px; font-weight: 800; letter-spacing: .5px; text-shadow: 0 3px 10px rgba(0,0,0,.25);">R$ {formatted_value}</div>
+                                        <div style="margin-top: 8px; font-size: 20px; opacity: .95;">{formatted_percent_meta1}% da Meta 1</div>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px;">
+                                        <div style="background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 14px; padding: 12px 14px;">
+                                            <div style="display:flex; align-items:center; justify-content:space-between; gap:14px;">
+                                                <div style="font-size: 16px; opacity: .95;">Valor Esperado (9 meses)</div>
+                                                <div style="display:flex; gap:14px; align-items:center;">
+                                                    <div style="font-size: 18px; font-weight: 700;">R$ {formatted_valor_esperado}</div>
+                                                    <div style="font-size: 16px; font-weight: 700; color: #A5D6A7; background: rgba(165,214,167,.25); border:1px solid rgba(165,214,167,.45); padding: 6px 10px; border-radius: 999px;">+{formatted_percentual_acima}%</div>
+                                                </div>
+                                            </div>
+                                            <div style="margin-top:8px; font-size:12px; opacity:.9; text-align:left;">
+                                                <em>Assumindo meta anual de R$ 30.000.000 distribuída em 12 meses (≈ R$ {formatted_valor_mensal}/mês)</em>
+                                            </div>
+                                        </div>
+
+                                        <div style="background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.22); border-radius: 14px; padding: 14px 16px;">
+                                            <div style="text-align:center; font-size: 18px; font-weight: 600; margin-bottom: 12px; opacity:.95;">Composição por Origem</div>
+                                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                                                <div style="background: rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.28); border-radius: 12px; padding:12px; text-align:center;">
+                                                    <div style="display:flex; align-items:center; justify-content:center; gap:6px; font-size:15px; margin-bottom:6px;">
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+                                                        IFES
+                                                    </div>
+                                                    <div style="font-size:20px; font-weight:800;">R$ {formatted_ifes}</div>
+                                                    <div style="margin-top:6px; font-size:13px; opacity:.95;">{pct_ifes_br} do total</div>
+                                                </div>
+                                                <div style="background: rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.28); border-radius: 12px; padding:12px; text-align:center;">
+                                                    <div style="display:flex; align-items:center; justify-content:center; gap:6px; font-size:15px; margin-bottom:6px;">
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true" focusable="false">
+                                                            <path d="M12 3c-2.5 0-4.5 1.3-5.5 3.3h11C16.5 4.3 14.5 3 12 3z"/>
+                                                            <path d="M5 10h14l-7-4-7 4z"/>
+                                                            <path d="M6 11h12v7H6z"/>
+                                                            <path d="M8 13h2v5H8zM14 13h2v5h-2z"/>
+                                                            <path d="M4 20h16v1H4z"/>
+                                                        </svg>
+                                                        GOV
+                                                    </div>
+                                                    <div style="font-size:20px; font-weight:800;">R$ {formatted_gov}</div>
+                                                    <div style="margin-top:6px; font-size:13px; opacity:.95;">{pct_gov_br} do total</div>
+                                                </div>
+                                            </div>
+
+                                            <div style="margin-top:12px;">
+                                                <div style="height: 12px; border-radius: 999px; overflow:hidden; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28);">
+                                                    <div style="width: {pct_ifes:.1f}%; height:100%; background: #A5D6A7; float:left;"></div>
+                                                    <div style="width: {pct_gov:.1f}%; height:100%; background: #FFE082; float:left;"></div>
+                                                </div>
+                                                <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:6px; opacity:.95;">
+                                                    <span>IFES {pct_ifes_br}</span>
+                                                    <span>GOV {pct_gov_br}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        """)
+
+            # Renderizar via componente HTML para evitar que o Markdown trate como bloco de código
+            components.html(card_html, height=520, scrolling=False)
 
             # Estilo da barra de progresso com animação
             # Primeiro, definimos a animação CSS separadamente
@@ -1554,22 +1658,48 @@ if st.session_state["authentication_status"]:
             <div class="milestone-container">
                 <div class="milestone-line"></div>
                 <div class="milestone milestone-left">
-                    <div class="milestone-icon">🏁</div>
+                    <div class="milestone-icon" style="color:#2196F3;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <rect x="3" y="3" width="2" height="18"></rect>
+                            <rect x="7" y="4" width="12" height="8" rx="1" ry="1"></rect>
+                            <rect x="7" y="4" width="3" height="8" opacity="0.35"></rect>
+                            <rect x="13" y="4" width="3" height="8" opacity="0.35"></rect>
+                            <rect x="7" y="8" width="12" height="4" opacity="0.2"></rect>
+                        </svg>
+                    </div>
                     <div class="milestone-status">{"🔵" if percentual_progresso_meta1 >= 0 else "⚪"}</div>
                     <div class="milestone-value" style="color: #2196F3;">R$&nbsp;0,00</div>
                     <div class="milestone-label" style="color: #2196F3;">Início</div>
                 </div>
                 <div class="milestone milestone-center">
-                    <div class="milestone-icon">🎯</div>
+                    <div class="milestone-icon" style="color:#FF6B6B;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"></circle>
+                            <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"></circle>
+                            <circle cx="12" cy="12" r="1.8" fill="currentColor"></circle>
+                        </svg>
+                    </div>
                     <div class="milestone-status">{"🔵" if percentual_progresso_meta1 >= 100 else "⚪"}</div>
                     <div class="milestone-value" style="color: #FF6B6B;">R$&nbsp;{meta1_br_sem_centavos}</div>
                     <div class="milestone-label" style="color: #FF6B6B;">Meta Atingida</div>
                 </div>
                 <div class="milestone milestone-right">
-                    <div class="milestone-icon">🏆</div>
+                    <div class="milestone-icon" style="color:#FFC107;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <!-- Trophy cup -->
+                            <path d="M8 5h8v2a4 4 0 0 1-4 4 4 4 0 0 1-4-4V5z"></path>
+                            <!-- Handles -->
+                            <path d="M6 5H4a3 3 0 0 0 3 3"></path>
+                            <path d="M18 5h2a3 3 0 0 1-3 3"></path>
+                            <!-- Stem and base -->
+                            <path d="M12 11v4"></path>
+                            <path d="M10 17h4"></path>
+                            <path d="M8 19h8"></path>
+                        </svg>
+                    </div>
                     <div class="milestone-status">{"🟢" if percentual_progresso_meta1 >= 108.5 else "🟡"}</div>
-                    <div class="milestone-value" style="color: #4CAF50;">R$&nbsp;32.550.000</div>
-                    <div class="milestone-label" style="color: #4CAF50;">Projeção 108,5%</div>
+                    <div class="milestone-value" style="color: #FFC107;">R$&nbsp;31.290.000</div>
+                    <div class="milestone-label" style="color: #FFC107;">Projeção 104,3%</div>
                 </div>
             </div>
             """
@@ -1585,9 +1715,9 @@ if st.session_state["authentication_status"]:
             st.subheader("Análise Comparativa com 2024 e Projeções de Faturamento")
 
             # Dados históricos e atuais
-            faturamento_2024_s1 = 13_530_429.17
-            faturamento_2024_s2 = 4_387_961.38
-            faturamento_2025_s1 = 21_696_806.06
+            faturamento_2024_s1 = 14_860_271.89
+            faturamento_2024_s2 = 3_058_118.66
+            faturamento_2025_s1 = 23_471_600.72
             contratos_execucao = 27_196_863.51
 
             # Cálculos
@@ -1634,7 +1764,7 @@ if st.session_state["authentication_status"]:
                             {icon_growth}
                         </div>
                         <div style="flex: 1; min-width: 0;">
-                            <h4 style="margin: 0; color: white; font-size: 16px; opacity: 0.9;">Performance Até Setembro </h4>
+                            <h4 style="margin: 0; color: white; font-size: 16px; opacity: 0.9;">Performance Até Outubro </h4>
                             <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 14px;">Crescimento vs. 2024</p>
                         </div>
                     </div>
@@ -1719,66 +1849,612 @@ if st.session_state["authentication_status"]:
 
             
             st.markdown("---")
-            
-            # Programa de Reconhecimento
-            st.subheader("Programa de Reconhecimento")
-            st.markdown("#### INNOVASTAR ⭐", unsafe_allow_html=True)
-            
-            # Movendo os cards para depois da seção de Programa de Reconhecimento
-            col_a, col_b, col_c = st.columns(3)
-            
-            with col_a:
-                st.markdown(f"""
-                <div class="meta-card">
-                    <h3>1ª Meta - 50% da viagem</h3>
-                    <div class="value">R$ {meta1_br}</div>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: {progresso_meta1}%; background-color: {'#70AD47' if progresso_meta1 >= 100 else '#FFA500'};"></div>
-                    </div>
-                    <div class="progress-text">{progresso_meta1_br}% concluído</div>
-                    <div class="benefit">
-                        <span class="benefit-icon">✈️</span> <strong>Benefício:</strong> 50% de uma viagem para a Europa, América do Sul ou Fernando de Noronha custeada pela empresa
-                    </div>
-                    {f'<div class="corner-ribbon">META ATINGIDA!</div>' if progresso_meta1 >= 100 else ''}
-                </div>
-                """, unsafe_allow_html=True)
-            
-            with col_b:
-                st.markdown(f"""
-                <div class="meta-card">
-                    <h3>2ª Meta - 75% da viagem</h3>
-                    <div class="value">R$ {meta2_br}</div>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: {progresso_meta2}%; background-color: {'#70AD47' if progresso_meta2 >= 100 else '#FFA500'};"></div>
-                    </div>
-                    <div class="progress-text">{progresso_meta2_br}% concluído</div>
-                    <div class="benefit">
-                        <span class="benefit-icon">⛰️</span> <strong>Benefício:</strong> 75% de uma viagem para a Europa, América do Sul ou Fernando de Noronha custeada pela empresa
-                    </div>
-                    {f'<div class="corner-ribbon">META ATINGIDA!</div>' if progresso_meta2 >= 100 else ''}
-                </div>
-                """, unsafe_allow_html=True)
-            
-            with col_c:
-                st.markdown(f"""
-                <div class="meta-card">
-                    <h3>3ª Meta - 100% da viagem</h3>
-                    <div class="value">R$ {meta3_br}</div>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: {progresso_meta3}%; background-color: {'#70AD47' if progresso_meta3 >= 100 else '#FFA500'};"></div>
-                    </div>
-                    <div class="progress-text">{progresso_meta3_br}% concluído</div>
-                    <div class="benefit">
-                        <span class="benefit-icon">🏝️</span> <strong>Benefício:</strong> 100% de uma viagem para a Europa, América do Sul ou Fernando de Noronha custeada pela empresa
-                    </div>
-                    {f'<div class="corner-ribbon">META ATINGIDA!</div>' if progresso_meta3 >= 100 else ''}
-                </div>
-                """, unsafe_allow_html=True)
+    
+    # Espaçamento adicional antes da seção
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("---")
+    # Nova Seção: Funil de Vendas
+    st.markdown("""
+    <div style='text-align: center; margin: 40px 0 0px 0;'>
+        <h2 style='
+            font-size: 2.2rem; 
+            font-weight: 600; 
+            color: #333; 
+            margin-bottom: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        '>
+            Funil de Vendas
+        </h2>
+    """, unsafe_allow_html=True)
+    
+    # CSS para centralizar e equalizar os tabs
+    st.markdown("""
+    <style>
+    .stTabs [data-baseweb="tab-list"] {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+        max-width: 400px !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 200px !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        padding: 12px 20px !important;
+        margin: 0 8px !important;
+        border-radius: 8px 8px 0 0 !important;
+        transition: all 0.3s ease !important;
+        border: none !important;
+        position: relative !important;
+        z-index: 10 !important;
+    }
+    
+    /* Correção específica para o primeiro tab (GOVERNO) */
+    .stTabs [data-baseweb="tab"]:first-child {
+        margin-left: 8px !important;
+        border-radius: 8px 8px 0 0 !important;
+        overflow: visible !important;
+    }
+    
+    /* Estilo quando o tab está selecionado */
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        border-radius: 8px 8px 0 0 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2) !important;
+        z-index: 20 !important;
+    }
+    
+    .stTabs [data-baseweb="tab"] p {
+        margin: 0 !important;
+        text-align: center !important;
+        width: 100% !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Criar tabs para GOV e IFES - agora com tamanhos iguais e centralizados
+    tab_gov, tab_ifes = st.tabs(["🏛️ **GOVERNO**", "🎓 **IFES**"])
+    
+    with tab_gov:
+        # Adicionar informação do período - GOV
+        st.markdown("""
+            <div style="margin-top: 10px; margin-bottom: 25px;">
+                <p style="color: #666; font-size: 15px; font-style: italic;">Dados considerados: 01/01/2025 até hoje</p>
+                <p style="color: #ff8c00; font-size: 14px; font-style: italic; margin-top: 8px; padding: 8px 12px; background-color: #fff8f0; border-left: 4px solid #ff8c00; border-radius: 4px;">
+                    <strong>Observação 1:</strong> Apenas o funil de "GOV" está sendo analisado.
+                </p>
+                <p style="color: #ff8c00; font-size: 14px; font-style: italic; margin-top: 8px; padding: 8px 12px; background-color: #fff8f0; border-left: 4px solid #ff8c00; border-radius: 4px;">
+                    <strong>Observação 2:</strong> A análise considera apenas oportunidades iniciadas em 2025. Cards oriundos de anos anteriores não estão incluídos nos dados apresentados.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+        df_funil = data["funil"]
+
+        if df_funil.empty:
+            st.warning("Não há dados disponíveis para o Funil de Vendas GOV.")
+        else:
+            # Extrair dados do DataFrame
+            stages = df_funil['Etapa'].tolist()
+            values = df_funil['Quantidade'].tolist()
+            
+            # Sobrescrever os nomes das etapas com a nova sequência definida
+            new_stages = [
+                'OPORTUNIDADE',
+                'APRESENTAÇÃO', 
+                'NEGOCIAÇÃO',
+                'MODELAGEM',
+                'TRAMITAÇÃO',
+                'COTAÇÃO',
+                'CONTRATOS',
+                'BACKLOG'
+            ]
+            
+            # Usar os novos nomes das etapas (limitado ao número de etapas disponíveis)
+            stages = new_stages[:len(stages)]
+            
+            # Formatar taxas de conversão para exibição
+            conversion_rates = []
+            for rate in df_funil['Taxa de Conversão'].tolist():
+                if isinstance(rate, (int, float)):
+                    conversion_rates.append(f"{rate:.0%}")
+                else:
+                    conversion_rates.append(rate)
+            
+            avg_times = df_funil['Tempo médio'].tolist()
+            
+            # Criar layout com duas colunas principais
+            col_funil, col_metricas = st.columns([1, 1])
+            
+            with col_funil:
+                # Criar gráfico de funil
+                fig = create_funnel_chart(
+                    title="",
+                    stages=stages,
+                    values=values,
+                    conversion_rates=conversion_rates,
+                    avg_times=avg_times
+                )
+                st.plotly_chart(fig, use_container_width=True, key="funil_gov_chart")
+            
+            with col_metricas:
+                # Calcular métricas importantes
+                # Total de oportunidades vem da célula 44C (capturadas e tratadas em 2025)
+                total_oportunidades = data.get("total_oportunidades_2025", 0)
+                
+                # Encontrar índices importantes (usando os novos nomes)
+                modelagem_idx = -1
+                tramitacao_idx = -1
+                contratos_idx = -1
+                for i, stage in enumerate(stages):
+                    if "MODELAGEM" in stage.upper():
+                        modelagem_idx = i
+                    elif "TRAMITAÇÃO" in stage.upper():
+                        tramitacao_idx = i
+                    elif "CONTRATOS" in stage.upper():
+                        contratos_idx = i
+                
+                # Total de contratos será carregado dos dados da planilha
+                total_contratos = data.get("total_contratos_2025", 0)
+                
+                # Calcular taxa de conversão dos cards que saíram de Modelagem e chegaram até Contratos
+                if modelagem_idx >= 0 and contratos_idx >= 0 and modelagem_idx < contratos_idx:
+                    valor_entrada = values[modelagem_idx]
+                    valor_saida = values[contratos_idx]
+                    taxa_conversao_total = valor_saida / valor_entrada if valor_entrada > 0 else 0
+                else:
+                    taxa_conversao_total = 0
+                
+                # Calcular tempo médio total da Modelagem até o contrato ser assinado (antes de entrar em Tramitação)
+                # Isso inclui: Modelagem + Negociação + Tramitação + Cotação + Contratos (mas exclui Execução)
+                if modelagem_idx >= 0 and contratos_idx >= 0:
+                    tempo_medio_total = sum([time for i, time in enumerate(avg_times) if modelagem_idx <= i <= contratos_idx])
+                else:
+                    tempo_medio_total = 0
+
+                # Carregar dados do período anterior para comparação
+                df_funil_past = data["funil_past"]
+                
+                # Inicializar variáveis do período anterior
+                past_oportunidades = 0
+                past_contratos = 0
+                past_taxa_conversao = 0
+                past_tempo_medio = 0
+                
+                if not df_funil_past.empty:
+                    past_row = df_funil_past[df_funil_past['Período'] == 'Past']
+                    if not past_row.empty:
+                        past_oportunidades = int(past_row['Total de Oportunidades'].values[0])
+                        past_contratos = int(past_row['Total de Contratos'].values[0])
+                        past_taxa_conversao = float(past_row['Taxa de Conversão'].values[0])
+                        past_tempo_medio = int(past_row['Tempo Médio'].values[0])
+                
+                # Subseção de métricas
+                st.subheader("Resumo do Funil - GOVERNO")
+                
+                # Exibir métricas em cards modernos - 2x2 grid
+                col_m1, col_m2 = st.columns(2)
+                
+                with col_m1:
+                    # Calcular variação para Total de Oportunidades
+                    oportunidades_variation = ((total_oportunidades - past_oportunidades) / past_oportunidades * 100) if past_oportunidades > 0 else 0
+                    oportunidades_var_color = "#4CAF50" if oportunidades_variation >= 0 else "#F44336"
+                    oportunidades_var_symbol = "↑" if oportunidades_variation >= 0 else "↓"
+                    
+                    st.markdown(f"""
+                    <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #FFD966;">
+                        <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Oportunidades</h4>
+                        <p style="margin: 0; font-size: 12px; color: #777;">(GOV - Captadas e tratadas em 2025)</p>
+                        <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_oportunidades}</p>
+                        <div style="margin-top: 8px; display: flex; align-items: center;">
+                            <span style="color: {oportunidades_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {oportunidades_var_color}20; border-radius: 4px; margin-right: 8px;">
+                                {oportunidades_var_symbol} {abs(oportunidades_variation):.1f}%
+                            </span>
+                            <span style="color: #777; font-size: 12px;">vs {past_oportunidades} (até mês passado)</span>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                        
+                    # Taxa de Conversão GOV - valores atualizados
+                    taxa_conversao_atual = 0.35  # 35%
+                    taxa_conversao_anterior = 0.286  # 28,6%
+                    conversao_variation = (taxa_conversao_atual - taxa_conversao_anterior) * 100
+                    conversao_var_color = "#4CAF50" if conversao_variation >= 0 else "#F44336"
+                    conversao_var_symbol = "↑" if conversao_variation >= 0 else "↓"
+                    
+                    st.markdown(f"""
+                    <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #70AD47;">
+                        <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Taxa de Conversão</h4>
+                        <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até contrato assinado)</p>
+                        <div style="display: flex; align-items: baseline;">
+                            <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">35%</p>
+                            <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">Meta: 75%</p>
+                        </div>
+                        <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
+                            <div style="width: {min(taxa_conversao_atual/0.75*100, 100)}%; height: 100%; border-radius: 3px; background-color: {('#4CAF50' if taxa_conversao_atual >= 0.75 else '#FFC107' if taxa_conversao_atual >= 0.5 else '#F44336')}"></div>
+                        </div>
+                        <div style="margin-top: 8px; display: flex; align-items: center;">
+                            <span style="color: {conversao_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {conversao_var_color}20; border-radius: 4px; margin-right: 8px;">
+                                {conversao_var_symbol} {abs(conversao_variation):.1f}%
+                            </span>
+                            <span style="color: #777; font-size: 12px;">vs 28,6% (período anterior)</span>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_m2:
+                    # Calcular variação para Total de Contratos
+                    contratos_variation = ((total_contratos - past_contratos) / past_contratos * 100) if past_contratos > 0 else 0
+                    contratos_var_color = "#4CAF50" if contratos_variation >= 0 else "#F44336"
+                    contratos_var_symbol = "↑" if contratos_variation >= 0 else "↓"
+                    
+                    st.markdown(f"""
+                    <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #9BC2E6;">
+                        <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Contratos</h4>
+                        <p style="margin: 0; font-size: 12px; color: #777;">(GOV - Fechados em 2025)</p>
+                        <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_contratos}</p>
+                        <div style="margin-top: 8px; display: flex; align-items: center;">
+                            <span style="color: {contratos_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {contratos_var_color}20; border-radius: 4px; margin-right: 8px;">
+                                {contratos_var_symbol} {abs(contratos_variation):.1f}%
+                            </span>
+                            <span style="color: #777; font-size: 12px;">vs {past_contratos} (período anterior)</span>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                        
+                    # Calcular variação para Tempo Médio (para tempo médio, menor é melhor, então invertemos a lógica)
+                    tempo_variation = ((tempo_medio_total - past_tempo_medio) / past_tempo_medio * 100) if past_tempo_medio > 0 else 0
+                    # Para tempo médio: diminuição é boa (verde), aumento é ruim (vermelho)
+                    tempo_var_color = "#4CAF50" if tempo_variation < 0 else "#F44336"  # Verde se diminuiu, vermelho se aumentou
+                    tempo_var_symbol = "↓" if tempo_variation < 0 else "↑"  # Seta para baixo se diminuiu, para cima se aumentou
+                    
+                    st.markdown(f"""
+                    <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #C00000;">
+                        <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Tempo Médio</h4>
+                        <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até contrato assinado)</p>
+                        <div style="display: flex; align-items: baseline;">
+                            <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{tempo_medio_total} dias</p>
+                            <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">Meta: 120 dias</p>
+                        </div>
+                        <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
+                            <div style="width: {min(100, (120 / tempo_medio_total) * 100) if tempo_medio_total > 0 else 0}%; height: 100%; border-radius: 3px; background-color: {('#4CAF50' if tempo_medio_total <= 120 else '#FFC107' if tempo_medio_total <= 150 else '#F44336')}"></div>
+                        </div>
+                        <div style="margin-top: 8px; display: flex; align-items: center;">
+                            <span style="color: {tempo_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {tempo_var_color}20; border-radius: 4px; margin-right: 8px;">
+                                {tempo_var_symbol} {abs(tempo_variation):.1f}%
+                            </span>
+                            <span style="color: #777; font-size: 12px;">vs {past_tempo_medio} dias (período anterior)</span>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Encontrar gargalos no funil (menor taxa de conversão)
+                conversion_values = []
+                for i, rate in enumerate(conversion_rates):
+                    # Só considerar taxas entre Modelagem e Tramitação
+                    if modelagem_idx <= i <= tramitacao_idx and rate != '-' and isinstance(rate, str):
+                        try:
+                            # Converter string de porcentagem para float
+                            rate_value = float(rate.strip('%')) / 100
+                            conversion_values.append((i, rate_value))
+                        except:
+                            pass
+                
+                if conversion_values:
+                    min_conversion_idx = min(conversion_values, key=lambda x: x[1])[0]
+                    min_conversion_stage = stages[min_conversion_idx]
+                    min_conversion_rate = conversion_rates[min_conversion_idx]
+                else:
+                    min_conversion_stage = "N/A"
+                    min_conversion_rate = "N/A"
+                
+                # Encontrar etapa mais demorada (entre Modelagem e Contratos)
+                if avg_times and modelagem_idx >= 0 and contratos_idx >= 0:
+                    # Filtrar etapas entre Modelagem e Contratos (excluindo Planejamento e Execução)
+                    filtered_times = [(i, time) for i, time in enumerate(avg_times) if modelagem_idx <= i <= contratos_idx]
+                    if filtered_times:
+                        max_time_idx = max(filtered_times, key=lambda x: x[1])[0]
+                        max_time_stage = stages[max_time_idx]
+                        max_time_value = avg_times[max_time_idx]
+                    else:
+                        max_time_stage = "N/A"
+                        max_time_value = "N/A"
+                else:
+                    max_time_stage = "N/A"
+                    max_time_value = "N/A"
+                
+                # Card de gargalos (sem título "Insights")
+                st.markdown(f"""
+                <div class="gargalos-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-top: 15px;">
+                    <h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">Principais Gargalos</h4>
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <div style="background-color: #FFEBEE; color: #C00000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+                            <span style="font-size: 16px;">⚠️</span>
+                        </div>
+                        <div>
+                            <p style="margin: 0; font-size: 14px; font-weight: 500;">Menor taxa de conversão</p>
+                            <p style="margin: 3px 0 0 0; font-size: 14px; color: #666;">
+                                <span style="color: #C00000; font-weight: 600;">{min_conversion_stage}</span> ({min_conversion_rate})
+                            </p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="background-color: #FFEBEE; color: #C00000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+                            <span style="font-size: 16px;">⏱️</span>
+                        </div>
+                        <div>
+                            <p style="margin: 0; font-size: 14px; font-weight: 500;">Etapa mais demorada</p>
+                            <p style="margin: 3px 0 0 0; font-size: 14px; color: #666;">
+                                <span style="color: #C00000; font-weight: 600;">{max_time_stage}</span> ({max_time_value} dias)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+    
+    with tab_ifes:
+        # Adicionar informação do período - IFES
+        st.markdown("""
+            <div style="margin-top: 10px; margin-bottom: 25px;">
+                <p style="color: #666; font-size: 15px; font-style: italic;">Dados considerados: 01/01/2025 até hoje</p>
+                <p style="color: #2196F3; font-size: 14px; font-style: italic; margin-top: 8px; padding: 8px 12px; background-color: #f0f8ff; border-left: 4px solid #2196F3; border-radius: 4px;">
+                    <strong>Observação 1:</strong> Apenas o funil de "IFES" está sendo analisado.
+                </p>
+                <p style="color: #2196F3; font-size: 14px; font-style: italic; margin-top: 8px; padding: 8px 12px; background-color: #f0f8ff; border-left: 4px solid #2196F3; border-radius: 4px;">
+                    <strong>Observação 2:</strong> A análise considera apenas oportunidades IFES iniciadas em 2025. Cards oriundos de anos anteriores não estão incluídos nos dados apresentados.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+        # ===== DADOS ESPECÍFICOS PARA FUNIL IFES (EDITÁVEIS DIRETAMENTE NO CÓDIGO) =====
+        # Funil IFES tem uma etapa a menos (sem TRAMITAÇÃO)
+        # Você pode alterar estes valores conforme necessário:
+        
+        funil_ifes_data = {
+            'OPORTUNIDADE': {'quantidade': 9, 'tempo_medio': 15, 'taxa_conversao': '-'},
+            'APRESENTAÇÃO': {'quantidade': 5, 'tempo_medio': 2, 'taxa_conversao': '81,63%'},
+            'NEGOCIAÇÃO':   {'quantidade': 2, 'tempo_medio': 2, 'taxa_conversao': '87,50%'},
+            'MODELAGEM':    {'quantidade': 8, 'tempo_medio': 14, 'taxa_conversao': '94,29%'},
+            # COTAÇÃO removida para IFES
+            'TRAMITAÇÃO':   {'quantidade': 22, 'tempo_medio': 38, 'taxa_conversao': '75,76%'},
+            'CONTRATOS':    {'quantidade': 3, 'tempo_medio': 28, 'taxa_conversao': '12%'},
+            'BACKLOG':      {'quantidade': 11, 'tempo_medio': 0, 'taxa_conversao': ''}
+        }
+        
+        # Construir listas a partir dos dados
+        stages = list(funil_ifes_data.keys())
+        values = [funil_ifes_data[stage]['quantidade'] for stage in stages]
+        avg_times = [funil_ifes_data[stage]['tempo_medio'] for stage in stages]
+        conversion_rates = [funil_ifes_data[stage]['taxa_conversao'] for stage in stages]
+        
+        # Criar layout com duas colunas principais
+        col_funil, col_metricas = st.columns([1, 1])
+        
+        with col_funil:
+            # Criar gráfico de funil
+            fig = create_funnel_chart(
+                title="",
+                stages=stages,
+                values=values,
+                conversion_rates=conversion_rates,
+                avg_times=avg_times
+            )
+            st.plotly_chart(fig, use_container_width=True, key="funil_ifes_chart")
+        
+        with col_metricas:
+            # Calcular métricas importantes - IFES
+            total_oportunidades_ifes = data.get("total_oportunidades_ifes_2025", values[0])  # Usar primeira etapa se não houver dados específicos
+            
+            # Encontrar índices importantes (usando os novos nomes)
+            modelagem_idx = -1
+            tramitacao_idx = -1  # Não existe no funil IFES
+            contratos_idx = -1
+            for i, stage in enumerate(stages):
+                if "MODELAGEM" in stage.upper():
+                    modelagem_idx = i
+                elif "CONTRATOS" in stage.upper():
+                    contratos_idx = i
+                
+            # Total de contratos IFES será dos dados definidos no script
+            total_contratos_ifes = 20  # valor padrão dos dados definidos
+            
+            # Calcular taxa de conversão dos cards que saíram de Modelagem e chegaram até Contratos
+            if modelagem_idx >= 0 and contratos_idx >= 0 and modelagem_idx < contratos_idx:
+                valor_entrada = values[modelagem_idx]
+                valor_saida = values[contratos_idx]
+                taxa_conversao_total = valor_saida / valor_entrada if valor_entrada > 0 else 0
+            else:
+                taxa_conversao_total = 0
+            
+            # Calcular tempo médio total da Modelagem até o contrato ser assinado (sem TRAMITAÇÃO)
+            if modelagem_idx >= 0 and contratos_idx >= 0:
+                tempo_medio_total = sum([time for i, time in enumerate(avg_times) if modelagem_idx <= i <= contratos_idx])
+            else:
+                tempo_medio_total = 0
+
+            # ===== DADOS HISTÓRICOS IFES (EDITÁVEIS DIRETAMENTE NO CÓDIGO) =====
+            # Valores do período anterior para comparação - você pode alterar conforme necessário:
+            past_oportunidades = 38  # Oportunidades do período anterior
+            past_contratos = 14      # Contratos do período anterior  
+            past_taxa_conversao = 0.74  # 74% taxa de conversão anterior
+            past_tempo_medio = 85    # 85 dias tempo médio anterior
+            
+            # Subseção de métricas
+            st.subheader("Resumo do Funil - IFES")
+            
+            # Exibir métricas em cards modernos - 2x2 grid
+            col_m1, col_m2 = st.columns(2)
+            
+            with col_m1:
+                # Calcular variação para Total de Oportunidades
+                oportunidades_variation = ((total_oportunidades_ifes - past_oportunidades) / past_oportunidades * 100) if past_oportunidades > 0 else 0
+                oportunidades_var_color = "#4CAF50" if oportunidades_variation >= 0 else "#F44336"
+                oportunidades_var_symbol = "↑" if oportunidades_variation >= 0 else "↓"
+                
+                st.markdown(f"""
+                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #FFD966;">
+                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Oportunidades</h4>
+                    <p style="margin: 0; font-size: 12px; color: #777;">(IFES - Captadas e tratadas em 2025)</p>
+                    <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_oportunidades_ifes}</p>
+                    <div style="margin-top: 8px; display: flex; align-items: center;">
+                        <span style="color: {oportunidades_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {oportunidades_var_color}20; border-radius: 4px; margin-right: 8px;">
+                            {oportunidades_var_symbol} {abs(oportunidades_variation):.1f}%
+                        </span>
+                        <span style="color: #777; font-size: 12px;">vs {past_oportunidades} (até mês passado)</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Calcular variação para Taxa de Conversão (em pontos percentuais)
+                conversao_variation = (taxa_conversao_total - past_taxa_conversao) * 100 if past_taxa_conversao > 0 else 0
+                conversao_var_color = "#4CAF50" if conversao_variation >= 0 else "#F44336"
+                conversao_var_symbol = "↑" if conversao_variation >= 0 else "↓"
+                
+                # Card Taxa de Conversão - IFES (sem comparativo)
+                st.markdown(f"""
+                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #70AD47;">
+                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Taxa de Conversão</h4>
+                    <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até contrato assinado)</p>
+                    <div style="display: flex; align-items: baseline;">
+                        <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">37,74%</p>
+                        <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">Meta: 75%</p>
+                    </div>
+                    <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
+                        <div style="width: {min(taxa_conversao_total*100/80*100, 100)}%; height: 100%; border-radius: 3px; background-color: {('#4CAF50' if taxa_conversao_total >= 0.80 else '#FFC107' if taxa_conversao_total >= 0.60 else '#F44336')}"></div>
+                    </div>
+                    <div style="margin-top: 8px; display: flex; align-items: center;">
+                        <span style="color: #777; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: #f5f5f5; border-radius: 4px; margin-right: 8px;">
+                            ± 0%
+                        </span>
+                        <span style="color: #777; font-size: 12px;">vs 0% (período anterior)</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col_m2:
+                # Calcular variação para Total de Contratos
+                contratos_variation = ((total_contratos_ifes - past_contratos) / past_contratos * 100) if past_contratos > 0 else 0
+                contratos_var_color = "#4CAF50" if contratos_variation >= 0 else "#F44336"
+                contratos_var_symbol = "↑" if contratos_variation >= 0 else "↓"
+                
+                st.markdown(f"""
+                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #9BC2E6;">
+                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Contratos</h4>
+                    <p style="margin: 0; font-size: 12px; color: #777;">(IFES - Fechados em 2025)</p>
+                    <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_contratos_ifes}</p>
+                    <div style="margin-top: 8px; display: flex; align-items: center;">
+                        <span style="color: {contratos_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {contratos_var_color}20; border-radius: 4px; margin-right: 8px;">
+                            {contratos_var_symbol} {abs(contratos_variation):.1f}%
+                        </span>
+                        <span style="color: #777; font-size: 12px;">vs {past_contratos} (período anterior)</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Calcular variação para Tempo Médio (para tempo médio, menor é melhor, então invertemos a lógica)
+                tempo_variation = ((tempo_medio_total - past_tempo_medio) / past_tempo_medio * 100) if past_tempo_medio > 0 else 0
+                # Para tempo médio: diminuição é boa (verde), aumento é ruim (vermelho)
+                tempo_var_color = "#4CAF50" if tempo_variation < 0 else "#F44336"  # Verde se diminuiu, vermelho se aumentou
+                tempo_var_symbol = "↓" if tempo_variation < 0 else "↑"  # Seta para baixo se diminuiu, para cima se aumentou
+                
+                # Card Tempo Médio - IFES (sem comparativo)
+                st.markdown(f"""
+                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #C00000;">
+                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Tempo Médio</h4>
+                    <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até contrato assinado)</p>
+                    <div style="display: flex; align-items: baseline;">
+                        <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{tempo_medio_total} dias</p>
+                        <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">Meta: 120 dias</p>
+                    </div>
+                    <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
+                        <div style="width: {min(100, (90 / tempo_medio_total) * 100) if tempo_medio_total > 0 else 0}%; height: 100%; border-radius: 3px; background-color: {('#4CAF50' if tempo_medio_total <= 90 else '#FFC107' if tempo_medio_total <= 120 else '#F44336')}"></div>
+                    </div>
+                    <div style="margin-top: 8px; display: flex; align-items: center;">
+                        <span style="color: #777; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: #f5f5f5; border-radius: 4px; margin-right: 8px;">
+                            ± 0%
+                        </span>
+                        <span style="color: #777; font-size: 12px;">vs 0 dias (período anterior)</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Encontrar gargalos no funil (menor taxa de conversão)
+            conversion_values = []
+            for i, rate in enumerate(conversion_rates):
+                # Só considerar taxas entre Modelagem e Contratos (IFES não tem Tramitação)
+                if modelagem_idx <= i <= contratos_idx and rate != '-' and isinstance(rate, str):
+                    try:
+                        # Converter string de porcentagem para float
+                        rate_value = float(rate.strip('%')) / 100
+                        conversion_values.append((i, rate_value))
+                    except:
+                        pass
+            
+            if conversion_values:
+                min_conversion_idx = min(conversion_values, key=lambda x: x[1])[0]
+                min_conversion_stage = stages[min_conversion_idx]
+                min_conversion_rate = conversion_rates[min_conversion_idx]
+            else:
+                min_conversion_stage = "N/A"
+                min_conversion_rate = "N/A"
+            
+            # Encontrar etapa mais demorada (entre Modelagem e Contratos)
+            if avg_times and modelagem_idx >= 0 and contratos_idx >= 0:
+                # Filtrar etapas entre Modelagem e Contratos (excluindo Planejamento e Execução)
+                filtered_times = [(i, time) for i, time in enumerate(avg_times) if modelagem_idx <= i <= contratos_idx]
+                if filtered_times:
+                    max_time_idx = max(filtered_times, key=lambda x: x[1])[0]
+                    max_time_stage = stages[max_time_idx]
+                    max_time_value = avg_times[max_time_idx]
+                else:
+                    max_time_stage = "N/A"
+                    max_time_value = "N/A"
+            else:
+                max_time_stage = "N/A"
+                max_time_value = "N/A"
+            
+            # Card de gargalos (sem título "Insights")
+            st.markdown(f"""
+            <div class="gargalos-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-top: 15px;">
+                <h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">Principais Gargalos</h4>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="background-color: #E3F2FD; color: #2196F3; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+                        <span style="font-size: 16px;">⚠️</span>
+                    </div>
+                    <div>
+                        <p style="margin: 0; font-size: 14px; font-weight: 500;">Menor taxa de conversão</p>
+                        <p style="margin: 3px 0 0 0; font-size: 14px; color: #666;">
+                            <span style="color: #2196F3; font-weight: 600;">{min_conversion_stage}</span> ({min_conversion_rate})
+                        </p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div style="background-color: #E3F2FD; color: #2196F3; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+                        <span style="font-size: 16px;">⏱️</span>
+                    </div>
+                    <div>
+                        <p style="margin: 0; font-size: 14px; font-weight: 500;">Etapa mais demorada</p>
+                        <p style="margin: 3px 0 0 0; font-size: 14px; color: #666;">
+                            <span style="color: #2196F3; font-weight: 600;">{max_time_stage}</span> ({max_time_value} dias)
+                        </p>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    st.markdown("---")       
 
     # Seção 1: Relacionamento
-    st.header("Relacionamento")
+    st.markdown("<h2 style='text-align: center;'>Relacionamento</h2>", unsafe_allow_html=True)
     st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
     df_metricas = data["metricas_parceiros"]
@@ -1860,7 +2536,8 @@ if st.session_state["authentication_status"]:
                     0,
                     100,
                     True,
-                    COLORS["fundacoes"]
+                    COLORS["fundacoes"],
+                    unique_key="fundacoes_progresso"
                 )
                 st.markdown("</div>", unsafe_allow_html=True)
             
@@ -1913,7 +2590,8 @@ if st.session_state["authentication_status"]:
                     0,
                     100,
                     True,
-                    COLORS["ifes"]
+                    COLORS["ifes"],
+                    unique_key="ifes_progresso"
                 )
                 st.markdown("</div>", unsafe_allow_html=True)
             
@@ -1930,16 +2608,18 @@ if st.session_state["authentication_status"]:
                         Fundações Parceiras
                     </h4>
                     <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 280px;">
-                        <div style="text-align: center; font-size: 15px; font-weight: 500; line-height: 1.3;">
-                            <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">FADEX</div>
-                            <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">FAPTO</div>
-                            <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">FUNCERN</div>
-                            <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">FUNPEC</div>
-                            <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">FACTO</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; font-weight: 500;">
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">FADEX</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">FAPTO</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">FUNCERN</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">FUNPEC</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">FACTO</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">FJMONTELO</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2); grid-column: span 2;">SOUSÂNDRADE</div>
                         </div>
                     </div>
                     <div style="text-align: center; font-size: 15px; opacity: 0.9; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="font-size: 16px;">Total: 5 Fundações</strong><br>
+                        <strong style="font-size: 16px;">Total: 7 Fundações</strong><br>
                         <small style="opacity: 0.8; font-size: 16px;">Projetos vigentes ou em assinatura</small>
                     </div>
                 </div>
@@ -1973,15 +2653,31 @@ if st.session_state["authentication_status"]:
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-        
         else:
             st.warning("Dados incompletos para Relacionamento.")
 
     st.markdown("---")
+    
+    # Espaçamento adicional antes da seção
+    st.markdown("<br>", unsafe_allow_html=True)
 
     # Seção 2: Desenvolvimento de Plataformas
-    st.header("Desenvolvimento de Plataformas")
-    st.markdown("<div style='margin-bottom: 50px;'></div>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style='text-align: center; margin: 40px 0 30px 0;'>
+        <h2 style='
+            font-size: 2.2rem; 
+            font-weight: 600; 
+            color: #333; 
+            margin-bottom: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        '>
+            Desenvolvimento de Plataformas
+        </h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Espaçamento adicional após o título
+    st.markdown("<br>", unsafe_allow_html=True)
 
     df_plataformas = data["desenvolvimento_plataformas"]
 
@@ -2150,283 +2846,53 @@ if st.session_state["authentication_status"]:
                     </div>
                 """, unsafe_allow_html=True)
 
-    st.markdown("---")
-
-    # Nova Seção: Funil de Vendas
-    st.header("Funil de Vendas")
-    
-    # Adicionar informação do período
+    # CSS para animações suaves nas tabs do funil
     st.markdown("""
-        <div style="margin-top: -10px; margin-bottom: 25px;">
-            <p style="color: #666; font-size: 15px; font-style: italic;">Dados considerados: 01/01/2025 até hoje</p>
-            <p style="color: #ff8c00; font-size: 14px; font-style: italic; margin-top: 8px; padding: 8px 12px; background-color: #fff8f0; border-left: 4px solid #ff8c00; border-radius: 4px;">
-                <strong>Observação 1:</strong> Apenas o funil de "Produtos" está sendo analisado.
-            </p>
-            <p style="color: #ff8c00; font-size: 14px; font-style: italic; margin-top: 8px; padding: 8px 12px; background-color: #fff8f0; border-left: 4px solid #ff8c00; border-radius: 4px;">
-                <strong>Observação 2:</strong> A análise considera apenas oportunidades iniciadas em 2025. Cards oriundos de anos anteriores não estão incluídos nos dados apresentados.
-            </p>
-        </div>
+        <style>
+        /* Estilização personalizada para as tabs do funil */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 8px;
+            padding: 10px 0;
+            justify-content: center;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            height: 50px;
+            white-space: pre-wrap;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            color: #666;
+            border: 2px solid transparent;
+            font-weight: 500;
+            padding: 0 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .stTabs [aria-selected="true"] {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white !important;
+            border: 2px solid #2196F3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+        
+        .stTabs [data-baseweb="tab"]:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stTabs [data-baseweb="tab-panel"] {
+            padding-top: 20px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        </style>
     """, unsafe_allow_html=True)
-
-    df_funil = data["funil"]
-
-    if df_funil.empty:
-        st.warning("Não há dados disponíveis para o Funil de Vendas.")
-    else:
-        # Extrair dados do DataFrame
-        stages = df_funil['Etapa'].tolist()
-        values = df_funil['Quantidade'].tolist()
-        
-        # Sobrescrever os nomes das etapas com a nova sequência definida
-        new_stages = [
-            'OPORTUNIDADE',
-            'APRESENTAÇÃO', 
-            'NEGOCIAÇÃO',
-            'MODELAGEM',
-            'TRAMITAÇÃO',
-            'COTAÇÃO',
-            'CONTRATOS',
-            'EXECUÇÃO'
-        ]
-        
-        # Usar os novos nomes das etapas (limitado ao número de etapas disponíveis)
-        stages = new_stages[:len(stages)]
-        
-        # Formatar taxas de conversão para exibição
-        conversion_rates = []
-        for rate in df_funil['Taxa de Conversão'].tolist():
-            if isinstance(rate, (int, float)):
-                conversion_rates.append(f"{rate:.0%}")
-            else:
-                conversion_rates.append(rate)
-        
-        avg_times = df_funil['Tempo médio'].tolist()
-        
-        # Criar layout com duas colunas principais
-        col_funil, col_metricas = st.columns([1, 1])
-        
-        with col_funil:
-            # Criar gráfico de funil
-            fig = create_funnel_chart(
-                title="",
-                stages=stages,
-                values=values,
-                conversion_rates=conversion_rates,
-                avg_times=avg_times
-            )
-            st.plotly_chart(fig, use_container_width=True)
-        
-        with col_metricas:
-            # Calcular métricas importantes
-            # Total de oportunidades vem da célula 44C (capturadas e tratadas em 2025)
-            total_oportunidades = data.get("total_oportunidades_2025", 0)
-            
-            # Encontrar índices importantes (usando os novos nomes)
-            modelagem_idx = -1
-            tramitacao_idx = -1
-            contratos_idx = -1
-            for i, stage in enumerate(stages):
-                if "MODELAGEM" in stage.upper():
-                    modelagem_idx = i
-                elif "TRAMITAÇÃO" in stage.upper():
-                    tramitacao_idx = i
-                elif "CONTRATOS" in stage.upper():
-                    contratos_idx = i
-            
-            # Total de contratos será carregado dos dados da planilha
-            total_contratos = data.get("total_contratos_2025", 0)
-            
-            # Calcular taxa de conversão dos cards que saíram de Modelagem e chegaram até Contratos
-            if modelagem_idx >= 0 and contratos_idx >= 0 and modelagem_idx < contratos_idx:
-                valor_entrada = values[modelagem_idx]
-                valor_saida = values[contratos_idx]
-                taxa_conversao_total = valor_saida / valor_entrada if valor_entrada > 0 else 0
-            else:
-                taxa_conversao_total = 0
-            
-            # Calcular tempo médio total da Modelagem até o contrato ser assinado (antes de entrar em Tramitação)
-            # Isso inclui: Modelagem + Negociação + Tramitação + Cotação + Contratos (mas exclui Execução)
-            if modelagem_idx >= 0 and contratos_idx >= 0:
-                tempo_medio_total = sum([time for i, time in enumerate(avg_times) if modelagem_idx <= i <= contratos_idx])
-            else:
-                tempo_medio_total = 0
-
-            # Carregar dados do período anterior para comparação
-            df_funil_past = data["funil_past"]
-            
-            # Inicializar variáveis do período anterior
-            past_oportunidades = 0
-            past_contratos = 0
-            past_taxa_conversao = 0
-            past_tempo_medio = 0
-            
-            if not df_funil_past.empty:
-                past_row = df_funil_past[df_funil_past['Período'] == 'Past']
-                if not past_row.empty:
-                    past_oportunidades = int(past_row['Total de Oportunidades'].values[0])
-                    past_contratos = int(past_row['Total de Contratos'].values[0])
-                    past_taxa_conversao = float(past_row['Taxa de Conversão'].values[0])
-                    past_tempo_medio = int(past_row['Tempo Médio'].values[0])
-            
-            # Subseção de métricas
-            st.subheader("Resumo do Funil")
-            
-            # Exibir métricas em cards modernos - 2x2 grid
-            col_m1, col_m2 = st.columns(2)
-            
-            with col_m1:
-                # Calcular variação para Total de Oportunidades
-                oportunidades_variation = ((total_oportunidades - past_oportunidades) / past_oportunidades * 100) if past_oportunidades > 0 else 0
-                oportunidades_var_color = "#4CAF50" if oportunidades_variation >= 0 else "#F44336"
-                oportunidades_var_symbol = "↑" if oportunidades_variation >= 0 else "↓"
-                
-                st.markdown(f"""
-                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #FFD966;">
-                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Oportunidades</h4>
-                    <p style="margin: 0; font-size: 12px; color: #777;">(Captadas e tratadas em 2025)</p>
-                    <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_oportunidades}</p>
-                    <div style="margin-top: 8px; display: flex; align-items: center;">
-                        <span style="color: {oportunidades_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {oportunidades_var_color}20; border-radius: 4px; margin-right: 8px;">
-                            {oportunidades_var_symbol} {abs(oportunidades_variation):.1f}%
-                        </span>
-                        <span style="color: #777; font-size: 12px;">vs {past_oportunidades} (até mês passado)</span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-                    
-                # Calcular variação para Taxa de Conversão (em pontos percentuais)
-                conversao_variation = (taxa_conversao_total - past_taxa_conversao) * 100 if past_taxa_conversao > 0 else 0
-                conversao_var_color = "#4CAF50" if conversao_variation >= 0 else "#F44336"
-                conversao_var_symbol = "↑" if conversao_variation >= 0 else "↓"
-                
-                st.markdown(f"""
-                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #70AD47;">
-                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Taxa de Conversão</h4>
-                    <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até contrato assinado)</p>
-                    <div style="display: flex; align-items: baseline;">
-                        <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{taxa_conversao_total:.1%}</p>
-                        <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">Meta: 75%</p>
-                    </div>
-                    <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
-                        <div style="width: {min(taxa_conversao_total*100/75*100, 100)}%; height: 100%; border-radius: 3px; background-color: {('#4CAF50' if taxa_conversao_total >= 0.75 else '#FFC107' if taxa_conversao_total >= 0.5 else '#F44336')}"></div>
-                    </div>
-                    <div style="margin-top: 8px; display: flex; align-items: center;">
-                        <span style="color: {conversao_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {conversao_var_color}20; border-radius: 4px; margin-right: 8px;">
-                            {conversao_var_symbol} {abs(conversao_variation):.1f}%
-                        </span>
-                        <span style="color: #777; font-size: 12px;">vs {past_taxa_conversao:.1%} (etapas do funil diferem do período anterior)</span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            with col_m2:
-                # Calcular variação para Total de Contratos
-                contratos_variation = ((total_contratos - past_contratos) / past_contratos * 100) if past_contratos > 0 else 0
-                contratos_var_color = "#4CAF50" if contratos_variation >= 0 else "#F44336"
-                contratos_var_symbol = "↑" if contratos_variation >= 0 else "↓"
-                
-                st.markdown(f"""
-                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; border-left: 5px solid #9BC2E6;">
-                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Total de Contratos</h4>
-                    <p style="margin: 0; font-size: 12px; color: #777;">(Capturados e fechados em 2025)</p>
-                    <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{total_contratos}</p>
-                    <div style="margin-top: 8px; display: flex; align-items: center;">
-                        <span style="color: {contratos_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {contratos_var_color}20; border-radius: 4px; margin-right: 8px;">
-                            {contratos_var_symbol} {abs(contratos_variation):.1f}%
-                        </span>
-                        <span style="color: #777; font-size: 12px;">vs {past_contratos} (período anterior)</span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-                    
-                # Calcular variação para Tempo Médio (para tempo médio, menor é melhor, então invertemos a lógica)
-                tempo_variation = ((tempo_medio_total - past_tempo_medio) / past_tempo_medio * 100) if past_tempo_medio > 0 else 0
-                # Para tempo médio: diminuição é boa (verde), aumento é ruim (vermelho)
-                tempo_var_color = "#4CAF50" if tempo_variation < 0 else "#F44336"  # Verde se diminuiu, vermelho se aumentou
-                tempo_var_symbol = "↓" if tempo_variation < 0 else "↑"  # Seta para baixo se diminuiu, para cima se aumentou
-                
-                st.markdown(f"""
-                <div class="funil-metric-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid #C00000;">
-                    <h4 style="margin: 0; font-size: 15px; color: #555; font-weight: 500;">Tempo Médio</h4>
-                    <p style="margin: 0; font-size: 12px; color: #777;">(Modelagem até contrato assinado)</p>
-                    <div style="display: flex; align-items: baseline;">
-                        <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{tempo_medio_total} dias</p>
-                        <p style="margin: 5px 0 0 8px; font-size: 14px; color: #777;">Meta: 120 dias</p>
-                    </div>
-                    <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-top: 8px;">
-                        <div style="width: {min(100 - max(tempo_medio_total - 120, 0)/120*100, 100)}%; height: 100%; border-radius: 3px; background-color: {('#4CAF50' if tempo_medio_total <= 120 else '#FFC107' if tempo_medio_total <= 150 else '#F44336')}"></div>
-                    </div>
-                    <div style="margin-top: 8px; display: flex; align-items: center;">
-                        <span style="color: {tempo_var_color}; font-size: 12px; font-weight: 600; padding: 2px 6px; background-color: {tempo_var_color}20; border-radius: 4px; margin-right: 8px;">
-                            {tempo_var_symbol} {abs(tempo_variation):.1f}%
-                        </span>
-                        <span style="color: #777; font-size: 12px;">vs {past_tempo_medio} dias (período anterior)</span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            # Encontrar gargalos no funil (menor taxa de conversão)
-            conversion_values = []
-            for i, rate in enumerate(conversion_rates):
-                # Só considerar taxas entre Modelagem e Tramitação
-                if modelagem_idx <= i <= tramitacao_idx and rate != '-' and isinstance(rate, str):
-                    try:
-                        # Converter string de porcentagem para float
-                        rate_value = float(rate.strip('%')) / 100
-                        conversion_values.append((i, rate_value))
-                    except:
-                        pass
-            
-            if conversion_values:
-                min_conversion_idx = min(conversion_values, key=lambda x: x[1])[0]
-                min_conversion_stage = stages[min_conversion_idx]
-                min_conversion_rate = conversion_rates[min_conversion_idx]
-            else:
-                min_conversion_stage = "N/A"
-                min_conversion_rate = "N/A"
-            
-            # Encontrar etapa mais demorada (entre Modelagem e Contratos)
-            if avg_times and modelagem_idx >= 0 and contratos_idx >= 0:
-                # Filtrar etapas entre Modelagem e Contratos (excluindo Planejamento e Execução)
-                filtered_times = [(i, time) for i, time in enumerate(avg_times) if modelagem_idx <= i <= contratos_idx]
-                if filtered_times:
-                    max_time_idx = max(filtered_times, key=lambda x: x[1])[0]
-                    max_time_stage = stages[max_time_idx]
-                    max_time_value = avg_times[max_time_idx]
-                else:
-                    max_time_stage = "N/A"
-                    max_time_value = "N/A"
-            else:
-                max_time_stage = "N/A"
-                max_time_value = "N/A"
-            
-            # Card de gargalos (sem título "Insights")
-            st.markdown(f"""
-            <div class="gargalos-card" style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-top: 15px;">
-                <h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">Principais Gargalos</h4>
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <div style="background-color: #FFEBEE; color: #C00000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
-                        <span style="font-size: 16px;">⚠️</span>
-                    </div>
-                    <div>
-                        <p style="margin: 0; font-size: 14px; font-weight: 500;">Menor taxa de conversão</p>
-                        <p style="margin: 3px 0 0 0; font-size: 14px; color: #666;">
-                            <span style="color: #C00000; font-weight: 600;">{min_conversion_stage}</span> ({min_conversion_rate})
-                        </p>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center;">
-                    <div style="background-color: #FFEBEE; color: #C00000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
-                        <span style="font-size: 16px;">⏱️</span>
-                    </div>
-                    <div>
-                        <p style="margin: 0; font-size: 14px; font-weight: 500;">Etapa mais demorada</p>
-                        <p style="margin: 3px 0 0 0; font-size: 14px; color: #666;">
-                            <span style="color: #C00000; font-weight: 600;">{max_time_stage}</span> ({max_time_value} dias)
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -2450,7 +2916,7 @@ if st.session_state["authentication_status"]:
         # ——— COMUNICAÇÃO INTERNA ———
         {"objetivo": "Comunicação Interna", "acao": "Comunicados",             "meta": "1 por semana",       "pct": 1.00, "pct_anterior": 0.90, "status": "✅ Concluído"},
         {"objetivo": "Comunicação Interna", "acao": "Templates",               "meta": "Finalizados",    "pct": 1.00, "pct_anterior": 1.00, "status": "✅ Concluído"},
-        {"objetivo": "Comunicação Interna", "acao": "Material Institucional",  "meta": "Finalizado",     "pct": 0.90, "pct_anterior": 0.85, "status": "🟡 Em progresso"},
+        {"objetivo": "Comunicação Interna", "acao": "Material Institucional",  "meta": "Finalizado",     "pct": 0.95, "pct_anterior": 0.90, "status": "🟡 Quase concluído"},
 
         # ——— SINALIZAÇÃO DO ESCRITÓRIO ———
         {"objetivo": "Sinalização Escritório", "acao": "Layout",                   "meta": "Validado",          "pct": 1.00, "pct_anterior": 1.00, "status": "✅ Concluído"},
@@ -2890,7 +3356,7 @@ if st.session_state["authentication_status"]:
                     box-shadow: 0 6px 16px rgba(0,0,0,0.15);
                 }
                 
-                /* Cards de Resumo do Funil */
+                /* Cards de Resumo do Funil - GOV*/
                 div[style*="background-color: #ffffff; border-radius: 10px; padding: 15px;"] {
                     transition: all 0.3s ease;
                 }
@@ -3247,6 +3713,86 @@ if st.session_state["authentication_status"]:
         else:
             st.warning("Dados incompletos para Captação Digital.")
 
+
+    st.markdown("---")
+    
+    # Espaçamento adicional antes da seção
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Programa de Reconhecimento
+    st.markdown("""
+    <div style='text-align: center; margin: 40px 0 30px 0;'>
+        <h2 style='
+            font-size: 2.2rem; 
+            font-weight: 600; 
+            color: #333; 
+            margin-bottom: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        '>
+            Programa de Reconhecimento - INNOVASTAR 
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#FFD700" style="vertical-align: text-top; margin-left: 12px; transform: translateY(+10px); filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+        </h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Espaçamento adicional após o título
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Movendo os cards para depois da seção de Programa de Reconhecimento
+    col_a, col_b, col_c = st.columns(3)
+    
+    with col_a:
+        st.markdown(f"""
+        <div class="meta-card">
+            <h3>1ª Meta - 50% da viagem</h3>
+            <div class="value">R$ {meta1_br}</div>
+            <div class="progress-container">
+                <div class="progress-bar" style="width: {progresso_meta1}%; background-color: {'#70AD47' if progresso_meta1 >= 100 else '#FFA500'};"></div>
+            </div>
+            <div class="progress-text">{progresso_meta1_br}% concluído</div>
+            <div class="benefit">
+                <span class="benefit-icon">✈️</span> <strong>Benefício:</strong> 50% de uma viagem para a Europa, América do Sul ou Fernando de Noronha custeada pela empresa
+            </div>
+            {f'<div class="corner-ribbon">META ATINGIDA!</div>' if progresso_meta1 >= 100 else ''}
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_b:
+        st.markdown(f"""
+        <div class="meta-card">
+            <h3>2ª Meta - 75% da viagem</h3>
+            <div class="value">R$ {meta2_br}</div>
+            <div class="progress-container">
+                <div class="progress-bar" style="width: {progresso_meta2}%; background-color: {'#70AD47' if progresso_meta2 >= 100 else '#FFA500'};"></div>
+            </div>
+            <div class="progress-text">{progresso_meta2_br}% concluído</div>
+            <div class="benefit">
+                <span class="benefit-icon">⛰️</span> <strong>Benefício:</strong> 75% de uma viagem para a Europa, América do Sul ou Fernando de Noronha custeada pela empresa
+            </div>
+            {f'<div class="corner-ribbon">META ATINGIDA!</div>' if progresso_meta2 >= 100 else ''}
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_c:
+        st.markdown(f"""
+        <div class="meta-card">
+            <h3>3ª Meta - 100% da viagem</h3>
+            <div class="value">R$ {meta3_br}</div>
+            <div class="progress-container">
+                <div class="progress-bar" style="width: {progresso_meta3}%; background-color: {'#70AD47' if progresso_meta3 >= 100 else '#FFA500'};"></div>
+            </div>
+            <div class="progress-text">{progresso_meta3_br}% concluído</div>
+            <div class="benefit">
+                <span class="benefit-icon">🏝️</span> <strong>Benefício:</strong> 100% de uma viagem para a Europa, América do Sul ou Fernando de Noronha custeada pela empresa
+            </div>
+            {f'<div class="corner-ribbon">META ATINGIDA!</div>' if progresso_meta3 >= 100 else ''}
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Espaçamento adicional após as metas
+    st.markdown("<br><br>", unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown("<div class='footer-custom'>Dashboard - Indicadores de Crescimento - Metas - Versão 1.3 © Innovatis 2025</div>", unsafe_allow_html=True)
