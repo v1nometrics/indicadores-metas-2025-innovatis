@@ -2283,8 +2283,8 @@ if st.session_state["authentication_status"]:
 
             # ===== DADOS HISTÓRICOS IFES (EDITÁVEIS DIRETAMENTE NO CÓDIGO) =====
             # Valores do período anterior para comparação - você pode alterar conforme necessário:
-            past_oportunidades = 38  # Oportunidades do período anterior
-            past_contratos = 14      # Contratos do período anterior  
+            past_oportunidades = 0  # Oportunidades do período anterior
+            past_contratos = 0      # Contratos do período anterior  
             past_taxa_conversao = 0.74  # 74% taxa de conversão anterior
             past_tempo_medio = 85    # 85 dias tempo médio anterior
             
