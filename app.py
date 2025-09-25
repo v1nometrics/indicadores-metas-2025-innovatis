@@ -1718,7 +1718,7 @@ if st.session_state["authentication_status"]:
             faturamento_2024_s1 = 14_860_271.89
             faturamento_2024_s2 = 3_058_118.66
             faturamento_2025_s1 = 23_471_600.72
-            contratos_execucao = 27_196_863.51
+            contratos_execucao = 38_314_963.10
 
             # Cálculos
             crescimento_s1 = (faturamento_2025_s1 / faturamento_2024_s1) - 1
