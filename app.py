@@ -2572,11 +2572,13 @@ if st.session_state["authentication_status"]:
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IIF SERTÃO PE</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFPI</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UFDPAR</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFRO</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFES</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2); grid-column: span 2;">UFCAT</div>
                         </div>
                     </div>
                     <div style="text-align: center; font-size: 15px; opacity: 0.9; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="font-size: 16px;">Total: 11 IFES</strong><br>
+                        <strong style="font-size: 16px;">Total: 13 IFES</strong><br>
                         <small style="opacity: 0.8; font-size: 16px;">Com contrato(s) de projeto(s) vigente(s)</small>
                     </div>
                 </div>
