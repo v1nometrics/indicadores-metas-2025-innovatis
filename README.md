@@ -97,7 +97,7 @@ streamlit run app.py
 ---
 **📅 Última Atualização**: 24/09/2025  
 **🔖 Versão**: 1.4 - Sistema Dual Refinado + Correções Avançadas  
-**👨‍💻 Desenvolvido por**: GitHub Copilot + Equipe Innovatis
+**👨‍💻 Desenvolvido por**: Equipe Innovatis
 
 ---
 
