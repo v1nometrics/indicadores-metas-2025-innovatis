@@ -2005,8 +2005,8 @@ if st.session_state["authentication_status"]:
                         contratos_idx = i
                 
                 # Total de contratos - GOV
-                total_contratos = 15  # Valor atual
-                past_contratos_gov = 14  # Valor do período anterior
+                total_contratos = 17  # Valor atual
+                past_contratos_gov = 15  # Valor do período anterior
                 
                 # Calcular taxa de conversão dos cards que saíram de Modelagem e chegaram até Contratos
                 if modelagem_idx >= 0 and contratos_idx >= 0 and modelagem_idx < contratos_idx:
