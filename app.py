@@ -1408,8 +1408,8 @@ if st.session_state["authentication_status"]:
 
             # ================= NOVA SEÇÃO: Composição por Origem (IFES vs GOV) =================
             # Valores fornecidos (jan-set 2025) – poderão ser integrados à planilha futuramente
-            faturamento_ifes = 21_848_655.79
-            faturamento_gov  =  4_721_673.12
+            faturamento_ifes = 28_915_902.00
+            faturamento_gov  =  6_261_594.77
             total_origem = faturamento_ifes + faturamento_gov
             # Porcentagens
             pct_ifes = (faturamento_ifes / total_origem) * 100 if total_origem > 0 else 0
@@ -1715,10 +1715,10 @@ if st.session_state["authentication_status"]:
             st.subheader("Análise Comparativa com 2024 e Projeções de Faturamento")
 
             # Dados históricos e atuais
-            faturamento_2024_s1 = 15_583_603.59  # 2024 até novembro
-            faturamento_2024_s2 = 2_334_783.37   # De novembro a dezembro de 2024 (14,98% de janeiro a outubro)
-            faturamento_2025_s1 = 26_570_328.91  # 2025 atual (faturamento até novembro)
-            contratos_execucao = 35_216_234.91   # Desembolso até Dez/2025
+            faturamento_2024_s1 = 15_932_496.87  # 2024 até novembro
+            faturamento_2024_s2 = 1_985_893.68   # De dezedmbro a janeiro de 2025 (14,98% de janeiro a outubro)
+            faturamento_2025_s1 = 35_177_496.77  # 2025 atual (faturamento até novembro)
+            contratos_execucao = 26_609_067.05   # Desembolso até Dez/2025
 
             # Cálculos
             crescimento_s1 = (faturamento_2025_s1 / faturamento_2024_s1) - 1
@@ -2563,13 +2563,13 @@ if st.session_state["authentication_status"]:
                     <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 280px;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; font-weight: 500;">
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFMA</div>
-                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UNIVAAF</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UNIVASF</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UFPI</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFRN</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UFPB</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFSP</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFMS</div>
-                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IIF SERTÃO PE</div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IF SERTÃO PE</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFPI</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">UFDPAR</div>
                             <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">IFRO</div>
