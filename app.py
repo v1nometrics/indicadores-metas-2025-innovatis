@@ -1392,8 +1392,8 @@ if st.session_state["authentication_status"]:
 
             # Cálculos para o sub-box de comparação com valor esperado
             meta_anual = 30_000_000.00  # Meta anual de 30 milhões
-            mes_atual = 10  # Outubro (10 meses)
-            valor_esperado = 25_000_000.00  # Valor esperado de 25 milhões para 10 meses
+            mes_atual = 11  # Outubro (10 meses)
+            valor_esperado = 27_500_000  # Valor esperado de 25 milhões para 10 meses
             diferenca_absoluta = faturamento['atual'] - valor_esperado
             percentual_acima = (diferenca_absoluta / valor_esperado) * 100
             
@@ -1438,7 +1438,7 @@ if st.session_state["authentication_status"]:
                                     <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px;">
                                         <div style="background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 14px; padding: 12px 14px;">
                                             <div style="display:flex; align-items:center; justify-content:space-between; gap:14px;">
-                                                <div style="font-size: 16px; opacity: .95;">Valor Esperado (10 meses)</div>
+                                                <div style="font-size: 16px; opacity: .95;">Valor Esperado (11 meses)</div>
                                                 <div style="display:flex; gap:14px; align-items:center;">
                                                     <div style="font-size: 18px; font-weight: 700;">R$ {formatted_valor_esperado}</div>
                                                     <div style="font-size: 16px; font-weight: 700; color: #A5D6A7; background: rgba(165,214,167,.25); border:1px solid rgba(165,214,167,.45); padding: 6px 10px; border-radius: 999px;">+{formatted_percentual_acima}%</div>
@@ -1698,8 +1698,8 @@ if st.session_state["authentication_status"]:
                         </svg>
                     </div>
                     <div class="milestone-status">{"🟢" if percentual_progresso_meta1 >= 108.5 else "🟡"}</div>
-                    <div class="milestone-value" style="color: #FFC107;">R$&nbsp;31.890.000</div>
-                    <div class="milestone-label" style="color: #FFC107;">Projeção 106,3%</div>
+                    <div class="milestone-value" style="color: #FFC107;">R$&nbsp;39.540.706</div>
+                    <div class="milestone-label" style="color: #FFC107;">Projeção 112.46%</div>
                 </div>
             </div>
             """
