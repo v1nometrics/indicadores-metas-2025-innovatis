@@ -2960,7 +2960,7 @@ if st.session_state["authentication_status"]:
             """, unsafe_allow_html=True)
             
             # Barra de progresso de seguidores para @epitaciobrito
-            seguidores_epitacio = 4341
+            seguidores_epitacio = 4468
             seguidores_epitacio_anterior = int(instagram_past_row["Seguidores"].values[0])  # Dados Past da planilha
             meta_seguidores = 10000
             progresso_epitacio = (seguidores_epitacio / meta_seguidores) * 100
@@ -3394,7 +3394,7 @@ if st.session_state["authentication_status"]:
                 
                 if not instagram_innovatis_row.empty and not instagram_innovatis_past_row.empty:
                     # Barra de progresso de seguidores para @innovatismc
-                    seguidores_innovatis =  2605
+                    seguidores_innovatis =  2701
                     seguidores_innovatis_anterior = int(instagram_innovatis_past_row["Seguidores"].values[0])  # Dados Past da planilha
                     meta_seguidores = 10000
                     progresso_innovatis = (seguidores_innovatis / meta_seguidores) * 100
