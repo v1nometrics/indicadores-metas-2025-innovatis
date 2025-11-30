@@ -3504,7 +3504,7 @@ if st.session_state["authentication_status"]:
                     
                     # Solução direta: sempre usar a URL fixa para o botão 1, ignorando processamento
                     # Esta abordagem é mais robusta para diferentes ambientes
-                    url_for_button_1 = "https://www.instagram.com/p/DPw5fIwk23Z/embed/"
+                    url_for_button_1 = "https://www.instagram.com/p/DRQBojjjevo/embed/"
                     print("Usando URL fixa para o botão 1 (ignorando processamento)")
                     
                     # Log para debug
@@ -3543,7 +3543,7 @@ if st.session_state["authentication_status"]:
                     
                     # Solução direta: sempre usar a URL fixa para o botão 2, ignorando processamento
                     # Esta abordagem é mais robusta para diferentes ambientes
-                    url_for_button_2 = "https://www.instagram.com/p/DPpZbY1jZpS/embed/"
+                    url_for_button_2 = "https://www.instagram.com/p/DRUOg5nEkt_/embed/"
                     print("Usando URL fixa para o botão 2 (ignorando processamento)")
                     
                     # Log para debug
