@@ -9,7 +9,7 @@ import gspread
 import traceback
 from oauth2client.service_account import ServiceAccountCredentials
 import plotly.graph_objects as go
-import plotly.express as px
+import plotly.express as px    
 from PIL import Image
 from io import BytesIO
 import yaml
@@ -1989,8 +1989,8 @@ if st.session_state["authentication_status"]:
             with col_metricas:
                 # Calcular métricas importantes
                 # Total de oportunidades - GOV
-                total_oportunidades = 166  # Valor atual
-                past_oportunidades_gov = 154  # Valor do período anterior
+                total_oportunidades = 170  # Valor atual
+                past_oportunidades_gov = 166  # Valor do período anterior
                 
                 # Encontrar índices importantes (usando os novos nomes)
                 modelagem_idx = -1
@@ -2005,8 +2005,8 @@ if st.session_state["authentication_status"]:
                         contratos_idx = i
                 
                 # Total de contratos - GOV
-                total_contratos = 17  # Valor atual
-                past_contratos_gov = 15  # Valor do período anterior
+                total_contratos = 19  # Valor atual
+                past_contratos_gov = 17  # Valor do período anterior
                 
                 # Calcular taxa de conversão dos cards que saíram de Modelagem e chegaram até Contratos
                 if modelagem_idx >= 0 and contratos_idx >= 0 and modelagem_idx < contratos_idx:
@@ -2017,7 +2017,7 @@ if st.session_state["authentication_status"]:
                     taxa_conversao_total = 0
                 
                 # Taxa de conversão do período anterior
-                past_taxa_conversao_gov = 0.25  # 25% do período anterior
+                past_taxa_conversao_gov = 0.667  # 66,7% do período anterior
                 
                 # Calcular tempo médio total da Modelagem até o contrato ser assinado
                 if modelagem_idx >= 0 and contratos_idx >= 0:
@@ -2026,7 +2026,7 @@ if st.session_state["authentication_status"]:
                     tempo_medio_total = 0
                 
                 # Tempo médio do período anterior
-                past_tempo_medio_gov = 110  # 110 dias do período anterior
+                past_tempo_medio_gov = 138  # 110 dias do período anterior
                 
                 # Subseção de métricas
                 st.subheader("Resumo do Funil - GOVERNO")
@@ -2179,14 +2179,14 @@ if st.session_state["authentication_status"]:
         # Você pode alterar estes valores conforme necessário:
         
         funil_ifes_data = {
-            'OPORTUNIDADE': {'quantidade': 66, 'tempo_medio': 84, 'taxa_conversao': '-'},
-            'APRESENTAÇÃO': {'quantidade': 56, 'tempo_medio': 37, 'taxa_conversao': '84,8%'},
-            'NEGOCIAÇÃO':   {'quantidade': 54, 'tempo_medio': 17, 'taxa_conversao': '96,4%'},
-            'MODELAGEM':    {'quantidade': 53, 'tempo_medio': 50, 'taxa_conversao': '98,1%'},
+            'OPORTUNIDADE': {'quantidade': 69, 'tempo_medio': 56, 'taxa_conversao': '-'},
+            'APRESENTAÇÃO': {'quantidade': 65, 'tempo_medio': 37, 'taxa_conversao': '94,2%'},
+            'NEGOCIAÇÃO':   {'quantidade': 63, 'tempo_medio': 21, 'taxa_conversao': '96,9%'},
+            'MODELAGEM':    {'quantidade': 60, 'tempo_medio': 61, 'taxa_conversao': '95,2%'},
             # COTAÇÃO removida para IFES
-            'TRAMITAÇÃO':   {'quantidade': 38, 'tempo_medio': 50, 'taxa_conversao': '71,7%'},
-            'CONTRATOS':    {'quantidade': 18, 'tempo_medio': 25, 'taxa_conversao': '47,4%'},
-            'BACKLOG':      {'quantidade': 11, 'tempo_medio': 30, 'taxa_conversao': ''}
+            'TRAMITAÇÃO':   {'quantidade': 51, 'tempo_medio': 74, 'taxa_conversao': '85,0%'},
+            'CONTRATOS':    {'quantidade': 42, 'tempo_medio': 24, 'taxa_conversao': '82,4%'},
+            'BACKLOG':      {'quantidade': 25, 'tempo_medio': 34, 'taxa_conversao': '59,5'}
         }
         
         # Construir listas a partir dos dados
@@ -2211,8 +2211,8 @@ if st.session_state["authentication_status"]:
         
         with col_metricas:
             # Calcular métricas importantes - IFES
-            total_oportunidades_ifes = 92  # Valor atual
-            past_oportunidades_ifes = 75  # Valor do período anterior
+            total_oportunidades_ifes = 104  # Valor atual
+            past_oportunidades_ifes = 92  # Valor do período anterior
             
             # Encontrar índices importantes (usando os novos nomes)
             modelagem_idx = -1
@@ -2225,8 +2225,8 @@ if st.session_state["authentication_status"]:
                     contratos_idx = i
                 
             # Total de contratos IFES
-            total_contratos_ifes = 23  # Valor atual
-            past_contratos_ifes = 20  # Valor do período anterior
+            total_contratos_ifes = 26  # Valor atual
+            past_contratos_ifes = 23  # Valor do período anterior
             
             # Calcular taxa de conversão dos cards que saíram de Modelagem e chegaram até Contratos
             if modelagem_idx >= 0 and contratos_idx >= 0 and modelagem_idx < contratos_idx:
@@ -2237,7 +2237,7 @@ if st.session_state["authentication_status"]:
                 taxa_conversao_total = 0
             
             # Taxa de conversão do período anterior
-            past_taxa_conversao_ifes = 0.3774  # 37,74% do período anterior
+            past_taxa_conversao_ifes = 0.34  # 34% do período anterior
             
             # Calcular tempo médio total da Modelagem até o contrato ser assinado (sem TRAMITAÇÃO)
             if modelagem_idx >= 0 and contratos_idx >= 0:
@@ -2246,7 +2246,7 @@ if st.session_state["authentication_status"]:
                 tempo_medio_total = 0
             
             # Tempo médio do período anterior
-            past_tempo_medio_ifes = 80  # 80 dias do período anterior
+            past_tempo_medio_ifes = 125  # 80 dias do período anterior
             
             # Subseção de métricas
             st.subheader("Resumo do Funil - IFES")
