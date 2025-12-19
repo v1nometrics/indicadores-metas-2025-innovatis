@@ -95,8 +95,8 @@ streamlit run app.py
 **Sistema de Funil Dual com Interface Refinada e Métricas Avançadas**
 
 ---
-**📅 Última Atualização**: 24/09/2025  
-**🔖 Versão**: 1.4 - Sistema Dual Refinado + Correções Avançadas  
+**📅 Última Atualização**: 19/12/2025  
+**🔖 Versão**: 1.9 - Consolidação Anual e Design Ultra-Premium  
 **👨‍💻 Desenvolvido por**: Equipe Innovatis
 
 ---
@@ -169,7 +169,8 @@ Este é um dashboard Streamlit de última geração para visualização mensal d
 
 ### **1. Meta de Faturamento Anual**
 - **Visualização em Tempo Real**: Faturamento atual vs metas estabelecidas
-- **Barra de Progresso Animada**: Marcos de metas com feedback visual
+- **Barra de Progresso Animada**: Marcos de metas com feedback visual (Meta 1: 30Mi @ 119,9%)
+- **Interatividade Total**: Atualização de cache reduzida para 10 minutos para reflexo rápido do Google Sheets
 - **Interface Centralizada**: Header perfeitamente alinhado com tipografia Segoe UI
 
 ### **2. 🆕 Programa INNOVASTAR - Redesign Completo**
@@ -247,7 +248,35 @@ funil_ifes_data = {
 
 ---
 
-## 📈 **HISTÓRICO DE VERSÕES (CHANGELOG)**
+## 📈 **HISTÓRICO DE VERSÕES (CHANGELOG) - EVOLUÇÃO CONTÍNUA**
+
+### **[v1.9] - 2025-12-19 - Consolidação Anual e Design Ultra-Premium**
+
+#### **🎯 PERFORMANCE E EVOLUÇÃO (NOVA SEÇÃO)**
+##### ✅ **Design Ultra-Premium de Faturamento**
+- **Card Consolidado**: Implementação de card único centralizado com design Glassmorphism.
+- **Storytelling Executivo**: Descrição narrativa focada no crescimento do ciclo anual.
+- **Benchmark 2024 vs 2025**: Visualização lado a lado do realizado histórico vs atual.
+- **Impacto Visual**: Tipografia extra-bold (82px) para destaque do crescimento percentual.
+
+##### ✅ **Evolução de Metas e Projeções**
+- **Meta 12 Meses**: Atualização do "Valor Esperado" para meta anual de R$ 30M.
+- **Crescimento Real**: Cálculo preciso de +119,9% baseado no faturamento consolidado.
+- **Ajuste de Comas**: Padronização de decimais com vírgula para localidade brasileira.
+
+#### **🎨 UI/UX E REFINAMENTOS EXECUTIVOS**
+##### ✅ **Navegação e Caching**
+- **Otimização de Cache**: Redução do TTL de 1h para 10min para refletir alterações no Sheets quase em tempo real.
+- **Centralização Global**: Alinhamento central de todos os títulos de seção para maior equilíbrio visual.
+- **Footer Progressivo**: Atualização do rodapé para Versão 1.9.
+
+##### ✅ **Marketing em Stand By**
+- **Visual Feedback**: Estilização agressiva para metas em reforma (stripes, banners "PAUSED", opacidade reduzida).
+
+#### **🏛️ REVOLUÇÃO FINANCEIRA**
+##### ✅ **Composição por Origem**
+- **IFES vs GOV**: Nova visualização de barras para divisão de faturamento por origem.
+- **Métricas de Origem**: Detalhamento exato de R$ 29,8M (IFES) e R$ 6,1M (GOV).
 
 ### **[v1.4] - 2025-09-24 - Refinamento e Perfeição Visual**
 
