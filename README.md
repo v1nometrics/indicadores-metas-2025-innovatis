@@ -1,6 +1,6 @@
 # Dashboard de Indicadores de Crescimento - Metas 2025
 
-Este é um dashboard Streamlit para visualização mensal dos indicadores de crescimento da empresa. O dashboard se conecta automaticamente ao Google Sheets para obter os dados atualizados, utilizando credenciais armazenadas no AWS S3.
+Este é um dashboard Streamlit para visualização mensal dos indicadores de crescimento da empresa.
 
 ## Requisitos
 
