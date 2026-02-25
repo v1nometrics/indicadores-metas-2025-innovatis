@@ -7,14 +7,12 @@ import json
 import boto3
 import gspread
 import traceback
+from pathlib import Path
 from oauth2client.service_account import ServiceAccountCredentials
 import plotly.graph_objects as go
 import plotly.express as px    
 from PIL import Image
 from io import BytesIO
-import yaml
-from yaml.loader import SafeLoader
-import streamlit_authenticator as stauth
 import streamlit.components.v1 as components
 import textwrap
 
@@ -290,48 +288,36 @@ COLORS = {
     "text": "#000000"            # Preto
 }
 
-# Importar arquivo de configuração
-with open('config.yaml') as file:
-    config = yaml.load(file, Loader=SafeLoader)
+# Autenticacao removida: dashboard publico sem login.
+if True:
 
-# Criar o objeto de autenticação
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days']
-)
+    AWS_REGION = "us-east-2"
+    S3_BUCKET_NAME = "jsoninnovatis"
+    S3_LOGO_KEY = "Logo.png"
+    S3_CREDENTIALS_KEY = "chave2.json"
+    LOCAL_CREDENTIALS_PATH = Path(__file__).resolve().parent / "chave2.json"
+    LOCAL_LOGO_PATH = Path(__file__).resolve().parent / "Logo.png"
 
-authenticator.login()
+    def get_config_secret(name):
+        value = os.getenv(name)
+        if value:
+            return value
+        try:
+            return st.secrets[name]
+        except Exception:
+            return None
 
-# Verificação do status da autenticação
-if st.session_state["authentication_status"]:
-    # Removendo a mensagem de boas-vindas e o botão de logout daqui
-    pass  # Adicionando pass para manter a estrutura do bloco if
-elif st.session_state["authentication_status"] is False:
-    st.error('Usuário/Senha inválido')
-elif st.session_state["authentication_status"] is None:
-    st.markdown("""
-        <style>
-        div[data-testid="stAppViewContainer"] {
-            max-width: 600px;
-            margin: auto;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    st.warning('Por Favor, utilize seu usuário e senha!')
+    aws_access_key_id = get_config_secret("AWS_ACCESS_KEY_ID")
+    aws_secret_access_key = get_config_secret("AWS_SECRET_ACCESS_KEY")
 
-# O resto do código só executa se autenticado
-if st.session_state["authentication_status"]:
-
-
-    # Configuração do AWS S3
-    s3 = boto3.resource(
-        service_name='s3',
-        region_name='us-east-2',
-        aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
-        aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"]
-    )
+    s3 = None
+    if aws_access_key_id and aws_secret_access_key:
+        s3 = boto3.resource(
+            service_name='s3',
+            region_name=AWS_REGION,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key
+        )
 
     # =========================================================================
     # Carregamento e Processamento de Dados
@@ -451,13 +437,32 @@ if st.session_state["authentication_status"]:
             print(f"Erro ao processar URL do Instagram: {str(e)}")
             return url if isinstance(url, str) else ""
 
+    def carregar_credenciais_google():
+        if LOCAL_CREDENTIALS_PATH.exists():
+            with LOCAL_CREDENTIALS_PATH.open("r", encoding="utf-8") as f:
+                return json.load(f), "arquivo local"
+
+        if s3 is not None:
+            obj = s3.Bucket(S3_BUCKET_NAME).Object(S3_CREDENTIALS_KEY).get()
+            return json.loads(obj["Body"].read().decode("utf-8")), "bucket S3"
+
+        raise FileNotFoundError(
+            "Arquivo chave2.json não encontrado localmente e S3 indisponível."
+        )
+
     # Função para carregar o logo da empresa
     @st.cache_data
     def load_logo():
         try:
-            logo_obj = s3.Bucket('jsoninnovatis').Object('Logo.png').get()
-            logo_data = logo_obj['Body'].read()
-            return Image.open(BytesIO(logo_data))
+            if LOCAL_LOGO_PATH.exists():
+                return Image.open(LOCAL_LOGO_PATH)
+
+            if s3 is not None:
+                logo_obj = s3.Bucket(S3_BUCKET_NAME).Object(S3_LOGO_KEY).get()
+                logo_data = logo_obj['Body'].read()
+                return Image.open(BytesIO(logo_data))
+
+            return None
         except Exception as e:
             st.error(f"Erro ao carregar o logo: {str(e)}")
             return None
@@ -465,9 +470,7 @@ if st.session_state["authentication_status"]:
     # Função para verificar credenciais
     def verificar_credenciais():
         try:
-            # Baixar o arquivo JSON diretamente do S3
-            obj = s3.Bucket('jsoninnovatis').Object('chave2.json').get()
-            creds_json = json.loads(obj['Body'].read().decode('utf-8'))
+            creds_json, origem_credenciais = carregar_credenciais_google()
             
             # Verificar se as credenciais têm os campos necessários
             required_fields = ['type', 'project_id', 'private_key_id', 'private_key', 'client_email', 'client_id', 'auth_uri', 'token_uri']
@@ -477,7 +480,7 @@ if st.session_state["authentication_status"]:
                 st.error(f"Campos ausentes nas credenciais: {missing_fields}")
                 return False
                 
-            st.success("Credenciais carregadas com sucesso do S3")
+            st.success(f"Credenciais carregadas com sucesso ({origem_credenciais})")
             return True
             
         except Exception as e:
@@ -500,10 +503,7 @@ if st.session_state["authentication_status"]:
                 with status_placeholder:
                     st.info(f"Tentativa {attempt + 1} de {max_retries} - Carregando dados da planilha...")
                 
-                # Baixar o arquivo JSON diretamente do S3
-                obj = s3.Bucket('jsoninnovatis').Object('chave2.json').get()
-                # Ler o conteúdo do objeto e decodificar para string, em seguida converter para dict
-                creds_json = json.loads(obj['Body'].read().decode('utf-8'))
+                creds_json, origem_credenciais = carregar_credenciais_google()
                 # Definir o escopo de acesso para Google Sheets e Google Drive
                 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
                 # Criar as credenciais a partir do JSON baixado
@@ -543,6 +543,7 @@ if st.session_state["authentication_status"]:
                 # Limpar todas as mensagens de status quando bem-sucedido
                 status_placeholder.empty()
                 error_placeholder.empty()
+                st.caption(f"Credenciais Google carregadas via {origem_credenciais}.")
                 break  # Sair do loop se teve sucesso
                 
             except Exception as e:
@@ -1264,10 +1265,6 @@ if st.session_state["authentication_status"]:
             <h1 style="white-space: nowrap; margin-top: -20px;">Indicadores de Crescimento - Metas 2025 📈</h1>
         """, unsafe_allow_html=True)
         st.caption(f"Última atualização: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
-        
-        # Adicionar mensagem de boas-vindas e botão de logout abaixo da última atualização
-        st.write(f"Bem-vindo, {st.session_state['name']}!")
-        authenticator.logout("Logout", "main", key="logout_sidebar")
 
     # Carregar dados
     data = carregar_planilha()

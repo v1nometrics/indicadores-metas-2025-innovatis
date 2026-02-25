@@ -26,12 +26,7 @@ pytz
 
 # Utilitários
 requests
-PyYAML
 
-# Autenticação
-streamlit-authenticator
-bcrypt
-PyJWT
 
 # Formatação e estilo
 jinja2
